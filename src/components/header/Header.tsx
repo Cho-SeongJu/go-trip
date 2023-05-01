@@ -1,17 +1,16 @@
 import styled from '@emotion/styled';
-import logo from '../../../public/logo.svg';
+import { Link } from 'react-router-dom';
+import Logo from '../Logo';
 
 const Header = () => {
   return (
     <>
       <HeaderSection>
         <DetailSection>
-          <Logo>
-            <Link />
-          </Logo>
+          <Logo />
           <LoginSingUpLinkSection>
-            <LoginSignUpLink>로그인</LoginSignUpLink>
-            <LoginSignUpLink>회원가입</LoginSignUpLink>
+            <LoginSignUpLink to={'/user/login'}>로그인</LoginSignUpLink>
+            <LoginSignUpLink to={'/user/signUp'}>회원가입</LoginSignUpLink>
           </LoginSingUpLinkSection>
         </DetailSection>
       </HeaderSection>
@@ -31,21 +30,6 @@ const DetailSection = styled.div`
   padding: 1rem 0;
 `;
 
-const Logo = styled.h1`
-  width: 10rem;
-  height: 2.8rem;
-  background-color: var(--white-color-1);
-  background-image: url(${logo});
-  background-size: contain;
-  background-repeat: no-repeat;
-  cursor: pointer;
-`;
-
-const Link = styled.a`
-  font-size: 5rem;
-  text-indent: -9999px;
-`;
-
 const LoginSingUpLinkSection = styled.div`
   display: flex;
   align-items: center;
@@ -53,7 +37,7 @@ const LoginSingUpLinkSection = styled.div`
   height: 3rem;
 `;
 
-const LoginSignUpLink = styled.a`
+const LoginSignUpLink = styled(Link)`
   flex-grow: 1;
   display: flex;
   justify-content: center;
