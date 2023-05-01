@@ -2,6 +2,8 @@
   --common-width: 1100px;
   --common-margin: 0 auto;
 
+  --footer-height: 10rem;
+
   --white-color-1: #ffffff;
 
   --black-color-1: #000000;
@@ -9,4 +11,5 @@
   --blue-sky-color-1: #28aeff;
 
   --gray-color-1: #c8c8c8;
+  --gray-color-2: #dcdcdc;
 }

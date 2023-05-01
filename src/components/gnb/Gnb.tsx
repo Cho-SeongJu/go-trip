@@ -8,7 +8,7 @@ const Gnb = () => {
   );
 };
 
-const GnbSection = styled.nav`
+const GnbSection = styled.div`
   width: 100vw;
   height: 3.5rem;
   background-color: var(--blue-sky-color-1);

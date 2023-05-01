@@ -20,7 +20,7 @@ const Header = () => {
 };
 
 const HeaderSection = styled.header`
-  border-bottom: 2px solid var(--blue-sky-color-1);
+  border-bottom: 1px solid var(--gray-color-2);
 `;
 
 const DetailSection = styled.div`
@@ -28,7 +28,7 @@ const DetailSection = styled.div`
   justify-content: space-between;
   margin: var(--common-margin);
   max-width: var(--common-width);
-  padding: 0.3rem 0;
+  padding: 1rem 0;
 `;
 
 const Logo = styled.h1`
