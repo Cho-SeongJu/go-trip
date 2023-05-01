@@ -11,7 +11,7 @@ const Footer = () => {
 const FooterSection = styled.footer`
   width: 100vw;
   height: 10rem;
-  background-color: var(--blue-sky-color);
+  background-color: var(--blue-sky-color-1);
 `;
 
 export default Footer;

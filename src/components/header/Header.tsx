@@ -9,6 +9,7 @@ const Header = () => {
           <HeaderLogo>
             <Link />
           </HeaderLogo>
+          <HeaderUserSection></HeaderUserSection>
         </HeaderDetailSection>
       </HeaderSection>
     </>
@@ -16,22 +17,30 @@ const Header = () => {
 };
 
 const HeaderSection = styled.header`
-  border-bottom: 2px solid var(--blue-sky-color);
+  border-bottom: 2px solid var(--blue-sky-color-1);
 `;
 
 const HeaderDetailSection = styled.div`
+  display: flex;
+  justify-content: space-between;
   margin: var(--common-margin);
   max-width: var(--common-width);
 `;
 
 const HeaderLogo = styled.h1`
   width: 10rem;
-  height: 4.5rem;
-  background-color: white;
+  height: 3rem;
+  background-color: var(--white-color-1);
   background-image: url(${logo});
   background-size: contain;
   background-repeat: no-repeat;
   cursor: pointer;
+`;
+
+const HeaderUserSection = styled.div`
+  width: 200px;
+  height: 3rem;
+  border: 1px solid black;
 `;
 
 const Link = styled.a`
