@@ -18,7 +18,7 @@ const NavigationBar = () => {
 };
 
 const NavSection = styled.div`
-  width: 100vw;
+  width: 100%;
   border-bottom: 1px solid var(--gray-color-2);
 `;
 
