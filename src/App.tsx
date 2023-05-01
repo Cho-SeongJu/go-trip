@@ -1,14 +1,20 @@
-import Header from './components/header/Header';
-import Footer from './components/footer/Footer';
-import Content from './components/content/Content';
-import NavigationBar from './components/navigationBar/NavigationBar';
+import { Route, Routes } from 'react-router-dom';
+import MainPage from './pages/MainPage';
+import Login from './components/user/Login';
+
 function App() {
   return (
     <>
-      <Header />
-      <NavigationBar />
-      <Content />
-      <Footer />
+      <Routes>
+        <Route
+          path="/"
+          element={<MainPage />}
+        />
+        <Route
+          path="/user/login"
+          element={<Login />}
+        />
+      </Routes>
     </>
   );
 }
