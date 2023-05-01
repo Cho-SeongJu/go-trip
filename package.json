@@ -13,7 +13,8 @@
     "@emotion/react": "^11.10.8",
     "@emotion/styled": "^11.10.8",
     "react": "^18.0.0-rc.3",
-    "react-dom": "^18.0.0-rc.3"
+    "react-dom": "^18.0.0-rc.3",
+    "react-router-dom": "^6.11.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.28",
