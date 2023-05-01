@@ -1,10 +1,12 @@
 :root {
+  --common-width: 1100px;
+  --common-margin: 0 auto;
+
   --white-color-1: #ffffff;
+
   --black-color-1: #000000;
+  --black-color-2: #2f3438;
   --blue-sky-color-1: #28aeff;
 
   --gray-color-1: #c8c8c8;
-
-  --common-width: 1100px;
-  --common-margin: 0 auto;
 }
