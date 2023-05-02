@@ -19,7 +19,7 @@ const SignUpPage = () => {
             placeholder="이메일"
           />
           <Label>비밀번호</Label>
-          <Description>비밀번호는 영문, 특수문자 포함 8~16자리 입니다.</Description>
+          <Description>영문, 숫자, 특수문자를 포함한 8~16자 비밀번호를 입력해주세요.</Description>
           <Input
             type="password"
             placeholder="비밀번호"
@@ -47,7 +47,7 @@ const SignUpPage = () => {
 };
 
 const SignUpSection = styled.div`
-  width: 17rem;
+  width: 20rem;
   margin: 0 auto;
 `;
 
@@ -55,7 +55,7 @@ const LogoSection = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 5rem;
-  width: 16rem;
+  width: 20rem;
 `;
 
 const Heading = styled.h1`
@@ -68,7 +68,7 @@ const Form = styled.form`
   display: flex;
   flex-direction: column;
   margin-top: 3rem;
-  width: 17rem;
+  width: 20rem;
 `;
 
 const Label = styled.label`
