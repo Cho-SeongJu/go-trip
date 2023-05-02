@@ -1,6 +1,8 @@
 import styled from '@emotion/styled';
 import Logo from '../../components/Logo';
 import { Link } from 'react-router-dom';
+import BtnSubmit from '../../components/BtnSubmit';
+import Input from '../../components/Input';
 
 const LoginPage = () => {
   return (
@@ -40,29 +42,6 @@ const Form = styled.form`
   flex-direction: column;
   margin-top: 2rem;
   width: 16rem;
-`;
-
-const Input = styled.input`
-  padding: 1rem;
-  border: 1px solid var(--gray-color-1);
-  border-radius: 0.2rem;
-  outline: none;
-
-  &:first-of-type {
-    margin-bottom: 0.5rem;
-  }
-`;
-
-const BtnSubmit = styled.button`
-  margin-top: 1rem;
-  padding: 0.9rem;
-  border: none;
-  border-radius: 0.2rem;
-  color: var(--white-color-1);
-  font-size: 1rem;
-  font-weight: 700;
-  background-color: var(--blue-sky-color-1);
-  cursor: pointer;
 `;
 
 const FindSignUpSection = styled.div`
