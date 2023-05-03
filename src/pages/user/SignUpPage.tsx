@@ -3,8 +3,14 @@ import BtnSubmit from '../../components/BtnSubmit';
 import Logo from '../../components/Logo';
 import { useForm } from 'react-hook-form';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../../firebase';
+import { auth, database } from '../../../firebase';
 import { ErrorType, FormValueType } from '../../type/type';
+import { doc, setDoc } from 'firebase/firestore/lite';
+
+interface SignUpType extends FormValueType {
+  address: string;
+  nickName: string;
+}
 
 const SignUpPage = () => {
   const {
@@ -12,16 +18,23 @@ const SignUpPage = () => {
     handleSubmit,
     formState: { errors },
     getValues,
-  } = useForm<FormValueType>({ mode: 'onBlur' });
+  } = useForm<SignUpType>({ mode: 'onBlur' });
 
   const onSubmit = async () => {
     const signUpData = getValues();
 
     const email = signUpData.email;
     const password = signUpData.password;
+    const nickName = signUpData.nickName;
+    const address = signUpData.address;
 
     try {
       await createUserWithEmailAndPassword(auth, email, password);
+      await setDoc(doc(database, 'users', email), {
+        NICKNAME: nickName,
+        ADDRESS: address,
+      });
+
       console.log('회원가입 성공 ! ');
     } catch (error) {
       const err = error as ErrorType;
@@ -84,21 +97,26 @@ const SignUpPage = () => {
             id="reCheckPassword"
             name="reCheckPassword"
           />
+          <Label>닉네임</Label>
+          <InputBox
+            type="text"
+            placeholder="닉네임"
+            id="nickname"
+            {...register('nickName', {
+              required: { value: true, message: '닉네임은 필수 입력입니다.' },
+            })}
+          />
+          {errors.nickName && <AlertMessage role="alert">{errors.nickName.message}</AlertMessage>}
           <Label>주소</Label>
           <InputBox
             type="text"
             placeholder="주소"
             id="address"
-            name="address"
+            {...register('address', {
+              required: { value: true, message: '주소 입력은 필수 입력입니다.' },
+            })}
           />
-          <Label>닉네임</Label>
-          <Description>닉네임 중복확인은 필수사항입니다.</Description>
-          <InputBox
-            type="text"
-            placeholder="닉네임"
-            id="nickname"
-            name="nickname"
-          />
+          {errors.address && <AlertMessage role="alert">{errors.address.message}</AlertMessage>}
           <BtnSubmit>회원가입</BtnSubmit>
         </Form>
       </SignUpSection>
@@ -141,14 +159,11 @@ const Label = styled.label`
 `;
 
 const InputBox = styled.input`
+  margin-bottom: 0.5rem;
   padding: 1rem;
   border: 1px solid var(--gray-color-1);
   border-radius: 0.2rem;
   outline: none;
-
-  &:not(:last-of-type) {
-    margin-bottom: 0.5rem;
-  }
 `;
 
 const AlertMessage = styled.small`
