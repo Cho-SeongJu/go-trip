@@ -3,6 +3,8 @@ import styled from '@emotion/styled';
 interface InputPropsTypes {
   type: string;
   placeholder: string;
+  id: string;
+  name: string;
 }
 
 const Input = (props: InputPropsTypes) => {
@@ -11,6 +13,8 @@ const Input = (props: InputPropsTypes) => {
       <InputBox
         type={props.type}
         placeholder={props.placeholder}
+        id={props.id}
+        name={props.name}
       />
     </>
   );
