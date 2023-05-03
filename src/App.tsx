@@ -3,7 +3,7 @@ import MainPage from './pages/MainPage';
 import LoginPage from './pages/user/LoginPage';
 import SignUpPage from './pages/user/SignUpPage';
 import { useEffect, useState } from 'react';
-import { database, firebaseAuth } from '../firebase.ts';
+import { database, auth } from '../firebase.ts';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore/lite';
 
 function App() {
@@ -15,7 +15,7 @@ function App() {
 
   // 시작될때 한번만 실행
   useEffect(() => {
-    console.log(firebaseAuth);
+    console.log(auth);
     // 비동기로 데이터 받을준비
     const getUsers = async () => {
       // getDocs로 컬렉션안에 데이터 가져오기
