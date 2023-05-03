@@ -2,24 +2,53 @@ import styled from '@emotion/styled';
 import Logo from '../../components/Logo';
 import { Link } from 'react-router-dom';
 import BtnSubmit from '../../components/BtnSubmit';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../../firebase';
+import { useForm } from 'react-hook-form';
+import { ErrorType, FormValueType } from '../../type/type';
 
 const LoginPage = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    getValues,
+  } = useForm<FormValueType>({ mode: 'onBlur' });
+
+  const login = async () => {
+    try {
+      const loginInfo = getValues();
+
+      const loginEmail = loginInfo.email;
+      const loginPassword = loginInfo.password;
+
+      await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
+    } catch (error) {
+      const err = error as ErrorType;
+      console.log(err);
+    }
+  };
+
   return (
     <>
       <LoginSection>
         <Logo />
-        <Form>
+        <Form onSubmit={handleSubmit(login)}>
           <InputBox
             type="text"
             placeholder="아이디를 입력하세요."
             id="email"
-            name="email"
+            {...register('email', {
+              required: { value: true, message: '이메일 입력을 해주세요.' },
+            })}
           />
           <InputBox
             type="text"
             placeholder="비밀번호를 입력하세요."
             id="password"
-            name="password"
+            {...register('password', {
+              required: { value: true, message: '비밀번호를 입력해주세요.' },
+            })}
           />
           <BtnSubmit>로그인</BtnSubmit>
         </Form>

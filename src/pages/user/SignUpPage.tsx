@@ -2,22 +2,43 @@ import styled from '@emotion/styled';
 import BtnSubmit from '../../components/BtnSubmit';
 import Logo from '../../components/Logo';
 import { useForm } from 'react-hook-form';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../../firebase';
+import { ErrorType, FormValueType } from '../../type/type';
 
 const SignUpPage = () => {
-  interface FormValueType {
-    email: string;
-    password: string;
-  }
-
   const {
     register,
     handleSubmit,
     formState: { errors },
     getValues,
-  } = useForm<FormValueType>({ mode: 'onChange' });
+  } = useForm<FormValueType>({ mode: 'onBlur' });
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     const signUpData = getValues();
+
+    const email = signUpData.email;
+    const password = signUpData.password;
+
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      console.log('회원가입 성공 ! ');
+    } catch (error) {
+      const err = error as ErrorType;
+      switch (err.code) {
+        case 'auth/weak-password':
+          console.log('비밀번호는 6자리 이상이어야 합니다.');
+          break;
+
+        case 'auth/invalid-email':
+          console.log('잘못된 이메일 주소입니다.');
+          break;
+
+        case 'auth/email-already-in-use':
+          console.log('이미 가입되어 있는 계정입니다.');
+          break;
+      }
+    }
   };
 
   return (
@@ -34,7 +55,7 @@ const SignUpPage = () => {
             placeholder="이메일"
             id="email"
             {...register('email', {
-              required: '이메일은 필수 입력입니다.',
+              required: { value: true, message: '이메일은 필수 입력입니다.' },
               pattern: {
                 value: /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i,
                 message: '이메일 형식에 맞지 않습니다.',
@@ -49,7 +70,7 @@ const SignUpPage = () => {
             placeholder="비밀번호"
             id="password"
             {...register('password', {
-              required: '비밀번호는 필수 입력입니다.',
+              required: { value: true, message: '비밀번호는 필수 입력입니다.' },
               minLength: {
                 value: 8,
                 message: '8자리 이상 비밀번호를 입력하세요',
