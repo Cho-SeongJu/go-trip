@@ -2,7 +2,6 @@ import styled from '@emotion/styled';
 import Logo from '../../components/Logo';
 import { Link } from 'react-router-dom';
 import BtnSubmit from '../../components/BtnSubmit';
-import Input from '../../components/Input';
 
 const LoginPage = () => {
   return (
@@ -10,13 +9,17 @@ const LoginPage = () => {
       <LoginSection>
         <Logo />
         <Form>
-          <Input
+          <InputBox
             type="text"
             placeholder="아이디를 입력하세요."
+            id="email"
+            name="email"
           />
-          <Input
+          <InputBox
             type="text"
             placeholder="비밀번호를 입력하세요."
+            id="password"
+            name="password"
           />
           <BtnSubmit>로그인</BtnSubmit>
         </Form>
@@ -42,6 +45,17 @@ const Form = styled.form`
   flex-direction: column;
   margin-top: 2rem;
   width: 16rem;
+`;
+
+const InputBox = styled.input`
+  padding: 1rem;
+  border: 1px solid var(--gray-color-1);
+  border-radius: 0.2rem;
+  outline: none;
+
+  &:not(:last-of-type) {
+    margin-bottom: 0.5rem;
+  }
 `;
 
 const FindSignUpSection = styled.div`
