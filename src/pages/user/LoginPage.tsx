@@ -1,13 +1,16 @@
 import styled from '@emotion/styled';
 import Logo from '../../components/Logo';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import BtnSubmit from '../../components/BtnSubmit';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../../firebase';
 import { useForm } from 'react-hook-form';
 import { ErrorType, FormValueType } from '../../type/type';
+import { useState } from 'react';
 
 const LoginPage = () => {
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -15,14 +18,36 @@ const LoginPage = () => {
     getValues,
   } = useForm<FormValueType>({ mode: 'onBlur' });
 
+  const checkLoginError = () => {
+    let errorMsg = null;
+
+    if (Object.keys(errors).length !== 0) {
+      if (errors.email) {
+        errorMsg = errors.email.message;
+      }
+
+      if (!errors.email && errors.password) {
+        errorMsg = errors.password.message;
+      }
+    }
+  };
+
   const login = async () => {
+    checkLoginError();
+    const loginInfo = getValues();
+
+    const loginEmail = loginInfo.email;
+    const loginPassword = loginInfo.password;
+
+    console.log(loginEmail);
+    console.log(loginPassword);
+
     try {
-      const loginInfo = getValues();
-
-      const loginEmail = loginInfo.email;
-      const loginPassword = loginInfo.password;
-
-      await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
+      const user = await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
+      console.log(user);
+      console.log('로그인 성공');
+      console.log(auth);
+      navigate('/');
     } catch (error) {
       const err = error as ErrorType;
       console.log(err);
@@ -43,7 +68,7 @@ const LoginPage = () => {
             })}
           />
           <InputBox
-            type="text"
+            type="password"
             placeholder="비밀번호를 입력하세요."
             id="password"
             {...register('password', {
