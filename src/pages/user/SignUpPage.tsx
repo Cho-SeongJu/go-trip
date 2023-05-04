@@ -1,24 +1,43 @@
 import styled from '@emotion/styled';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore/lite';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { auth, database } from '../../../firebase';
 import BtnSubmit from '../../components/BtnSubmit';
 import Logo from '../../components/Logo';
-import { useForm } from 'react-hook-form';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth, database } from '../../../firebase';
 import { ErrorType, FormValueType } from '../../type/type';
-import { doc, setDoc } from 'firebase/firestore/lite';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 interface SignUpType extends FormValueType {
   address: string;
   nickName: string;
+  reCheckPassword: string;
 }
 
 const SignUpPage = () => {
+  const navigate = useNavigate();
+
+  const formSchema = yup.object({
+    email: yup.string().required('이메일은 필수 입력입니다.').email('이메일 형식이 아닙니다.'),
+    password: yup
+      .string()
+      .required('비밀번호는 필수 입력입니다.')
+      .min(8, '최소 8자 필수 입력입니다.')
+      .max(16, '최대 16자 까지만 가능합니다.')
+      .matches(/^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,25}$/, '영문, 숫자, 특수문자를 포함한 8~16자 비밀번호를 입력해주세요.'),
+    reCheckPassword: yup.string().oneOf([yup.ref('password')], '비밀번호가 일치하지 않습니다.'),
+    nickName: yup.string().required('닉네임은 필수 입력입니다.').min(3, '최소 3자 필수 입력입니다.').max(12, '최소 12자'),
+    address: yup.string().required('주소는 필수 입력입니다.'),
+  });
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     getValues,
-  } = useForm<SignUpType>({ mode: 'onBlur' });
+  } = useForm<SignUpType>({ mode: 'onBlur', resolver: yupResolver(formSchema) });
 
   const onSubmit = async () => {
     const signUpData = getValues();
@@ -35,7 +54,7 @@ const SignUpPage = () => {
         ADDRESS: address,
       });
 
-      console.log('회원가입 성공 ! ');
+      navigate('/user/signUp/success');
     } catch (error) {
       const err = error as ErrorType;
       switch (err.code) {
@@ -67,13 +86,7 @@ const SignUpPage = () => {
             type="text"
             placeholder="이메일"
             id="email"
-            {...register('email', {
-              required: { value: true, message: '이메일은 필수 입력입니다.' },
-              pattern: {
-                value: /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i,
-                message: '이메일 형식에 맞지 않습니다.',
-              },
-            })}
+            {...register('email')}
           />
           {errors.email && <AlertMessage role="alert">{errors.email.message}</AlertMessage>}
           <Label>비밀번호</Label>
@@ -82,21 +95,16 @@ const SignUpPage = () => {
             type="password"
             placeholder="비밀번호"
             id="password"
-            {...register('password', {
-              required: { value: true, message: '비밀번호는 필수 입력입니다.' },
-              minLength: {
-                value: 8,
-                message: '8자리 이상 비밀번호를 입력하세요',
-              },
-            })}
+            {...register('password')}
           />
           {errors.password && <AlertMessage role="alert">{errors.password.message}</AlertMessage>}
           <InputBox
             type="password"
             placeholder="비밀번호 재확인"
             id="reCheckPassword"
-            name="reCheckPassword"
+            {...register('reCheckPassword')}
           />
+          {errors.reCheckPassword && <AlertMessage role="alert">{errors.reCheckPassword.message}</AlertMessage>}
           <Label>닉네임</Label>
           <InputBox
             type="text"
