@@ -20,6 +20,7 @@
     "react-dom": "^18.0.0-rc.3",
     "react-hook-form": "^7.43.9",
     "react-router-dom": "^6.11.0",
+    "react-spinners": "^0.13.8",
     "recoil": "^0.7.7",
     "yup": "^1.1.1"
   },
