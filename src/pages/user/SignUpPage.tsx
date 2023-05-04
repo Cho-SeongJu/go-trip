@@ -10,6 +10,8 @@ import { ErrorType, FormValueType } from '../../type/type';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Map from '../../components/map/Map';
+import Loading from '../../components/Loading';
+import { useState } from 'react';
 
 interface SignUpType extends FormValueType {
   address: string;
@@ -18,6 +20,8 @@ interface SignUpType extends FormValueType {
 }
 
 const SignUpPage = () => {
+  const [loading, setLoading] = useState<boolean>(false);
+
   const navigate = useNavigate();
 
   const formSchema = yup.object({
@@ -41,6 +45,8 @@ const SignUpPage = () => {
   } = useForm<SignUpType>({ mode: 'onBlur', resolver: yupResolver(formSchema) });
 
   const onSubmit = async () => {
+    setLoading(true);
+
     const signUpData = getValues();
 
     const email = signUpData.email;
@@ -76,7 +82,7 @@ const SignUpPage = () => {
 
   return (
     <>
-      <SignUpSection>
+      <SignUpSection display={loading ? 'none' : 'block'}>
         <LogoSection>
           <Logo />
         </LogoSection>
@@ -129,11 +135,13 @@ const SignUpPage = () => {
           <BtnSubmit>회원가입</BtnSubmit>
         </Form>
       </SignUpSection>
+      {loading && <Loading display={loading && 'none'} />}
     </>
   );
 };
 
-const SignUpSection = styled.div`
+const SignUpSection = styled.div<{ display: string }>`
+  display: ${(props) => props.display};
   width: 20rem;
   margin: 0 auto;
 `;
