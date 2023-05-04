@@ -82,7 +82,7 @@ const SignUpPage = () => {
 
   return (
     <>
-      <SignUpSection display={loading ? 'none' : 'block'}>
+      <SignUpSection display={loading ? '' : 'block'}>
         <LogoSection>
           <Logo />
         </LogoSection>
@@ -135,7 +135,7 @@ const SignUpPage = () => {
           <BtnSubmit>회원가입</BtnSubmit>
         </Form>
       </SignUpSection>
-      {loading && <Loading display={loading && 'none'} />}
+      {loading && <Loading display={loading ? 'flex' : 'none'} />}
     </>
   );
 };
