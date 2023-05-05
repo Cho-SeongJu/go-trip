@@ -37,6 +37,10 @@ const SignUpPage = () => {
     address: yup.string().required('주소는 필수 입력입니다.'),
   });
 
+  const test = () => {
+    console.log('asd');
+  };
+
   const {
     register,
     handleSubmit,
@@ -103,6 +107,7 @@ const SignUpPage = () => {
             placeholder="비밀번호"
             id="password"
             {...register('password')}
+            onBlur={test}
           />
           {errors.password && <AlertMessage role="alert">{errors.password.message}</AlertMessage>}
           <InputBox
