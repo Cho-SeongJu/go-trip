@@ -1,12 +1,19 @@
+import { lazy } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import MainPage from './pages/MainPage';
-import LoginPage from './pages/user/LoginPage';
-import SignUpPage from './pages/user/SignUpPage';
 import { useEffect, useState } from 'react';
 import { database, auth } from '../firebase.ts';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore/lite';
+import MainPage from './pages/MainPage.tsx';
+import LoginPage from './pages/user/LoginPage.tsx';
+import SignUpPage from './pages/user/SignUpPage.tsx';
+import SuccessSignUp from './pages/user/SuccessSignUp.tsx';
 
 function App() {
+  // const MainPage = lazy(() => import('./pages/MainPage'));
+  // const LoginPage = lazy(() => import('./pages/user/LoginPage'));
+  // const SignUpPage = lazy(() => import('./pages/user/SignUpPage'));
+  // const SuccessSignUp = lazy(() => import('./pages/user/SuccessSignUp'));
+
   // 이따가 users 추가하고 삭제하는거 진행을 도와줄 state
   const [users, setUsers] = useState([]);
   // db의 users 컬렉션을 가져옴
@@ -40,6 +47,10 @@ function App() {
         <Route
           path="/user/signUp"
           element={<SignUpPage />}
+        />
+        <Route
+          path="/user/signUp/success"
+          element={<SuccessSignUp />}
         />
       </Routes>
     </>
