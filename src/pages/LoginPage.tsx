@@ -1,25 +1,33 @@
 import styled from '@emotion/styled';
 import { browserSessionPersistence, setPersistence, signInWithEmailAndPassword } from 'firebase/auth';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
 import { auth } from '../../firebase';
 import BtnSubmit from '../components/BtnSubmit';
 import Logo from '../components/Logo';
 import ErrorMessage from '../components/errorMessage/ErrorMesage';
-import { userAuth } from '../store/data';
 import { ErrorType, FormValueType } from '../type/type';
+import { useSetRecoilState } from 'recoil';
+import { uid } from '../store/data';
 
 type ErrorMsgType = string;
 
 const LoginPage = () => {
+  const [cookies, setCookie, removeCookie] = useCookies(['uid']);
   const [errorMsg, setErrorMsg] = useState<ErrorMsgType>();
-  const [cookies, setCookie] = useCookies(['id']);
-  const setUserAuth = useSetRecoilState(userAuth);
-
+  const setUID = useSetRecoilState(uid);
   const navigate = useNavigate();
+
+  const nowTime = new Date();
+  const expireTime = new Date();
+
+  expireTime.setMinutes(nowTime.getMinutes() + 60);
+
+  useEffect(() => {
+    console.log(cookies);
+  }, [cookies]);
 
   const {
     register,
@@ -58,9 +66,11 @@ const LoginPage = () => {
       await setPersistence(auth, browserSessionPersistence);
       const user = await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
       console.log(user);
+      const uid = auth.currentUser?.uid as string;
+
+      setCookie('uid', uid, { path: '/', expires: expireTime });
+      setUID(uid);
       console.log('로그인 성공');
-      console.log(auth);
-      setUserAuth(auth.currentUser.uid);
       navigate('/');
     } catch (error) {
       const err = error as ErrorType;
