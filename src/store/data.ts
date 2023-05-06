@@ -1,19 +1,13 @@
+import { Cookies } from 'react-cookie';
 import { atom } from 'recoil';
-import { useCookies } from 'react-cookie';
-import { auth } from '../../firebase';
+import { UIDType } from '../type/type';
 
-type UserAuthType = string | null;
+const cookies = new Cookies();
+export const COOKIE_KEY = 'uid';
 
-const initialUserAuth: UserAuthType = auth.currentUser === null ? 'anonymous' : auth.currentUser.uid;
+const filterUID: UIDType = cookies.get(COOKIE_KEY) === undefined ? 'anonymous' : cookies.get(COOKIE_KEY);
 
-export const userAuth = atom({
-  key: 'userAuth',
-  default: initialUserAuth,
+export const uid = atom({
+  key: 'uid',
+  default: filterUID,
 });
-
-export const CheckAuth = () => {
-  const [cookies, setCookies, removeCookie] = useCookies(['id']);
-  const token = cookies.id;
-
-  console.log(token);
-};
