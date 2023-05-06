@@ -7,8 +7,15 @@ import { auth } from '../../../firebase';
 import { useForm } from 'react-hook-form';
 import { ErrorType, FormValueType } from '../../type/type';
 import { useState } from 'react';
+import { useCookies } from 'react-cookie';
+import ErrorMessage from '../../components/errorMessage/ErrorMesage';
+
+type ErrorMsgType = string;
 
 const LoginPage = () => {
+  const [errorMsg, setErrorMsg] = useState<ErrorMsgType>();
+  const [cookies, setCookie] = useCookies(['id']);
+
   const navigate = useNavigate();
 
   const {
@@ -19,15 +26,17 @@ const LoginPage = () => {
   } = useForm<FormValueType>({ mode: 'onBlur' });
 
   const checkLoginError = () => {
-    let errorMsg = null;
-
     if (Object.keys(errors).length !== 0) {
       if (errors.email) {
-        errorMsg = errors.email.message;
+        setErrorMsg(errors.email.message);
       }
 
       if (!errors.email && errors.password) {
-        errorMsg = errors.password.message;
+        setErrorMsg(errors.password.message);
+      }
+
+      if (errorMsg === undefined) {
+        setErrorMsg('');
       }
     }
   };
@@ -35,7 +44,7 @@ const LoginPage = () => {
   const login = async () => {
     checkLoginError();
     const loginInfo = getValues();
-
+    console.log(errorMsg);
     const loginEmail = loginInfo.email;
     const loginPassword = loginInfo.password;
 
@@ -77,6 +86,7 @@ const LoginPage = () => {
           />
           <BtnSubmit>로그인</BtnSubmit>
         </Form>
+        {errorMsg === undefined && <ErrorMessage role="alert">{errorMsg}</ErrorMessage>}
         <FindSignUpSection>
           <FindSignUpLink to="/find">아이디 / 비밀번호 찾기</FindSignUpLink>
           <FindSignUpLink to="/user/signUp">회원가입</FindSignUpLink>

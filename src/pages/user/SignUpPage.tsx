@@ -12,6 +12,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import Map from '../../components/map/Map';
 import Loading from '../../components/Loading';
 import { useState } from 'react';
+import ErrorMessage from '../../components/errorMessage/ErrorMesage';
 
 interface SignUpType extends FormValueType {
   address: string;
@@ -99,7 +100,7 @@ const SignUpPage = () => {
             id="email"
             {...register('email')}
           />
-          {errors.email && <AlertMessage role="alert">{errors.email.message}</AlertMessage>}
+          {errors.email && <ErrorMessage role="alert">{errors.email.message}</ErrorMessage>}
           <Label>비밀번호</Label>
           <Description>영문, 숫자, 특수문자를 포함한 8~16자 비밀번호를 입력해주세요.</Description>
           <InputBox
@@ -109,14 +110,14 @@ const SignUpPage = () => {
             {...register('password')}
             onBlur={test}
           />
-          {errors.password && <AlertMessage role="alert">{errors.password.message}</AlertMessage>}
+          {errors.password && <ErrorMessage role="alert">{errors.password.message}</ErrorMessage>}
           <InputBox
             type="password"
             placeholder="비밀번호 재확인"
             id="reCheckPassword"
             {...register('reCheckPassword')}
           />
-          {errors.reCheckPassword && <AlertMessage role="alert">{errors.reCheckPassword.message}</AlertMessage>}
+          {errors.reCheckPassword && <ErrorMessage role="alert">{errors.reCheckPassword.message}</ErrorMessage>}
           <Label>닉네임</Label>
           <InputBox
             type="text"
@@ -126,7 +127,7 @@ const SignUpPage = () => {
               required: { value: true, message: '닉네임은 필수 입력입니다.' },
             })}
           />
-          {errors.nickName && <AlertMessage role="alert">{errors.nickName.message}</AlertMessage>}
+          {errors.nickName && <ErrorMessage role="alert">{errors.nickName.message}</ErrorMessage>}
           <Label>주소</Label>
           <InputBox
             type="text"
@@ -136,7 +137,7 @@ const SignUpPage = () => {
               required: { value: true, message: '주소 입력은 필수 입력입니다.' },
             })}
           />
-          {errors.address && <AlertMessage role="alert">{errors.address.message}</AlertMessage>}
+          {errors.address && <ErrorMessage role="alert">{errors.address.message}</ErrorMessage>}
           <BtnSubmit>회원가입</BtnSubmit>
         </Form>
       </SignUpSection>
@@ -186,12 +187,6 @@ const InputBox = styled.input`
   border: 1px solid var(--gray-color-1);
   border-radius: 0.2rem;
   outline: none;
-`;
-
-const AlertMessage = styled.small`
-  margin-bottom: 0.5rem;
-  font-size: 0.7rem;
-  color: var(--red-color-1);
 `;
 
 const Description = styled.p`
