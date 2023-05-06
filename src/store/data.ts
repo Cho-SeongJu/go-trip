@@ -2,13 +2,9 @@ import { atom } from 'recoil';
 import { useCookies } from 'react-cookie';
 import { auth } from '../../firebase';
 
-interface UserAuthType {
-  userAuth: string | null;
-}
+type UserAuthType = string | null;
 
-const initialUserAuth: UserAuthType = {
-  userAuth: auth.currentUser === null ? 'noLogin' : auth.currentUser.uid,
-};
+const initialUserAuth: UserAuthType = auth.currentUser === null ? 'anonymous' : auth.currentUser.uid;
 
 export const userAuth = atom({
   key: 'userAuth',
