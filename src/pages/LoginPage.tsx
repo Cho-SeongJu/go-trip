@@ -15,7 +15,7 @@ import { uid } from '../store/data';
 type ErrorMsgType = string;
 
 const LoginPage = () => {
-  const [cookies, setCookie, removeCookie] = useCookies(['uid']);
+  const [cookies, setCookie] = useCookies(['uid']);
   const [errorMsg, setErrorMsg] = useState<ErrorMsgType>();
   const setUID = useSetRecoilState(uid);
   const navigate = useNavigate();
