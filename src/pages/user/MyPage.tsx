@@ -3,7 +3,7 @@ import Footer from '../../components/footer/Footer';
 import Header from '../../components/header/Header';
 import NavigationBar from '../../components/navigationBar/NavigationBar';
 
-const Profile = () => {
+const MyPage = () => {
   return (
     <>
       <Header />
@@ -14,4 +14,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default MyPage;
