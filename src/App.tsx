@@ -4,9 +4,12 @@ import { useEffect, useState } from 'react';
 import { database, auth } from '../firebase.ts';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore/lite';
 import MainPage from './pages/MainPage.tsx';
-import LoginPage from './pages/user/LoginPage.tsx';
-import SignUpPage from './pages/user/SignUpPage.tsx';
-import SuccessSignUp from './pages/user/SuccessSignUp.tsx';
+import LoginPage from './pages/LoginPage.tsx';
+import SignUpPage from './pages/SignUpPage.tsx';
+import SuccessSignUp from './pages/SuccessSignUp.tsx';
+import { CheckAuth } from './store/cookie.ts';
+import Profile from './pages/user/MyPage.tsx';
+import Mypage from './pages/MainPage.tsx';
 
 function App() {
   // const MainPage = lazy(() => import('./pages/MainPage'));
@@ -19,6 +22,8 @@ function App() {
   // db의 users 컬렉션을 가져옴
   console.log(database);
   const usersCollectionRef = collection(database, 'users');
+
+  CheckAuth();
 
   // 시작될때 한번만 실행
   useEffect(() => {
@@ -51,6 +56,10 @@ function App() {
         <Route
           path="/user/signUp/success"
           element={<SuccessSignUp />}
+        />
+        <Route
+          path="/user/profile"
+          element={<Mypage />}
         />
       </Routes>
     </>
