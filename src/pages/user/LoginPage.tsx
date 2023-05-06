@@ -1,20 +1,23 @@
 import styled from '@emotion/styled';
-import Logo from '../../components/Logo';
-import { Link, useNavigate } from 'react-router-dom';
-import BtnSubmit from '../../components/BtnSubmit';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../../firebase';
-import { useForm } from 'react-hook-form';
-import { ErrorType, FormValueType } from '../../type/type';
+import { browserSessionPersistence, setPersistence, signInWithEmailAndPassword } from 'firebase/auth';
 import { useState } from 'react';
 import { useCookies } from 'react-cookie';
+import { useForm } from 'react-hook-form';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
+import { auth } from '../../../firebase';
+import BtnSubmit from '../../components/BtnSubmit';
+import Logo from '../../components/Logo';
 import ErrorMessage from '../../components/errorMessage/ErrorMesage';
+import { userAuth } from '../../store/data';
+import { ErrorType, FormValueType } from '../../type/type';
 
 type ErrorMsgType = string;
 
 const LoginPage = () => {
   const [errorMsg, setErrorMsg] = useState<ErrorMsgType>();
   const [cookies, setCookie] = useCookies(['id']);
+  const setUserAuth = useSetRecoilState(userAuth);
 
   const navigate = useNavigate();
 
@@ -52,14 +55,25 @@ const LoginPage = () => {
     console.log(loginPassword);
 
     try {
+      await setPersistence(auth, browserSessionPersistence);
       const user = await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
       console.log(user);
       console.log('로그인 성공');
       console.log(auth);
+      setUserAuth(auth.currentUser.uid);
       navigate('/');
     } catch (error) {
       const err = error as ErrorType;
-      console.log(err);
+
+      switch (err.code) {
+        case 'auth/wrong-password':
+          setErrorMsg('아이디나 비밀번호가 일치하지 않습니다.');
+          break;
+
+        case 'auth/user-not-found':
+          setErrorMsg('존재하지 않은 정보입니다.');
+          break;
+      }
     }
   };
 
@@ -84,9 +98,9 @@ const LoginPage = () => {
               required: { value: true, message: '비밀번호를 입력해주세요.' },
             })}
           />
+          {errorMsg && <ErrorMessage role="alert">{errorMsg}</ErrorMessage>}
           <BtnSubmit>로그인</BtnSubmit>
         </Form>
-        {errorMsg === undefined && <ErrorMessage role="alert">{errorMsg}</ErrorMessage>}
         <FindSignUpSection>
           <FindSignUpLink to="/find">아이디 / 비밀번호 찾기</FindSignUpLink>
           <FindSignUpLink to="/user/signUp">회원가입</FindSignUpLink>
