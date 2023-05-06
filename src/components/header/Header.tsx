@@ -40,8 +40,8 @@ const Header = () => {
         <DetailSection>
           <Logo />
           <LoginSingUpLinkSection>
-            {loginState ? <Logout onClick={() => logout()}>로그아웃</Logout> : <LoginSignUpLink to={'/user/login'}>로그인</LoginSignUpLink>}
-            {loginState ? <LoginSignUpLink to={'/user/profile'}>마이페이지</LoginSignUpLink> : <LoginSignUpLink to={'/user/signUp'}>회원가입</LoginSignUpLink>}
+            {loginState ? <Logout onClick={() => logout()}>로그아웃</Logout> : <LinkButton to={'/user/login'}>로그인</LinkButton>}
+            {loginState ? <LinkButton to={'/user/profile'}>마이페이지</LinkButton> : <LinkButton to={'/user/signUp'}>회원가입</LinkButton>}
           </LoginSingUpLinkSection>
         </DetailSection>
       </HeaderSection>
@@ -64,20 +64,20 @@ const DetailSection = styled.div`
 const LoginSingUpLinkSection = styled.div`
   display: flex;
   align-items: center;
-  width: 8rem;
+  width: 8.5rem;
   height: 3rem;
 `;
 
-const LoginSignUpLink = styled(Link)`
+const LinkButton = styled(Link)`
   flex-grow: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 1.2rem;
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--black-color-2);
-
+  font-weight: 500;
   &:not(:last-child) {
     border-right: 1px solid var(--gray-color-1);
   }
@@ -90,11 +90,11 @@ const Logout = styled.button`
   align-items: center;
   height: 1.2rem;
   cursor: pointer;
-  font-size: 0.8rem;
-  color: var(--black-color-2);
+  font-size: 0.75rem;
+  color: var(--black-color-1);
   background-color: var(--white-color-1);
   border: none;
-
+  font-weight: 600;
   &:not(:last-child) {
     border-right: 1px solid var(--gray-color-1);
   }
