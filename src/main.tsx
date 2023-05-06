@@ -5,13 +5,16 @@ import App from './App.tsx';
 import './assets/css/base.css';
 import './assets/css/reset.css';
 import { RecoilRoot } from 'recoil';
+import { CookiesProvider } from 'react-cookie';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <RecoilRoot>
-    <React.StrictMode>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </React.StrictMode>
-  </RecoilRoot>
+  <React.StrictMode>
+    <RecoilRoot>
+      <CookiesProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </CookiesProvider>
+    </RecoilRoot>
+  </React.StrictMode>
 );
