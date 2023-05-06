@@ -1,30 +1,37 @@
 import styled from '@emotion/styled';
+import { useEffect, useState } from 'react';
+import { useCookies } from 'react-cookie';
 import { Link, useNavigate } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
+import { uid } from '../../store/data';
 import Logo from '../Logo';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { userAuth } from '../../store/data';
-import { useState, useEffect } from 'react';
-import { signOut } from 'firebase/auth';
-import { auth } from '../../../firebase';
 
 const Header = () => {
-  const [userLoginState, setUserAuth] = useRecoilState(userAuth);
+  const [userUID, setUserUID] = useRecoilState(uid);
+  const [, , removeCookie] = useCookies(['uid']);
   const [loginState, setLoginState] = useState<boolean>();
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log(userLoginState, 'asd');
-    if (userLoginState === 'anonymous') {
+    if (userUID === 'anonymous') {
       setLoginState(false);
     } else {
       setLoginState(true);
     }
-  }, [userLoginState]);
+  }, [userUID]);
 
   const logout = async () => {
-    setUserAuth('anonymous');
-    await signOut(auth);
-    navigate('/');
+    const logoutConfirm = confirm('로그아웃을 하시겠습니까?');
+
+    if (logoutConfirm) {
+      try {
+        setUserUID('anonymous');
+        removeCookie('uid');
+        navigate('/');
+      } catch (err) {
+        alert('잠시 후 다시 로그아웃을 해주세요.');
+      }
+    }
   };
 
   return (
@@ -33,7 +40,7 @@ const Header = () => {
         <DetailSection>
           <Logo />
           <LoginSingUpLinkSection>
-            {loginState ? <Logout onClick={() => logout}>로그아웃</Logout> : <LoginSignUpLink to={'/user/login'}>로그인</LoginSignUpLink>}
+            {loginState ? <Logout onClick={() => logout()}>로그아웃</Logout> : <LoginSignUpLink to={'/user/login'}>로그인</LoginSignUpLink>}
             {loginState ? <LoginSignUpLink to={'/user/profile'}>마이페이지</LoginSignUpLink> : <LoginSignUpLink to={'/user/signUp'}>회원가입</LoginSignUpLink>}
           </LoginSingUpLinkSection>
         </DetailSection>
