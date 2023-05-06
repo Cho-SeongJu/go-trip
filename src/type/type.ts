@@ -6,3 +6,5 @@ export interface FormValueType {
   email: string;
   password: string;
 }
+
+export type UIDType = string;
