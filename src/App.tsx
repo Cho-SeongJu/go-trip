@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage.tsx';
 import { default as MainPage, default as Mypage } from './pages/MainPage.tsx';
 import SignUpPage from './pages/SignUpPage.tsx';
 import SuccessSignUp from './pages/SuccessSignUp.tsx';
+import TripPage from './pages/TripPage.tsx';
 
 function App() {
   // const MainPage = lazy(() => import('./pages/MainPage'));
@@ -25,6 +26,10 @@ function App() {
         <Route
           path="/"
           element={<MainPage />}
+        />
+        <Route
+          path="/trip"
+          element={<TripPage />}
         />
         <Route
           path="/user/login"
