@@ -1,10 +1,11 @@
 import styled from '@emotion/styled';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import { Link, useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { uid } from '../../store/data';
 import Logo from '../Logo';
+import { auth } from '../../../firebase';
 
 const Header = () => {
   const [userUID, setUserUID] = useRecoilState(uid);
@@ -13,18 +14,15 @@ const Header = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (userUID === 'anonymous') {
-      setLoginState(false);
-    } else {
-      setLoginState(true);
-    }
+    userUID === 'anonymous' ? setLoginState(false) : setLoginState(true);
   }, [userUID]);
 
-  const logout = async () => {
+  const logout = () => {
     const logoutConfirm = confirm('로그아웃을 하시겠습니까?');
 
     if (logoutConfirm) {
       try {
+        auth.signOut();
         setUserUID('anonymous');
         removeCookie('uid');
         navigate('/');
