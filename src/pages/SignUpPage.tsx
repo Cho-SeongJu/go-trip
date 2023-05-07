@@ -1,18 +1,17 @@
 import styled from '@emotion/styled';
+import { yupResolver } from '@hookform/resolvers/yup';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore/lite';
+import { collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore/lite';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import * as yup from 'yup';
 import { auth, database } from '../../firebase';
 import BtnSubmit from '../components/BtnSubmit';
-import Logo from '../components/Logo';
-import { ErrorType, FormValueType } from '../type/type';
-import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
 import Loading from '../components/Loading';
-import { useState } from 'react';
+import Logo from '../components/Logo';
 import ErrorMessage from '../components/errorMessage/ErrorMesage';
-import Post from '../components/post/post';
+import { ErrorType, FormValueType } from '../type/type';
 
 interface SignUpType extends FormValueType {
   address: string;
@@ -20,9 +19,12 @@ interface SignUpType extends FormValueType {
   reCheckPassword: string;
 }
 
+const CHECK_NICKNAME_ERROR_MSG = '이미 사용중인 닉네임입니다.';
+const CHECK_EMAIL_ERROR_MSG = '이미 사용중인 이메일입니다.';
+
 const SignUpPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
-
+  const [checkNickNameResultMsg, setCheckNickNameResultMsg] = useState<string>('');
   const navigate = useNavigate();
 
   const formSchema = yup.object({
@@ -33,13 +35,12 @@ const SignUpPage = () => {
       .min(8, '최소 8자 필수 입력입니다.')
       .max(16, '최대 16자 까지만 가능합니다.')
       .matches(/^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,25}$/, '영문, 숫자, 특수문자를 포함한 8~16자 비밀번호를 입력해주세요.'),
-    reCheckPassword: yup.string().oneOf([yup.ref('password')], '비밀번호가 일치하지 않습니다.'),
+    reCheckPassword: yup
+      .string()
+      .required('비밀번호 재확인은 필수 입력입니다.')
+      .oneOf([yup.ref('password')], '비밀번호가 일치하지 않습니다.'),
     nickName: yup.string().required('닉네임은 필수 입력입니다.').min(2, '최소 2자 필수 입력입니다.').max(8, '최대 8자 입력 가능합니다.'),
   });
-
-  const test = () => {
-    console.log('asd');
-  };
 
   const {
     register,
@@ -47,6 +48,41 @@ const SignUpPage = () => {
     formState: { errors },
     getValues,
   } = useForm<SignUpType>({ mode: 'onBlur', resolver: yupResolver(formSchema) });
+
+  const checkNickName = async (event: React.FocusEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+
+    if (value.length === 0) {
+      setCheckNickNameResultMsg('닉네임은 필수 입력입니다.');
+      return;
+    }
+
+    if (value.length < 2) {
+      setCheckNickNameResultMsg('최소 2자 필수 입력입니다.');
+      return;
+    }
+
+    if (value.length > 8) {
+      setCheckNickNameResultMsg('최대 8자 입력 가능합니다.');
+      return;
+    }
+
+    const nickNamRef = collection(database, 'users');
+    const q = query(nickNamRef, where('NICKNAME', '==', value));
+
+    const querySnapShot = await getDocs(q);
+
+    try {
+      if (querySnapShot.docs.length !== 0) {
+        setCheckNickNameResultMsg(CHECK_NICKNAME_ERROR_MSG);
+      } else {
+        setCheckNickNameResultMsg('');
+      }
+    } catch (error) {
+      alert('오류가 발생하였습니다. 다시 진행해주시길 바랍니다.');
+      return;
+    }
+  };
 
   const onSubmit = async () => {
     setLoading(true);
@@ -56,7 +92,6 @@ const SignUpPage = () => {
     const email = signUpData.email;
     const password = signUpData.password;
     const nickName = signUpData.nickName;
-    const address = signUpData.address;
 
     try {
       const user = await createUserWithEmailAndPassword(auth, email, password);
@@ -69,10 +104,6 @@ const SignUpPage = () => {
     } catch (error) {
       const err = error as ErrorType;
       switch (err.code) {
-        case 'auth/weak-password':
-          console.log('비밀번호는 6자리 이상이어야 합니다.');
-          break;
-
         case 'auth/invalid-email':
           console.log('잘못된 이메일 주소입니다.');
           break;
@@ -81,6 +112,8 @@ const SignUpPage = () => {
           console.log('이미 가입되어 있는 계정입니다.');
           break;
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -107,7 +140,6 @@ const SignUpPage = () => {
             placeholder="비밀번호"
             id="password"
             {...register('password')}
-            onBlur={test}
           />
           {errors.password && <ErrorMessage role="alert">{errors.password.message}</ErrorMessage>}
           <InputBox
@@ -122,11 +154,14 @@ const SignUpPage = () => {
             type="text"
             placeholder="닉네임"
             id="nickname"
-            {...register('nickName', {
-              required: { value: true, message: '닉네임은 필수 입력입니다.' },
-            })}
+            {...register('nickName')}
+            onBlur={checkNickName}
           />
-          {errors.nickName && <ErrorMessage role="alert">{errors.nickName.message}</ErrorMessage>}
+          {checkNickNameResultMsg.length !== 0 ? (
+            <ErrorMessage role="alert">{checkNickNameResultMsg}</ErrorMessage>
+          ) : (
+            errors.nickName && <ErrorMessage role="alert">{errors.nickName.message}</ErrorMessage>
+          )}
           <BtnSubmit>회원가입</BtnSubmit>
         </Form>
       </SignUpSection>
