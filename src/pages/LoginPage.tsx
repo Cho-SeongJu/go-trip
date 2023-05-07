@@ -17,6 +17,7 @@ type ErrorMsgType = string;
 const LoginPage = () => {
   const [cookies, setCookie] = useCookies(['uid']);
   const [errorMsg, setErrorMsg] = useState<ErrorMsgType>();
+  const [clickLoginBtn, setClickLoginBtn] = useState<boolean>(false);
   const setUID = useSetRecoilState(uid);
   const navigate = useNavigate();
 
@@ -36,24 +37,7 @@ const LoginPage = () => {
     getValues,
   } = useForm<FormValueType>({ mode: 'onBlur' });
 
-  const checkLoginError = () => {
-    if (Object.keys(errors).length !== 0) {
-      if (errors.email) {
-        setErrorMsg(errors.email.message);
-      }
-
-      if (!errors.email && errors.password) {
-        setErrorMsg(errors.password.message);
-      }
-
-      if (errorMsg === undefined) {
-        setErrorMsg('');
-      }
-    }
-  };
-
   const login = async () => {
-    checkLoginError();
     const loginInfo = getValues();
     console.log(errorMsg);
     const loginEmail = loginInfo.email;
@@ -63,6 +47,8 @@ const LoginPage = () => {
     console.log(loginPassword);
 
     try {
+      if (clickLoginBtn) return;
+      setClickLoginBtn(true);
       await setPersistence(auth, browserSessionPersistence);
       const user = await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
       console.log(user);
@@ -84,6 +70,8 @@ const LoginPage = () => {
           setErrorMsg('존재하지 않은 정보입니다.');
           break;
       }
+    } finally {
+      setClickLoginBtn(false);
     }
   };
 
@@ -108,6 +96,7 @@ const LoginPage = () => {
               required: { value: true, message: '비밀번호를 입력해주세요.' },
             })}
           />
+          {errors && <ErrorMessage role="alert">{errors.email ? errors.email.message : errors.password && errors.password.message}</ErrorMessage>}
           {errorMsg && <ErrorMessage role="alert">{errorMsg}</ErrorMessage>}
           <BtnSubmit>로그인</BtnSubmit>
         </Form>
@@ -141,9 +130,7 @@ const InputBox = styled.input`
   border-radius: 0.2rem;
   outline: none;
 
-  &:not(:last-of-type) {
-    margin-bottom: 0.5rem;
-  }
+  margin-bottom: 0.5rem;
 `;
 
 const FindSignUpSection = styled.div`
