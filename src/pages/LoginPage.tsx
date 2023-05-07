@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useSetRecoilState } from 'recoil';
 import { auth, database } from '../../firebase';
 import BtnSubmit from '../components/BtnSubmit';
 import Logo from '../components/Logo';
