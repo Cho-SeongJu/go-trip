@@ -33,7 +33,7 @@ const SignUpPage = () => {
       .max(16, '최대 16자 까지만 가능합니다.')
       .matches(/^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,25}$/, '영문, 숫자, 특수문자를 포함한 8~16자 비밀번호를 입력해주세요.'),
     reCheckPassword: yup.string().oneOf([yup.ref('password')], '비밀번호가 일치하지 않습니다.'),
-    nickName: yup.string().required('닉네임은 필수 입력입니다.').min(3, '최소 3자 필수 입력입니다.').max(12, '최소 12자'),
+    nickName: yup.string().required('닉네임은 필수 입력입니다.').min(2, '최소 2자 필수 입력입니다.').max(8, '최대 8자 입력 가능합니다.'),
     address: yup.string().required('주소는 필수 입력입니다.'),
   });
 
@@ -59,8 +59,9 @@ const SignUpPage = () => {
     const address = signUpData.address;
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      await setDoc(doc(database, 'users', email), {
+      const user = await createUserWithEmailAndPassword(auth, email, password);
+      const userUID = user.user.uid;
+      await setDoc(doc(database, 'users', userUID), {
         NICKNAME: nickName,
         ADDRESS: address,
       });
