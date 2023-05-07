@@ -3,19 +3,20 @@ import { useEffect, useMemo, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import { Link, useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
-import { uid } from '../../store/data';
+import { uid, userInfo } from '../../store/data';
 import Logo from '../Logo';
 import { auth } from '../../../firebase';
 
 const Header = () => {
   const [userUID, setUserUID] = useRecoilState(uid);
+  const [loginUserInfo, setLoginUserInfo] = useRecoilState(userInfo);
   const [, , removeCookie] = useCookies(['uid']);
   const [loginState, setLoginState] = useState<boolean>();
   const navigate = useNavigate();
 
   useEffect(() => {
     userUID === 'anonymous' ? setLoginState(false) : setLoginState(true);
-  }, [userUID]);
+  }, [userUID, loginUserInfo]);
 
   const logout = () => {
     const logoutConfirm = confirm('로그아웃을 하시겠습니까?');
@@ -25,6 +26,7 @@ const Header = () => {
         auth.signOut();
         setUserUID('anonymous');
         removeCookie('uid');
+        setLoginUserInfo({});
         navigate('/');
       } catch (err) {
         alert('잠시 후 다시 로그아웃을 해주세요.');
@@ -38,6 +40,12 @@ const Header = () => {
         <DetailSection>
           <Logo />
           <LoginSingUpLinkSection>
+            {loginUserInfo && Object.keys(loginUserInfo).length !== 0 && (
+              <WelcomePharse>
+                <UserNickName>{loginUserInfo?.NICKNAME}</UserNickName>
+                님, 환영합니다.
+              </WelcomePharse>
+            )}
             {loginState ? <Logout onClick={() => logout()}>로그아웃</Logout> : <LinkButton to={'/user/login'}>로그인</LinkButton>}
             {loginState ? <LinkButton to={'/user/profile'}>마이페이지</LinkButton> : <LinkButton to={'/user/signUp'}>회원가입</LinkButton>}
           </LoginSingUpLinkSection>
@@ -62,7 +70,7 @@ const DetailSection = styled.div`
 const LoginSingUpLinkSection = styled.div`
   display: flex;
   align-items: center;
-  width: 8.5rem;
+  // width: 8.5rem;
   height: 3rem;
 `;
 
@@ -71,14 +79,25 @@ const LinkButton = styled(Link)`
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 0 0.7rem;
   height: 1.2rem;
-  cursor: pointer;
   font-size: 0.75rem;
-  color: var(--black-color-2);
   font-weight: 500;
+  color: var(--black-color-2);
+  cursor: pointer;
+
   &:not(:last-child) {
     border-right: 1px solid var(--gray-color-1);
   }
+`;
+
+const WelcomePharse = styled.p`
+  font-size: 0.8rem;
+  padding-right: 0.4rem;
+`;
+
+const UserNickName = styled.span`
+  color: var(--blue-sky-color-1);
 `;
 
 const Logout = styled.button`
@@ -86,13 +105,15 @@ const Logout = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 0 0.7rem;
   height: 1.2rem;
-  cursor: pointer;
-  font-size: 0.75rem;
-  color: var(--black-color-1);
-  background-color: var(--white-color-1);
   border: none;
+  background-color: var(--white-color-1);
+  font-size: 0.75rem;
   font-weight: 600;
+  color: var(--black-color-1);
+  cursor: pointer;
+
   &:not(:last-child) {
     border-right: 1px solid var(--gray-color-1);
   }
