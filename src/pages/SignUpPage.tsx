@@ -9,7 +9,6 @@ import Logo from '../components/Logo';
 import { ErrorType, FormValueType } from '../type/type';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import Map from '../components/map/Map';
 import Loading from '../components/Loading';
 import { useState } from 'react';
 import ErrorMessage from '../components/errorMessage/ErrorMesage';
