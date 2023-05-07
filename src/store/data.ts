@@ -1,5 +1,7 @@
+import { doc, getDoc } from 'firebase/firestore/lite';
 import { Cookies } from 'react-cookie';
 import { atom } from 'recoil';
+import { database } from '../../firebase';
 import { UIDType } from '../type/type';
 
 const cookies = new Cookies();
@@ -10,4 +12,16 @@ const filterUID: UIDType = cookies.get(COOKIE_KEY) === undefined ? 'anonymous' :
 export const uid = atom({
   key: 'uid',
   default: filterUID,
+});
+
+const getUserInfo = async () => {
+  const docRef = doc(database, 'users', filterUID);
+  const docSnap = await getDoc(docRef);
+  const docData = docSnap.data();
+  return docData;
+};
+
+export const userInfo = atom({
+  key: 'userInfo',
+  default: filterUID !== 'anonymous' ? getUserInfo() : {},
 });
