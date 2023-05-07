@@ -12,6 +12,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import Loading from '../components/Loading';
 import { useState } from 'react';
 import ErrorMessage from '../components/errorMessage/ErrorMesage';
+import Post from '../components/post/post';
 
 interface SignUpType extends FormValueType {
   address: string;
@@ -34,7 +35,6 @@ const SignUpPage = () => {
       .matches(/^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,25}$/, '영문, 숫자, 특수문자를 포함한 8~16자 비밀번호를 입력해주세요.'),
     reCheckPassword: yup.string().oneOf([yup.ref('password')], '비밀번호가 일치하지 않습니다.'),
     nickName: yup.string().required('닉네임은 필수 입력입니다.').min(2, '최소 2자 필수 입력입니다.').max(8, '최대 8자 입력 가능합니다.'),
-    address: yup.string().required('주소는 필수 입력입니다.'),
   });
 
   const test = () => {
@@ -63,7 +63,6 @@ const SignUpPage = () => {
       const userUID = user.user.uid;
       await setDoc(doc(database, 'users', userUID), {
         NICKNAME: nickName,
-        ADDRESS: address,
       });
 
       navigate('/user/signUp/success');
@@ -128,16 +127,6 @@ const SignUpPage = () => {
             })}
           />
           {errors.nickName && <ErrorMessage role="alert">{errors.nickName.message}</ErrorMessage>}
-          <Label>주소</Label>
-          <InputBox
-            type="text"
-            placeholder="주소"
-            id="address"
-            {...register('address', {
-              required: { value: true, message: '주소 입력은 필수 입력입니다.' },
-            })}
-          />
-          {errors.address && <ErrorMessage role="alert">{errors.address.message}</ErrorMessage>}
           <BtnSubmit>회원가입</BtnSubmit>
         </Form>
       </SignUpSection>
