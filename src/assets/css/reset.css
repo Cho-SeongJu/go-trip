@@ -145,10 +145,6 @@ a {
   text-decoration: none;
 }
 
-a:visited {
-  color: var(--black-color-1);
-}
-
 body {
   height: 100%;
 }
