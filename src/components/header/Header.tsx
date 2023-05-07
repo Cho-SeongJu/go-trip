@@ -70,7 +70,6 @@ const DetailSection = styled.div`
 const LoginSingUpLinkSection = styled.div`
   display: flex;
   align-items: center;
-  // width: 8.5rem;
   height: 3rem;
 `;
 
@@ -81,7 +80,7 @@ const LinkButton = styled(Link)`
   align-items: center;
   padding: 0 0.7rem;
   height: 1.2rem;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: var(--black-color-2);
   cursor: pointer;
@@ -109,7 +108,7 @@ const Logout = styled.button`
   height: 1.2rem;
   border: none;
   background-color: var(--white-color-1);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--black-color-1);
   cursor: pointer;
