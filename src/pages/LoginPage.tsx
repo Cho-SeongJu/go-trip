@@ -1,16 +1,17 @@
 import styled from '@emotion/styled';
 import { browserSessionPersistence, setPersistence, signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore/lite';
 import { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-import { auth } from '../../firebase';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { auth, database } from '../../firebase';
 import BtnSubmit from '../components/BtnSubmit';
 import Logo from '../components/Logo';
 import ErrorMessage from '../components/errorMessage/ErrorMesage';
+import { uid, userInfo } from '../store/data';
 import { ErrorType, FormValueType } from '../type/type';
-import { useSetRecoilState } from 'recoil';
-import { uid } from '../store/data';
 
 type ErrorMsgType = string;
 
@@ -18,6 +19,7 @@ const LoginPage = () => {
   const [cookies, setCookie] = useCookies(['uid']);
   const [errorMsg, setErrorMsg] = useState<ErrorMsgType>();
   const [clickLoginBtn, setClickLoginBtn] = useState<boolean>(false);
+  const setLoginUserInfo = useSetRecoilState(userInfo);
   const setUID = useSetRecoilState(uid);
   const navigate = useNavigate();
 
@@ -39,23 +41,26 @@ const LoginPage = () => {
 
   const login = async () => {
     const loginInfo = getValues();
-    console.log(errorMsg);
     const loginEmail = loginInfo.email;
     const loginPassword = loginInfo.password;
 
-    console.log(loginEmail);
-    console.log(loginPassword);
-
     try {
       if (clickLoginBtn) return;
+
       setClickLoginBtn(true);
       await setPersistence(auth, browserSessionPersistence);
+
       const user = await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
-      console.log(user);
-      const uid = auth.currentUser?.uid as string;
+      const uid = user.user.uid;
+
+      const docRef = doc(database, 'users', uid);
+      const docSnap = await getDoc(docRef);
+
+      console.log(docSnap.data());
 
       setCookie('uid', uid, { path: '/', expires: expireTime });
       setUID(uid);
+      setLoginUserInfo(docSnap.data());
       console.log('로그인 성공');
       navigate('/');
     } catch (error) {
