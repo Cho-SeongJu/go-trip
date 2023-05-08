@@ -1,4 +1,4 @@
-import TripContent from '../components/content/TripContent';
+import TripContent from '../components/content/Trip/TripContent';
 import Footer from '../components/footer/Footer';
 import Header from '../components/header/Header';
 import NavigationBar from '../components/navigationBar/NavigationBar';
