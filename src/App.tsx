@@ -7,6 +7,7 @@ import { default as MainPage, default as Mypage } from './pages/MainPage.tsx';
 import SignUpPage from './pages/SignUpPage.tsx';
 import SuccessSignUp from './pages/SuccessSignUp.tsx';
 import TripPage from './pages/TripPage.tsx';
+import WritePostPage from './pages/post/WritePostPage.tsx';
 
 function App() {
   // const MainPage = lazy(() => import('./pages/MainPage'));
@@ -46,6 +47,10 @@ function App() {
         <Route
           path="/user/profile"
           element={<Mypage />}
+        />
+        <Route
+          path="/writePost"
+          element={<WritePostPage />}
         />
       </Routes>
     </>
