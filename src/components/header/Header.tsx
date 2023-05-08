@@ -8,10 +8,10 @@ import Logo from '../Logo';
 import { auth } from '../../../firebase';
 
 const Header = () => {
+  const [loginState, setLoginState] = useState<boolean>();
   const [userUID, setUserUID] = useRecoilState(uid);
   const [loginUserInfo, setLoginUserInfo] = useRecoilState(userInfo);
   const [, , removeCookie] = useCookies(['uid']);
-  const [loginState, setLoginState] = useState<boolean>();
   const navigate = useNavigate();
 
   useEffect(() => {
