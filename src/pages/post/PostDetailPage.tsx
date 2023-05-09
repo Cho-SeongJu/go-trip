@@ -33,7 +33,7 @@ const PostDetailPage = () => {
         return;
       } else {
         const data: DocumentData = docSnap.data();
-
+        console.log(data);
         if (data !== undefined) {
           setPostData(data);
         }
@@ -56,7 +56,8 @@ const PostDetailPage = () => {
         <Loading display="flex" />
       ) : (
         <>
-          asdasdasd
+          <div>{postData.TITLE}</div>
+          <div>{postData.CONTENT}</div>
           <div>{postData.NICKNAME}</div>
         </>
       )}
