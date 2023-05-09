@@ -7,10 +7,11 @@ import { useRecoilValue } from 'recoil';
 import * as yup from 'yup';
 import { database } from '../../../firebase';
 import Loading from '../../components/Loading';
+import ImgCarousel from '../../components/carousel/ImgCarosel';
 import ErrorMessage from '../../components/errorMessage/ErrorMesage';
 import Header from '../../components/header/Header';
 import { uid, userInfo } from '../../store/data';
-import { Carousel } from 'react-responsive-carousel';
+import { useNavigate } from 'react-router-dom';
 
 interface PostFormType {
   title: string;
@@ -20,10 +21,11 @@ interface PostFormType {
 const WritePostPage = () => {
   const [titleLength, setTitleLength] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
-  const [myImage, setMyImage] = useState<string[]>([]);
+  const [uploadImage, setUploadImage] = useState<string[]>([]);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const loginUID = useRecoilValue(uid);
   const loginUserNickName = useRecoilValue(userInfo);
+  const navigate = useNavigate();
 
   const formSchema = yup.object({
     title: yup.string().required('제목은 필수 입력입니다.').min(6, '최소 6자 필수 입력입니다.').max(80, '최대 80자까지 입력 가능합니다.'),
@@ -54,9 +56,11 @@ const WritePostPage = () => {
     const title = getValues().title;
     const content = getValues().content;
     const querySnapShot = await getDocs(collection(database, 'posts'));
+    let postID = 0;
     try {
       if (querySnapShot.empty) {
-        await setDoc(doc(database, 'posts', '1'), {
+        postID = 1;
+        await setDoc(doc(database, 'posts', 'post' + String(postID)), {
           UID: loginUID,
           TITLE: title,
           CONTENT: content,
@@ -64,15 +68,19 @@ const WritePostPage = () => {
         });
       } else {
         const size = querySnapShot.size;
-        const lastID = Number(querySnapShot.docs[size - 1].id);
+        // postID = Number(querySnapShot.docs[size - 1].id);
+        const id = querySnapShot.docs[size - 1].id;
+        console.log(id);
+        postID = Number(id.substring(4, id.length));
 
-        await setDoc(doc(database, 'posts', String(lastID + 1)), {
+        await setDoc(doc(database, 'posts', 'post' + String(postID + 1)), {
           UID: loginUID,
           TITLE: title,
           CONTENT: content,
           NICKNAME: loginUserNickName.NICKNAME,
         });
       }
+      navigate(`/post/post${postID}`);
     } catch (error) {
       alert('처리 중 오류가 발생하였습니다. 잠시 후 다시 시도하시길 바랍니다.');
       console.log(error);
@@ -82,7 +90,6 @@ const WritePostPage = () => {
   };
 
   useEffect(() => {
-    console.log(watchContent);
     if (textAreaRef.current !== null) {
       textAreaRef.current.style.height = 'auto';
       textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
@@ -93,18 +100,37 @@ const WritePostPage = () => {
     console.log('asd');
   };
 
-  const uploadImg = (event: ChangeEvent<HTMLInputElement>) => {
-    const nowSelectImageList = event.target.files;
-    const nowImageURLList = [...myImage];
+  const handleUploadImages = (event) => {
+    const uploadImageList = event.target.files;
+    console.log(uploadImageList);
+    const nowImgURLList = [...uploadImage];
+    console.log(nowImgURLList, '미리보기 파일 배열');
 
-    if (nowSelectImageList != null) {
-      for (let i = 0; i < nowSelectImageList.length; i += 1) {
-        const nowImageUrl = URL.createObjectURL(nowSelectImageList[i]);
-        nowImageURLList.push(nowImageUrl);
-      }
+    const imageURLList = [];
+
+    for (let i = 0; i < uploadImageList.length; i++) {
+      const url = URL.createObjectURL(uploadImageList[i]);
+      imageURLList.push(url);
     }
 
-    setMyImage(nowImageURLList);
+    setUploadImage(imageURLList);
+    // setUploadImage()
+    // const imageList = event.target.files;
+    // let imageUrlList = [];
+    // if (imageList !== null) {
+    //   imageUrlList = [...imageList];
+    // }
+    // if (imageList != null) {
+    //   for (let i = 0; i < imageList.length; i++) {
+    //     const currentImageUrl = URL.createObjectURL(imageList[i]);
+    //     imageUrlList.push(currentImageUrl);
+    //   }
+    // }
+    // if (imageUrlList.length > 10) {
+    //   imageUrlList = imageUrlList.slice(0, 10);
+    // }
+    // console.log(imageUrlList);
+    // setUploadImage(imageUrlList);
   };
 
   return (
@@ -124,7 +150,17 @@ const WritePostPage = () => {
           </TitleSection>
           {errors.title && <ErrorMessage role="alert">{errors.title.message}</ErrorMessage>}
           <ImgUploadSection>
-            <Carousel />
+            <ImgCarousel upload={uploadImage} />
+            <ImgUploadLabel
+              htmlFor="input-file"
+              onChange={handleUploadImages}
+            >
+              <ImgUploadInput
+                type="file"
+                id="input-file"
+                multiple
+              />
+            </ImgUploadLabel>
           </ImgUploadSection>
           <TextArea
             placeholder="내용을 입력하세요."
@@ -195,7 +231,17 @@ const TitleLength = styled.span`
   color: var(--gray-color-3);
 `;
 
-const ImgUploadSection = styled.div``;
+const ImgUploadSection = styled.div`
+  display: flex;
+`;
+
+const ImgUploadInput = styled.input``;
+
+const ImgUploadLabel = styled.label``;
+
+const ImgList = styled.div`
+  flex-grow: 1;
+`;
 
 const TextArea = styled.textarea`
   margin: 1rem 0;
