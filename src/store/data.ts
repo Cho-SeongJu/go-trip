@@ -4,6 +4,10 @@ import { atom } from 'recoil';
 import { database } from '../../firebase';
 import { UIDType } from '../type/type';
 
+interface UserInfoType {
+  NICKNAME: string;
+}
+
 const cookies = new Cookies();
 export const COOKIE_KEY = 'uid';
 
@@ -17,11 +21,11 @@ export const uid = atom({
 const getUserInfo = async () => {
   const docRef = doc(database, 'users', filterUID);
   const docSnap = await getDoc(docRef);
-  const docData = docSnap.data();
+  const docData = docSnap.data() as UserInfoType;
   return docData;
 };
 
 export const userInfo = atom({
   key: 'userInfo',
-  default: filterUID !== 'anonymous' ? getUserInfo() : {},
+  default: filterUID !== 'anonymous' ? getUserInfo() : { NICKNAME: 'anonymous' },
 });
