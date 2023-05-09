@@ -5,6 +5,11 @@ import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import ErrorMessage from '../../components/errorMessage/ErrorMesage';
+import { database } from '../../../firebase';
+import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore/lite';
+import { uid } from '../../store/data';
+import Loading from '../../components/Loading';
+import { useRecoilValue } from 'recoil';
 
 interface PostFormType {
   title: string;
@@ -13,11 +18,13 @@ interface PostFormType {
 
 const WritePostPage = () => {
   const [titleLength, setTitleLength] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const loginUID = useRecoilValue(uid);
 
   const formSchema = yup.object({
     title: yup.string().required('제목은 필수 입력입니다.').min(6, '최소 6자 필수 입력입니다.').max(80, '최대 80자까지 입력 가능합니다.'),
-    content: yup.string().required('내용은 필수 입력입니다.').min(10, '최소 10자 필수 입력입니다.'),
+    // content: yup.string().required('내용은 필수 입력입니다.').min(10, '최소 10자 필수 입력입니다.'),
   });
 
   const {
@@ -39,23 +46,50 @@ const WritePostPage = () => {
     }
   }, [watchTitle]);
 
-  const onSubmit = () => {
-    console.log('asd');
+  //   useEffect(() => {
+  //     if (textAreaRef.current !== null) {
+  //       textAreaRef.current.style.height = 'auto';
+  //       textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
+  //     }
+  //   }, [watchContent]);
+
+  const onSubmit = async () => {
+    setLoading(true);
+    const title = getValues().title;
+    const content = getValues().content;
+    const querySnapShot = await getDocs(collection(database, 'posts'));
+    try {
+      if (querySnapShot.empty) {
+        await setDoc(doc(database, 'posts', '1'), {
+          UID: loginUID,
+          TITLE: title,
+          CONTENT: content,
+        });
+      } else {
+        const size = querySnapShot.size;
+        const lastID = Number(querySnapShot.docs[size - 1].id);
+
+        await setDoc(doc(database, 'posts', String(lastID + 1)), {
+          UID: loginUID,
+          TITLE: title,
+          CONTENT: content,
+        });
+      }
+    } catch (error) {
+      alert('처리 중 오류가 발생하였습니다. 잠시 후 다시 시도하시길 바랍니다.');
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
+    console.log(watchContent);
     if (textAreaRef.current !== null) {
       textAreaRef.current.style.height = 'auto';
       textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
     }
-  });
-
-  const handleResizeHeight = () => {
-    if (textAreaRef.current !== null) {
-      textAreaRef.current.style.height = 'auto';
-      textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
-    }
-  };
+  }, [watchContent]);
 
   const test = () => {
     console.log('asd');
@@ -82,8 +116,8 @@ const WritePostPage = () => {
             // onChange={handleResizeHeight}
             rows={1}
             id="content"
-            {...rest}
-            ref={textAreaRef}
+            {...register('content')}
+            // ref={textAreaRef}
           />
           {errors.content && <ErrorMessage role="alert">{errors.content.message}</ErrorMessage>}
           <ButtonSection>
@@ -102,6 +136,7 @@ const WritePostPage = () => {
           </ButtonSection>
         </Form>
       </WritePostSection>
+      {loading && <Loading display={loading ? 'flex' : 'none'} />}
     </>
   );
 };
