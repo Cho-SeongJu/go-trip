@@ -7,7 +7,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import ErrorMessage from '../../components/errorMessage/ErrorMesage';
 import { database } from '../../../firebase';
 import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore/lite';
-import { uid } from '../../store/data';
+import { uid, userInfo } from '../../store/data';
 import Loading from '../../components/Loading';
 import { useRecoilValue } from 'recoil';
 
@@ -21,6 +21,7 @@ const WritePostPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const loginUID = useRecoilValue(uid);
+  const loginUserNickName = useRecoilValue(userInfo);
 
   const formSchema = yup.object({
     title: yup.string().required('제목은 필수 입력입니다.').min(6, '최소 6자 필수 입력입니다.').max(80, '최대 80자까지 입력 가능합니다.'),
@@ -64,6 +65,7 @@ const WritePostPage = () => {
           UID: loginUID,
           TITLE: title,
           CONTENT: content,
+          NICKNAME: loginUserNickName.NICKNAME,
         });
       } else {
         const size = querySnapShot.size;
@@ -73,6 +75,7 @@ const WritePostPage = () => {
           UID: loginUID,
           TITLE: title,
           CONTENT: content,
+          NICKNAME: loginUserNickName.NICKNAME,
         });
       }
     } catch (error) {
