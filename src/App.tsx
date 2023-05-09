@@ -8,6 +8,7 @@ import SignUpPage from './pages/SignUpPage.tsx';
 import SuccessSignUp from './pages/SuccessSignUp.tsx';
 import TripPage from './pages/TripPage.tsx';
 import WritePostPage from './pages/post/WritePostPage.tsx';
+import PostDetailPage from './pages/post/PostDetailPage.tsx';
 
 function App() {
   // const MainPage = lazy(() => import('./pages/MainPage'));
@@ -51,6 +52,10 @@ function App() {
         <Route
           path="/writePost"
           element={<WritePostPage />}
+        />
+        <Route
+          path="/post/:seq"
+          element={<PostDetailPage />}
         />
       </Routes>
     </>
