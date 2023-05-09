@@ -1,35 +1,47 @@
 import styled from '@emotion/styled';
+import { collection, getDocs } from 'firebase/firestore/lite';
+import { useEffect, useState } from 'react';
+import { database } from '../../../../firebase';
+import Loading from '../../Loading';
+interface DataType {
+  [key: string]: string;
+}
 
 const TripPost = () => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [posts, setPosts] = useState<DataType[]>([]);
+  const getPosts = async () => {
+    setLoading(true);
+    try {
+      const querySnapShot = await getDocs(collection(database, 'posts'));
+
+      const data = querySnapShot.docs.map((doc) => ({
+        ...doc.data(),
+      }));
+
+      setPosts(data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getPosts();
+  }, []);
   return (
     <>
       <PostSection>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
-        <Post>asd</Post>
+        {loading ? (
+          <Loading display="flex" />
+        ) : (
+          <>
+            {posts.map((post, index) => (
+              <Post key={index}>asd</Post>
+            ))}
+          </>
+        )}
       </PostSection>
     </>
   );
