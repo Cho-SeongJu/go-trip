@@ -1,15 +1,16 @@
 import styled from '@emotion/styled';
-import Header from '../../components/header/Header';
-import { useEffect, useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import ErrorMessage from '../../components/errorMessage/ErrorMesage';
-import { database } from '../../../firebase';
-import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore/lite';
-import { uid, userInfo } from '../../store/data';
-import Loading from '../../components/Loading';
+import { collection, doc, getDocs, setDoc } from 'firebase/firestore/lite';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useRecoilValue } from 'recoil';
+import * as yup from 'yup';
+import { database } from '../../../firebase';
+import Loading from '../../components/Loading';
+import ErrorMessage from '../../components/errorMessage/ErrorMesage';
+import Header from '../../components/header/Header';
+import { uid, userInfo } from '../../store/data';
+import { Carousel } from 'react-responsive-carousel';
 
 interface PostFormType {
   title: string;
@@ -19,6 +20,7 @@ interface PostFormType {
 const WritePostPage = () => {
   const [titleLength, setTitleLength] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
+  const [myImage, setMyImage] = useState<string[]>([]);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const loginUID = useRecoilValue(uid);
   const loginUserNickName = useRecoilValue(userInfo);
@@ -46,13 +48,6 @@ const WritePostPage = () => {
       setTitleLength(watchTitle.length);
     }
   }, [watchTitle]);
-
-  //   useEffect(() => {
-  //     if (textAreaRef.current !== null) {
-  //       textAreaRef.current.style.height = 'auto';
-  //       textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
-  //     }
-  //   }, [watchContent]);
 
   const onSubmit = async () => {
     setLoading(true);
@@ -98,6 +93,20 @@ const WritePostPage = () => {
     console.log('asd');
   };
 
+  const uploadImg = (event: ChangeEvent<HTMLInputElement>) => {
+    const nowSelectImageList = event.target.files;
+    const nowImageURLList = [...myImage];
+
+    if (nowSelectImageList != null) {
+      for (let i = 0; i < nowSelectImageList.length; i += 1) {
+        const nowImageUrl = URL.createObjectURL(nowSelectImageList[i]);
+        nowImageURLList.push(nowImageUrl);
+      }
+    }
+
+    setMyImage(nowImageURLList);
+  };
+
   return (
     <>
       <Header />
@@ -114,6 +123,9 @@ const WritePostPage = () => {
             <TitleLength>{titleLength} / 80</TitleLength>
           </TitleSection>
           {errors.title && <ErrorMessage role="alert">{errors.title.message}</ErrorMessage>}
+          <ImgUploadSection>
+            <Carousel />
+          </ImgUploadSection>
           <TextArea
             placeholder="내용을 입력하세요."
             // onChange={handleResizeHeight}
@@ -182,6 +194,8 @@ const TitleLength = styled.span`
   font-size: 1.7rem;
   color: var(--gray-color-3);
 `;
+
+const ImgUploadSection = styled.div``;
 
 const TextArea = styled.textarea`
   margin: 1rem 0;
