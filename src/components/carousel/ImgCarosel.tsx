@@ -17,19 +17,17 @@ const ImgCarousel = (props: PropsType) => {
           showThumbs={false}
           showArrows={true}
           infiniteLoop={true}
+          showStatus={false}
           // autoPlay={true}
         >
-          <CarouselSection>
-            {uploadImageList?.map((image, index) => (
-              <div key={index}>
-                <UploadImage
-                  src={image}
-                  alt=""
-                />
-                <p>asd</p>
-              </div>
-            ))}
-          </CarouselSection>
+          {uploadImageList?.map((image, index) => (
+            <SlideSection key={index}>
+              <UploadImage
+                src={image}
+                alt="carousel-image"
+              />
+            </SlideSection>
+          ))}
         </Carousel>
       )}
     </>
@@ -43,6 +41,12 @@ const CarouselSection = styled.div`
 `;
 
 const uploadImgNone = styled.p``;
+
+const SlideSection = styled.div`
+  width: 30rem;
+  height: 20rem;
+  overflow: hidden;
+`;
 
 const UploadImage = styled.img`
   object-fit: cover;

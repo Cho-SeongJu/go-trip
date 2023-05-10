@@ -12,6 +12,7 @@ import ErrorMessage from '../../components/errorMessage/ErrorMesage';
 import Header from '../../components/header/Header';
 import { uid, userInfo } from '../../store/data';
 import { useNavigate } from 'react-router-dom';
+import { Carousel } from 'react-responsive-carousel';
 
 interface PostFormType {
   title: string;
@@ -100,9 +101,9 @@ const WritePostPage = () => {
     console.log('asd');
   };
 
-  const handleUploadImages = (event) => {
+  const handleUploadImages = (event: ChangeEvent<HTMLInputElement & { files: FileList }>) => {
     const uploadImageList = event.target.files;
-    console.log(uploadImageList);
+    // console.log(uploadImageList);
     const nowImgURLList = [...uploadImage];
     console.log(nowImgURLList, '미리보기 파일 배열');
 
@@ -112,7 +113,7 @@ const WritePostPage = () => {
       const url = URL.createObjectURL(uploadImageList[i]);
       imageURLList.push(url);
     }
-
+    console.log(imageURLList);
     setUploadImage(imageURLList);
     // setUploadImage()
     // const imageList = event.target.files;
@@ -150,7 +151,7 @@ const WritePostPage = () => {
           </TitleSection>
           {errors.title && <ErrorMessage role="alert">{errors.title.message}</ErrorMessage>}
           <ImgUploadSection>
-            <ImgCarousel upload={uploadImage} />
+            {/* <ImgCarousel upload={uploadImage} /> */}
             <ImgUploadLabel
               htmlFor="input-file"
               onChange={handleUploadImages}
