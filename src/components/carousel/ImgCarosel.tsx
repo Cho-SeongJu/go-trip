@@ -13,7 +13,10 @@ const ImgCarousel = (props: PropsType) => {
   return (
     <>
       {uploadImageList?.length === 0 ? (
-        <CarouselSection>이미지를 업로드 해주세요.</CarouselSection>
+        <CarouselSection>
+          <Pharse>이미지 추가 버튼으로</Pharse>
+          <Pharse>이미지를 업로드 해주세요.</Pharse>
+        </CarouselSection>
       ) : (
         <Carousel
           showThumbs={false}
@@ -37,10 +40,22 @@ const ImgCarousel = (props: PropsType) => {
 };
 
 const CarouselSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   width: 30rem;
   height: 20rem;
   background-color: var(--gray-color-2);
   border-radius: 1%;
+`;
+
+const Pharse = styled.p`
+  font-size: 1rem;
+
+  &:first-of-type {
+    margin-bottom: 0.7rem;
+  }
 `;
 
 const SlideSection = styled.div`
