@@ -39,10 +39,9 @@ const ImgCarousel = (props: PropsType) => {
 const CarouselSection = styled.div`
   width: 30rem;
   height: 20rem;
-  border: 1px solid black;
+  background-color: var(--gray-color-2);
+  border-radius: 1%;
 `;
-
-const uploadImgNone = styled.p``;
 
 const SlideSection = styled.div`
   width: 30rem;
@@ -52,7 +51,7 @@ const SlideSection = styled.div`
 `;
 
 const UploadImage = styled.img`
-  object-fit: cover;
+  object-fit: contain;
 `;
 
 export default ImgCarousel;

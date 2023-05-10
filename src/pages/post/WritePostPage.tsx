@@ -103,10 +103,7 @@ const WritePostPage = () => {
 
   const handleUploadImages = (event: ChangeEvent<HTMLInputElement & { files: FileList }>) => {
     const uploadImageList = event.target.files;
-    // console.log(uploadImageList);
     const nowImgURLList = [...uploadImage];
-    console.log(nowImgURLList, '미리보기 파일 배열');
-
     const imageURLList = [];
 
     for (let i = 0; i < uploadImageList.length; i++) {
@@ -151,7 +148,7 @@ const WritePostPage = () => {
           </TitleSection>
           {errors.title && <ErrorMessage role="alert">{errors.title.message}</ErrorMessage>}
           <ImgUploadSection>
-            {/* <ImgCarousel upload={uploadImage} /> */}
+            <ImgCarousel upload={uploadImage} />
             <ImgUploadLabel
               htmlFor="input-file"
               onChange={handleUploadImages}
