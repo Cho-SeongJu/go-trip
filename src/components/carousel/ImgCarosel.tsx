@@ -1,6 +1,5 @@
 import styled from '@emotion/styled';
 import { Carousel } from 'react-responsive-carousel';
-import { Link } from 'react-router-dom';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import '../../assets/css/carousel.css';
 
