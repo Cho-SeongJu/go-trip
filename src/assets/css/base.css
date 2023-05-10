@@ -22,3 +22,13 @@
 
   --loading-backgroun-color: rgba(252, 252, 252, 0.5);
 }
+
+.writePostTextArea {
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--gray-color-1);
+  border-radius: 0.2rem;
+  outline: none;
+  font-size: 1rem;
+}

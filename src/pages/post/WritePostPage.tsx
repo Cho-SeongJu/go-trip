@@ -12,6 +12,7 @@ import ImgCarousel from '../../components/carousel/ImgCarosel';
 import ErrorMessage from '../../components/errorMessage/ErrorMesage';
 import Header from '../../components/header/Header';
 import { uid, userInfo } from '../../store/data';
+import TextareaAutosize from 'react-textarea-autosize';
 
 interface PostFormType {
   title: string;
@@ -29,8 +30,8 @@ const WritePostPage = () => {
   const navigate = useNavigate();
 
   const formSchema = yup.object({
-    title: yup.string().required('제목은 필수 입력입니다.').min(6, '최소 6자 필수 입력입니다.').max(80, '최대 80자까지 입력 가능합니다.'),
-    // content: yup.string().required('내용은 필수 입력입니다.').min(10, '최소 10자 필수 입력입니다.'),
+    title: yup.string().required('제목 입력은 필수입니다.').min(6, '최소 6자 필수 입력입니다.').max(80, '최대 80자까지 입력 가능합니다.'),
+    content: yup.string().required('내용 입력은 필수입니다.').min(12, '최소 12자 필수 입력입니다.'),
   });
 
   const {
@@ -41,10 +42,7 @@ const WritePostPage = () => {
     watch,
   } = useForm<PostFormType>({ mode: 'onBlur', resolver: yupResolver(formSchema) });
 
-  const { ref, ...rest } = register('content');
-
   const watchTitle = watch('title');
-  const watchContent = watch('content');
 
   useEffect(() => {
     if (typeof watchTitle === 'string') {
@@ -88,17 +86,6 @@ const WritePostPage = () => {
     }
   };
 
-  useEffect(() => {
-    if (textAreaRef.current !== null) {
-      textAreaRef.current.style.height = 'auto';
-      textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
-    }
-  }, [watchContent]);
-
-  const test = () => {
-    console.log('asd');
-  };
-
   const handleUploadImages = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files === null) return;
 
@@ -130,7 +117,6 @@ const WritePostPage = () => {
             <TitleInputBox
               type="text"
               placeholder="제목을 입력하세요."
-              //   onChange={onChangeHadler}
               id="title"
               {...register('title')}
             />
@@ -156,19 +142,19 @@ const WritePostPage = () => {
               </ImageList>
             </ImageUploadSection>
           </ImageSection>
-          <TextArea
-            placeholder="내용을 입력하세요."
-            // onChange={handleResizeHeight}
+          <TextareaAutosize
+            className="writePostTextArea"
+            autoFocus
             rows={1}
+            placeholder="내용을 입력하세요."
             id="content"
             {...register('content')}
-            // ref={textAreaRef}
           />
           {errors.content && <ErrorMessage role="alert">{errors.content.message}</ErrorMessage>}
           <ButtonSection>
             <Button
               color="var(--blue-sky-color-1)"
-              onClick={test}
+              type="submit"
             >
               저장
             </Button>
@@ -195,7 +181,8 @@ const WritePostSection = styled.div`
 const TitleSection = styled.div`
   display: flex;
   border-bottom: 1px solid var(--gray-color-3);
-  margin-top: 5rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
 `;
 
 const Form = styled.form`
@@ -227,7 +214,7 @@ const TitleLength = styled.span`
 
 const ImageSection = styled.div`
   display: flex;
-  margin-top: 3rem;
+  margin-top: 2rem;
 `;
 
 const ImageUploadSection = styled.div`

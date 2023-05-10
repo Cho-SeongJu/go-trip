@@ -148,3 +148,7 @@ a {
 body {
   height: 100%;
 }
+
+textarea {
+  resize: none;
+}
