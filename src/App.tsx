@@ -9,6 +9,7 @@ import SuccessSignUp from './pages/SuccessSignUp.tsx';
 import TripPage from './pages/TripPage.tsx';
 import WritePostPage from './pages/post/WritePostPage.tsx';
 import PostDetailPage from './pages/post/PostDetailPage.tsx';
+import Test from './components/carousel/Test.tsx';
 
 function App() {
   // const MainPage = lazy(() => import('./pages/MainPage'));
@@ -56,6 +57,10 @@ function App() {
         <Route
           path="/post/:seq"
           element={<PostDetailPage />}
+        />
+        <Route
+          path="/post/test"
+          element={<Test />}
         />
       </Routes>
     </>
