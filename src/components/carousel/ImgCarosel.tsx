@@ -1,6 +1,8 @@
 import styled from '@emotion/styled';
 import { Carousel } from 'react-responsive-carousel';
 import { Link } from 'react-router-dom';
+import 'react-responsive-carousel/lib/styles/carousel.min.css';
+import '../../assets/css/carousel.css';
 
 interface PropsType {
   upload: string[] | null;
@@ -46,6 +48,7 @@ const SlideSection = styled.div`
   width: 30rem;
   height: 20rem;
   overflow: hidden;
+  border: 1px solid black;
 `;
 
 const UploadImage = styled.img`
