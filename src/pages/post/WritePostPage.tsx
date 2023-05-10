@@ -1,9 +1,11 @@
 import styled from '@emotion/styled';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { collection, doc, getDocs, setDoc } from 'firebase/firestore/lite';
-import { ChangeEvent, FormEventHandler, useEffect, useRef, useState } from 'react';
+import { getStorage, ref, uploadBytes } from 'firebase/storage';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import TextareaAutosize from 'react-textarea-autosize';
 import { useRecoilValue } from 'recoil';
 import * as yup from 'yup';
 import { database } from '../../../firebase';
@@ -12,19 +14,20 @@ import ImgCarousel from '../../components/carousel/ImgCarosel';
 import ErrorMessage from '../../components/errorMessage/ErrorMesage';
 import Header from '../../components/header/Header';
 import { uid, userInfo } from '../../store/data';
-import TextareaAutosize from 'react-textarea-autosize';
 
 interface PostFormType {
   title: string;
   content: string;
 }
 
+type DateType = string | number;
+
 const WritePostPage = () => {
   const [titleLength, setTitleLength] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [uploadImage, setUploadImage] = useState<string[]>([]);
   const [uploadImageName, setUploadImageName] = useState<string[]>([]);
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const [uploadImageFile, setUploadImageFile] = useState<FileList>();
   const loginUID = useRecoilValue(uid);
   const loginUserNickName = useRecoilValue(userInfo);
   const navigate = useNavigate();
@@ -48,7 +51,33 @@ const WritePostPage = () => {
     if (typeof watchTitle === 'string') {
       setTitleLength(watchTitle.length);
     }
+    const today = new Date();
+    today.setHours(today.getHours() + 9);
+    today.toISOString().replace('T', '').substring(0, 19);
+    console.log(today.toISOString().replace('T', '').substring(0, 19));
   }, [watchTitle]);
+
+  const getData = () => {
+    const date = new Date();
+    const year = date.getFullYear().toString();
+
+    let month: DateType = date.getMonth() + 1;
+    month = month < 10 ? '0' + month.toString() : month.toString();
+
+    let day: DateType = date.getDate();
+    day = day < 10 ? '0' + day.toString() : day.toString();
+
+    let hour: DateType = date.getHours();
+    hour = hour < 10 ? '0' + hour.toString() : hour.toString();
+
+    let minites: DateType = date.getMinutes();
+    minites = minites < 10 ? '0' + minites.toString() : minites.toString();
+
+    let seconds: DateType = date.getSeconds();
+    seconds = seconds < 10 ? '0' + seconds.toString() : seconds.toString();
+
+    return year + month + day + hour + minites + seconds;
+  };
 
   const onSubmit = async () => {
     setLoading(true);
@@ -56,10 +85,13 @@ const WritePostPage = () => {
     const content = getValues().content;
     const querySnapShot = await getDocs(collection(database, 'posts'));
     let postID = 0;
+
+    const date = getData();
+
     try {
       if (querySnapShot.empty) {
         postID = 1;
-        await setDoc(doc(database, 'posts', 'post' + String(postID)), {
+        await setDoc(doc(database, 'posts', 'post' + date), {
           UID: loginUID,
           TITLE: title,
           CONTENT: content,
@@ -68,9 +100,11 @@ const WritePostPage = () => {
       } else {
         const size = querySnapShot.size;
         const id = querySnapShot.docs[size - 1].id;
+        console.log(querySnapShot.docs[size - 1]);
         postID = Number(id.substring(4, id.length));
-
-        await setDoc(doc(database, 'posts', 'post' + String(postID + 1)), {
+        console.log(postID);
+        uploadImageServer(date);
+        await setDoc(doc(database, 'posts', loginUID + date), {
           UID: loginUID,
           TITLE: title,
           CONTENT: content,
@@ -90,6 +124,8 @@ const WritePostPage = () => {
     if (event.target.files === null) return;
 
     const uploadImageList = event.target.files;
+    setUploadImageFile(uploadImageList);
+
     const uploadImageNameList = uploadImageName.length === 0 ? [] : [...uploadImageName];
 
     for (let i = 0; i < uploadImageList.length; i++) {
@@ -102,10 +138,22 @@ const WritePostPage = () => {
 
     for (let i = 0; i < uploadImageList.length; i++) {
       const url = URL.createObjectURL(uploadImageList[i]);
+      console.log(typeof url);
       imageURLList.push(url);
     }
 
     setUploadImage(imageURLList);
+  };
+
+  const uploadImageServer = async (date: string) => {
+    const storage = getStorage();
+
+    if (uploadImageFile !== undefined) {
+      for (let i = 0; i < uploadImageName.length; i++) {
+        const storageRef = ref(storage, `images/${loginUID}${date}/${uploadImageName[i]}`);
+        await uploadBytes(storageRef, uploadImageFile[i]);
+      }
+    }
   };
 
   return (
@@ -248,22 +296,6 @@ const ImageName = styled.p`
   padding: 0.6rem 0.5rem;
   border-bottom: 1px solid var(--gray-color-1);
   font-size: 0.9rem;
-`;
-
-const TextArea = styled.textarea`
-  margin-top: 3rem;
-  margin-bottom: 1rem;
-  padding: 0.5rem;
-  font-size: 0.8rem;
-  line-height: 1.5;
-  border: none;
-  border-bottom: 1px solid var(--gray-color-3);
-  resize: none;
-  outline: none;
-
-  &::placeholder {
-    font-size: 0.9rem;
-  }
 `;
 
 const ButtonSection = styled.div`
