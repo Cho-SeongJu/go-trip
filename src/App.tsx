@@ -1,15 +1,11 @@
-import { collection } from 'firebase/firestore/lite';
-import { useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { database } from '../firebase.ts';
 import LoginPage from './pages/LoginPage.tsx';
 import { default as MainPage, default as Mypage } from './pages/MainPage.tsx';
 import SignUpPage from './pages/SignUpPage.tsx';
 import SuccessSignUp from './pages/SuccessSignUp.tsx';
 import TripPage from './pages/TripPage.tsx';
-import WritePostPage from './pages/post/WritePostPage.tsx';
 import PostDetailPage from './pages/post/PostDetailPage.tsx';
-import Test from './components/carousel/Test.tsx';
+import WritePostPage from './pages/post/WritePostPage.tsx';
 
 function App() {
   // const MainPage = lazy(() => import('./pages/MainPage'));
@@ -57,10 +53,6 @@ function App() {
         <Route
           path="/post/:seq"
           element={<PostDetailPage />}
-        />
-        <Route
-          path="/post/test"
-          element={<Test />}
         />
       </Routes>
     </>
