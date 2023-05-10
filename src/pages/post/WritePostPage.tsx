@@ -1,8 +1,9 @@
 import styled from '@emotion/styled';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { collection, doc, getDocs, setDoc } from 'firebase/firestore/lite';
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, FormEventHandler, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import * as yup from 'yup';
 import { database } from '../../../firebase';
@@ -11,8 +12,6 @@ import ImgCarousel from '../../components/carousel/ImgCarosel';
 import ErrorMessage from '../../components/errorMessage/ErrorMesage';
 import Header from '../../components/header/Header';
 import { uid, userInfo } from '../../store/data';
-import { useNavigate } from 'react-router-dom';
-import { Carousel } from 'react-responsive-carousel';
 
 interface PostFormType {
   title: string;
@@ -23,6 +22,7 @@ const WritePostPage = () => {
   const [titleLength, setTitleLength] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [uploadImage, setUploadImage] = useState<string[]>([]);
+  const [uploadImageName, setUploadImageName] = useState<string[]>([]);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const loginUID = useRecoilValue(uid);
   const loginUserNickName = useRecoilValue(userInfo);
@@ -69,9 +69,7 @@ const WritePostPage = () => {
         });
       } else {
         const size = querySnapShot.size;
-        // postID = Number(querySnapShot.docs[size - 1].id);
         const id = querySnapShot.docs[size - 1].id;
-        console.log(id);
         postID = Number(id.substring(4, id.length));
 
         await setDoc(doc(database, 'posts', 'post' + String(postID + 1)), {
@@ -101,34 +99,26 @@ const WritePostPage = () => {
     console.log('asd');
   };
 
-  const handleUploadImages = (event: ChangeEvent<HTMLInputElement & { files: FileList }>) => {
+  const handleUploadImages = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files === null) return;
+
     const uploadImageList = event.target.files;
-    const nowImgURLList = [...uploadImage];
-    const imageURLList = [];
+    const uploadImageNameList = uploadImageName.length === 0 ? [] : [...uploadImageName];
+
+    for (let i = 0; i < uploadImageList.length; i++) {
+      uploadImageNameList.push(uploadImageList[i].name);
+    }
+
+    setUploadImageName(uploadImageNameList);
+
+    const imageURLList = uploadImage.length === 0 ? [] : [...uploadImage];
 
     for (let i = 0; i < uploadImageList.length; i++) {
       const url = URL.createObjectURL(uploadImageList[i]);
       imageURLList.push(url);
     }
-    console.log(imageURLList);
+
     setUploadImage(imageURLList);
-    // setUploadImage()
-    // const imageList = event.target.files;
-    // let imageUrlList = [];
-    // if (imageList !== null) {
-    //   imageUrlList = [...imageList];
-    // }
-    // if (imageList != null) {
-    //   for (let i = 0; i < imageList.length; i++) {
-    //     const currentImageUrl = URL.createObjectURL(imageList[i]);
-    //     imageUrlList.push(currentImageUrl);
-    //   }
-    // }
-    // if (imageUrlList.length > 10) {
-    //   imageUrlList = imageUrlList.slice(0, 10);
-    // }
-    // console.log(imageUrlList);
-    // setUploadImage(imageUrlList);
   };
 
   return (
@@ -147,19 +137,25 @@ const WritePostPage = () => {
             <TitleLength>{titleLength} / 80</TitleLength>
           </TitleSection>
           {errors.title && <ErrorMessage role="alert">{errors.title.message}</ErrorMessage>}
-          <ImgUploadSection>
+          <ImageSection>
             <ImgCarousel upload={uploadImage} />
-            <ImgUploadLabel
-              htmlFor="input-file"
-              onChange={handleUploadImages}
-            >
-              <ImgUploadInput
-                type="file"
-                id="input-file"
-                multiple
-              />
-            </ImgUploadLabel>
-          </ImgUploadSection>
+            <ImageUploadSection>
+              <ImageUploadLabel htmlFor="inputFile">
+                이미지 추가
+                <ImageUploadInput
+                  type="file"
+                  id="inputFile"
+                  multiple
+                  onChange={handleUploadImages}
+                />
+              </ImageUploadLabel>
+              <ImageList>
+                {uploadImageName.map((image) => (
+                  <ImageName>{image}</ImageName>
+                ))}
+              </ImageList>
+            </ImageUploadSection>
+          </ImageSection>
           <TextArea
             placeholder="내용을 입력하세요."
             // onChange={handleResizeHeight}
@@ -199,7 +195,7 @@ const WritePostSection = styled.div`
 const TitleSection = styled.div`
   display: flex;
   border-bottom: 1px solid var(--gray-color-3);
-  margin: 1rem 0;
+  margin-top: 5rem;
 `;
 
 const Form = styled.form`
@@ -229,20 +225,46 @@ const TitleLength = styled.span`
   color: var(--gray-color-3);
 `;
 
-const ImgUploadSection = styled.div`
+const ImageSection = styled.div`
   display: flex;
+  margin-top: 3rem;
 `;
 
-const ImgUploadInput = styled.input``;
-
-const ImgUploadLabel = styled.label``;
-
-const ImgList = styled.div`
+const ImageUploadSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-left: 1rem;
   flex-grow: 1;
 `;
 
+const ImageUploadLabel = styled.label`
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: var(--black-color-2);
+  color: var(--white-color-1);
+  text-align: center;
+  border-radius: 2rem;
+  cursor: pointer;
+`;
+
+const ImageUploadInput = styled.input`
+  display: none;
+`;
+
+const ImageList = styled.div`
+  height: 5rem;
+  flex-grow: 1;
+  overflow: auto;
+`;
+
+const ImageName = styled.p`
+  padding: 0.6rem 0.5rem;
+  border-bottom: 1px solid var(--gray-color-1);
+  font-size: 0.9rem;
+`;
+
 const TextArea = styled.textarea`
-  margin: 1rem 0;
+  margin-top: 3rem;
   margin-bottom: 1rem;
   padding: 0.5rem;
   font-size: 0.8rem;
