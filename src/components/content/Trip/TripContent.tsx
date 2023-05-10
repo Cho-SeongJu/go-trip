@@ -3,10 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { uid } from '../../../store/data';
 import TripPost from './TripPost';
-import { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore/lite';
-import { database } from '../../../../firebase';
-import Loading from '../../Loading';
 
 const TripContent = () => {
   const userAuth = useRecoilValue(uid);
