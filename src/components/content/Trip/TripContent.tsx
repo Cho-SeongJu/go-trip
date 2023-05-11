@@ -22,21 +22,43 @@ const TripContent = () => {
     <>
       <Section>
         <FilterSection>
-          <SelectBoxSection>
-            <SearchCondition>
-              <SearchPharse>글제목</SearchPharse>
-              <DropDownSection></DropDownSection>
-            </SearchCondition>
-            <ConditionList>
-              {searchConditionArr.map((item, index) => (
-                <ConditionListItem key={index}>{item}</ConditionListItem>
-              ))}
-            </ConditionList>
-          </SelectBoxSection>
-          <SearchKeywordSection>
-            <SearchKeyword type="text" />
-          </SearchKeywordSection>
-          <WritePost onClick={CheckAuth}>글쓰기</WritePost>
+          <Sort>
+            <SelectBoxSection>
+              <SearchCondition>
+                <SearchPharse>글제목</SearchPharse>
+                <DropDown>
+                  <svg
+                    version="1.1"
+                    id="Capa_1"
+                    xmlns="http://www.w3.org/2000/svg"
+                    xmlnsXlink="http://www.w3.org/1999/xlink"
+                    x="0px"
+                    y="0px"
+                    viewBox="0 0 517.8 306.6"
+                    width={15}
+                    xmlSpace="preserve"
+                    fill="var(--black-color-1)"
+                  >
+                    <g>
+                      <path
+                        d="M258.9,306.6l-249-249C-3.3,44.5-3.3,23.1,9.9,9.9c13.2-13.2,34.6-13.2,47.8,0l201.2,201.2L460.1,9.9
+		c13.2-13.2,34.6-13.2,47.8,0c13.2,13.2,13.2,34.6,0,47.8L258.9,306.6z"
+                      />
+                    </g>
+                  </svg>
+                </DropDown>
+              </SearchCondition>
+              <ConditionList>
+                {searchConditionArr.map((item, index) => (
+                  <ConditionListItem key={index}>{item}</ConditionListItem>
+                ))}
+              </ConditionList>
+            </SelectBoxSection>
+            <SearchKeywordSection>
+              <SearchKeyword type="text" />
+            </SearchKeywordSection>
+            <WritePostButton onClick={CheckAuth}>글쓰기</WritePostButton>
+          </Sort>
         </FilterSection>
         <TripPost />
       </Section>
@@ -51,12 +73,19 @@ const Section = styled.div`
 `;
 
 const FilterSection = styled.div`
-  display: flex;
+  margin-top: 2rem;
+  width: inherit;
 `;
 
 const SelectBoxSection = styled.div`
-  width: 10rem;
-  height: 3rem;
+  width: 5rem;
+`;
+
+const Sort = styled.div`
+  display: flex;
+  float: right;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
 `;
 
 const SearchCondition = styled.div`
@@ -72,7 +101,7 @@ const SearchPharse = styled.p`
   width: 5rem;
 `;
 
-const DropDownSection = styled.div`
+const DropDown = styled.div`
   width: 3rem;
   height: 2rem;
   border: 1px solid black;
@@ -84,15 +113,40 @@ const ConditionList = styled.ul`
 
 const ConditionListItem = styled.li``;
 
-const SearchKeywordSection = styled.div``;
+const SearchKeywordSection = styled.div`
+  margin: auto 1rem;
+`;
 
-const SearchKeyword = styled.input``;
+const SearchKeyword = styled.input`
+  padding: 0.5rem;
+`;
 
-const WritePost = styled.button`
-  width: 5rem;
-  height: 1.5rem;
+const WritePostSection = styled.div`
+  display: flex;
+  border-radius: 0.2rem;
+  color: var(--white-color-1);
+  background-color: var(--blue-sky-color-1);
+  cursor: pointer;
+`;
+
+const WritePostButton = styled.button`
+  margin-left: 3rem;
+  padding: 0.7rem 1rem;
   background-color: var(--blue-sky-color-1);
   color: var(--white-color-1);
+  border: none;
+  border-radius: 0.2rem;
+  cursor: pointer;
+
+  &: hover {
+    opacity: 0.8;
+  }
+`;
+
+const DropDownIcon = styled.div`
+  display: flex;
+  align-items: center;
+  margin-right: 0.7rem;
 `;
 
 export default TripContent;
