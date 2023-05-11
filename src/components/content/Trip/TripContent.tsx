@@ -24,35 +24,16 @@ const TripContent = () => {
         <FilterSection>
           <Sort>
             <SelectBoxSection>
-              <SearchCondition>
-                <SearchPharse>글제목</SearchPharse>
-                <DropDown>
-                  <svg
-                    version="1.1"
-                    id="Capa_1"
-                    xmlns="http://www.w3.org/2000/svg"
-                    xmlnsXlink="http://www.w3.org/1999/xlink"
-                    x="0px"
-                    y="0px"
-                    viewBox="0 0 517.8 306.6"
-                    width={15}
-                    xmlSpace="preserve"
-                    fill="var(--black-color-1)"
-                  >
-                    <g>
-                      <path
-                        d="M258.9,306.6l-249-249C-3.3,44.5-3.3,23.1,9.9,9.9c13.2-13.2,34.6-13.2,47.8,0l201.2,201.2L460.1,9.9
-		c13.2-13.2,34.6-13.2,47.8,0c13.2,13.2,13.2,34.6,0,47.8L258.9,306.6z"
-                      />
-                    </g>
-                  </svg>
-                </DropDown>
-              </SearchCondition>
-              <ConditionList>
+              <Selectbox name="searchType">
                 {searchConditionArr.map((item, index) => (
-                  <ConditionListItem key={index}>{item}</ConditionListItem>
+                  <option
+                    value={item}
+                    key={index}
+                  >
+                    {item}
+                  </option>
                 ))}
-              </ConditionList>
+              </Selectbox>
             </SelectBoxSection>
             <SearchKeywordSection>
               <SearchKeyword type="text" />
@@ -78,7 +59,7 @@ const FilterSection = styled.div`
 `;
 
 const SelectBoxSection = styled.div`
-  width: 5rem;
+  margin: auto 0;
 `;
 
 const Sort = styled.div`
@@ -86,6 +67,12 @@ const Sort = styled.div`
   float: right;
   margin-top: 1.5rem;
   margin-bottom: 1rem;
+`;
+
+const Selectbox = styled.select`
+  padding: 0.5rem;
+  font-size: 1rem;
+  outline: none;
 `;
 
 const SearchCondition = styled.div`
@@ -114,7 +101,7 @@ const ConditionList = styled.ul`
 const ConditionListItem = styled.li``;
 
 const SearchKeywordSection = styled.div`
-  margin: auto 1rem;
+  margin: auto 0.3rem;
 `;
 
 const SearchKeyword = styled.input`
