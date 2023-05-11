@@ -20,7 +20,6 @@ interface SignUpType extends FormValueType {
 }
 
 const CHECK_NICKNAME_ERROR_MSG = '이미 사용중인 닉네임입니다.';
-const CHECK_EMAIL_ERROR_MSG = '이미 사용중인 이메일입니다.';
 
 const SignUpPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
