@@ -26,7 +26,7 @@ const Header = () => {
         auth.signOut();
         setUserUID('anonymous');
         removeCookie('uid');
-        setLoginUserInfo({});
+        setLoginUserInfo({ NICKNAME: 'anonymous' });
         navigate('/');
       } catch (err) {
         alert('잠시 후 다시 로그아웃을 해주세요.');
@@ -40,7 +40,7 @@ const Header = () => {
         <DetailSection>
           <Logo />
           <LoginSingUpLinkSection>
-            {loginUserInfo && Object.keys(loginUserInfo).length !== 0 && (
+            {loginUserInfo['NICKNAME'] !== 'anonymous' && (
               <WelcomePharse>
                 <UserNickName>{loginUserInfo?.NICKNAME}</UserNickName>
                 님, 환영합니다.
