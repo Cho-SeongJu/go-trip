@@ -59,6 +59,9 @@ const PostDetailPage = () => {
         <Loading display="flex" />
       ) : (
         <Section>
+          <ToggleSection>
+            <Toggle>asd</Toggle>
+          </ToggleSection>
           <CarouselSection></CarouselSection>
           <Title>{postData.TITLE}</Title>
           <Profile>
@@ -94,9 +97,18 @@ const Section = styled.div`
   margin: var(--common-margin);
 `;
 
+const ToggleSection = styled.div`
+  margin-top: 2rem;
+  height: 1rem;
+`;
+
+const Toggle = styled.span`
+  float: right;
+`;
+
 const CarouselSection = styled.div`
   margin: 0 auto;
-  margin-top: 5rem;
+  margin-top: 2rem;
   width: var(--common-post-width);
   height: 30rem;
   border: 1px solid black;
