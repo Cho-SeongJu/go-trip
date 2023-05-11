@@ -8,10 +8,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import { auth, database } from '../../firebase';
 import BtnSubmit from '../components/BtnSubmit';
-import Logo from '../components/Logo';
 import ErrorMessage from '../components/errorMessage/ErrorMesage';
 import { uid, userInfo } from '../store/data';
 import { ErrorType, FormValueType } from '../type/type';
+import Logo from '../components/Logo';
 
 type ErrorMsgType = string;
 
