@@ -134,7 +134,7 @@ const ProfilePharse = styled.p`
 `;
 
 const Content = styled.p`
-  margin-top: 2rem;
+  padding: 2rem 0;
   border-bottom: 1px solid var(--gray-color-2);
 `;
 
@@ -152,9 +152,6 @@ const CommentInputSection = styled.div`
   margin: 2rem 0;
   border: 1px solid var(--gray-color-2);
   border-radius: 0.2rem;
-  &:hover {
-    border: 2px solid var(--blue-sky-color-2);
-  }
 `;
 
 const CommentInput = styled.input``;
@@ -163,6 +160,7 @@ const CommentInputEnter = styled.span`
   flex-grow: 1;
   padding-top: 1rem;
   text-align: center;
+  color: var(--gray-color-3);
 `;
 
 export default PostDetailPage;
