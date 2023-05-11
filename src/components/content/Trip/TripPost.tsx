@@ -1,11 +1,9 @@
 import styled from '@emotion/styled';
 import { collection, getDocs } from 'firebase/firestore/lite';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { database } from '../../../../firebase';
 import Loading from '../../Loading';
-import { useRecoilValue } from 'recoil';
-import { userInfo } from '../../../store/data';
-import { Link } from 'react-router-dom';
 interface DataType {
   [key: string]: string;
 }
@@ -13,6 +11,7 @@ interface DataType {
 const TripPost = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [posts, setPosts] = useState<DataType[]>([]);
+
   const getPosts = async () => {
     setLoading(true);
     try {
@@ -38,6 +37,10 @@ const TripPost = () => {
       <PostSection>
         {loading ? (
           <Loading display="flex" />
+        ) : posts.length === 0 ? (
+          <NonePostsSection>
+            <NonePostsPharse>등록된 게시물이 없습니다.</NonePostsPharse>
+          </NonePostsSection>
         ) : (
           <>
             {posts.map((post, index) => (
@@ -46,8 +49,10 @@ const TripPost = () => {
                 to={`/post/${post.ID}`}
               >
                 <Img></Img>
-                <Title>{post.TITLE}</Title>
-                <Nickname>{post.NICKNAME}</Nickname>
+                <DescriptionSection>
+                  <Title>{post.TITLE}</Title>
+                  <Nickname>작성자 : {post.NICKNAME}</Nickname>
+                </DescriptionSection>
               </Post>
             ))}
           </>
@@ -62,19 +67,53 @@ const PostSection = styled.div`
   grid-template-columns: 1fr 1fr 1fr;
   flex-wrap: wrap;
   width: var(--common-width);
+  height: calc(100vh - 10rem - 3.2rem - 15rem);
 `;
+
+const NonePostsSection = styled.div`
+  display: flex;
+  width: inherit;
+  height: inherit;
+  justify-content: center;
+  align-items: center;
+`;
+
+const NonePostsPharse = styled.p``;
 
 const Post = styled(Link)`
   margin: 1rem;
   width: 20rem;
-  height: 15rem;
-  border: 1px solid black;
+  height: 22rem;
+  // border: 1px solid black;
+  color: var(--black-color-1);
 `;
 
-const Img = styled.div``;
+const DescriptionSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 20rem;
+`;
 
-const Title = styled.p``;
+const Img = styled.div`
+  width: 20rem;
+  height: 15rem;
+  border: 1px solid black;
+  border-radius: 0.5rem;
+`;
 
-const Nickname = styled.p``;
+const Title = styled.p`
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+  font-size: 1.1rem;
+  font-weight: 500;
+`;
+
+const Nickname = styled.p`
+  margin: 0.5rem;
+  font-size: 0.8rem;
+`;
 
 export default TripPost;
