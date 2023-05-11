@@ -9,12 +9,12 @@ import styled from '@emotion/styled';
 import Footer from '../../components/footer/Footer';
 import TextareaAutosize from 'react-textarea-autosize';
 
-interface PostDataType {
-  UID: string;
-  NICKNAME: string;
-  TITLE: string;
-  CONTENT: string;
-}
+// interface PostDataType {
+//   UID: string;
+//   NICKNAME: string;
+//   TITLE: string;
+//   CONTENT: string;
+// }
 
 const PostDetailPage = () => {
   const { seq } = useParams();
@@ -153,8 +153,6 @@ const CommentInputSection = styled.div`
   border: 1px solid var(--gray-color-2);
   border-radius: 0.2rem;
 `;
-
-const CommentInput = styled.input``;
 
 const CommentInputEnter = styled.span`
   flex-grow: 1;
