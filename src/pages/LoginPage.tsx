@@ -56,12 +56,18 @@ const LoginPage = () => {
       const docRef = doc(database, 'users', uid);
       const docSnap = await getDoc(docRef);
 
-      console.log(docSnap.data());
-
-      setCookie('uid', uid, { path: '/', expires: expireTime });
       setUID(uid);
-      setLoginUserInfo(docSnap.data());
+      const nickname = docSnap.data();
+
+      if (nickname !== undefined) {
+        const obj = {
+          NICKNAME: nickname['NICKNAME'],
+        };
+        setLoginUserInfo(obj);
+      }
+
       console.log('로그인 성공');
+      setCookie('uid', uid, { path: '/', expires: expireTime });
       navigate('/');
     } catch (error) {
       const err = error as ErrorType;
