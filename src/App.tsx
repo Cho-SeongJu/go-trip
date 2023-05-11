@@ -1,11 +1,12 @@
 import { Route, Routes } from 'react-router-dom';
 import LoginPage from './pages/LoginPage.tsx';
-import { default as MainPage, default as Mypage } from './pages/MainPage.tsx';
 import SignUpPage from './pages/SignUpPage.tsx';
 import SuccessSignUp from './pages/SuccessSignUp.tsx';
 import TripPage from './pages/TripPage.tsx';
 import PostDetailPage from './pages/post/PostDetailPage.tsx';
 import WritePostPage from './pages/post/WritePostPage.tsx';
+import MainPage from './pages/MainPage.tsx';
+import MyPage from './pages/user/MyPage.tsx';
 
 function App() {
   // const MainPage = lazy(() => import('./pages/MainPage'));
@@ -44,7 +45,7 @@ function App() {
         />
         <Route
           path="/user/profile"
-          element={<Mypage />}
+          element={<MyPage />}
         />
         <Route
           path="/writePost"
