@@ -89,29 +89,19 @@ const WritePostPage = () => {
     const date = getData();
 
     try {
-      if (querySnapShot.empty) {
-        postID = 1;
-        await setDoc(doc(database, 'posts', 'post' + date), {
-          UID: loginUID,
-          TITLE: title,
-          CONTENT: content,
-          NICKNAME: loginUserNickName.NICKNAME,
-        });
-      } else {
-        const size = querySnapShot.size;
-        const id = querySnapShot.docs[size - 1].id;
-        console.log(querySnapShot.docs[size - 1]);
-        postID = Number(id.substring(4, id.length));
-        console.log(postID);
-        uploadImageServer(date);
-        await setDoc(doc(database, 'posts', loginUID + date), {
-          UID: loginUID,
-          TITLE: title,
-          CONTENT: content,
-          NICKNAME: loginUserNickName.NICKNAME,
-        });
-      }
-      navigate(`/post/post${postID}`);
+      const size = querySnapShot.size;
+      const id = querySnapShot.docs[size - 1].id;
+      console.log(querySnapShot.docs[size - 1]);
+      postID = Number(id.substring(4, id.length));
+      console.log(postID);
+      uploadImageServer(date);
+      await setDoc(doc(database, 'posts', 'post' + loginUID + date), {
+        UID: loginUID,
+        TITLE: title,
+        CONTENT: content,
+        NICKNAME: loginUserNickName.NICKNAME,
+      });
+      navigate(`/post/post${loginUID}${postID}`);
     } catch (error) {
       alert('처리 중 오류가 발생하였습니다. 잠시 후 다시 시도하시길 바랍니다.');
       console.log(error);
