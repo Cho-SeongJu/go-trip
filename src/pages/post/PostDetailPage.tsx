@@ -5,6 +5,9 @@ import { database } from '../../../firebase';
 import Header from '../../components/header/Header';
 import Loading from '../../components/Loading';
 import { DocumentData } from 'firebase/firestore/lite';
+import styled from '@emotion/styled';
+import Footer from '../../components/footer/Footer';
+import TextareaAutosize from 'react-textarea-autosize';
 
 interface PostDataType {
   UID: string;
@@ -55,14 +58,111 @@ const PostDetailPage = () => {
       {loading ? (
         <Loading display="flex" />
       ) : (
-        <>
-          <div>{postData.TITLE}</div>
-          <div>{postData.CONTENT}</div>
-          <div>{postData.NICKNAME}</div>
-        </>
+        <Section>
+          <CarouselSection></CarouselSection>
+          <Title>{postData.TITLE}</Title>
+          <Profile>
+            {/* <ProfileImage src=""/> */}
+            <ProfileImage>.</ProfileImage>
+            <ProfileInfo>
+              <ProfilePharse>작성자 : {postData.NICKNAME}</ProfilePharse>
+              <ProfilePharse>작성일 : 2023-05-11</ProfilePharse>
+            </ProfileInfo>
+          </Profile>
+          <Content>{postData.CONTENT}</Content>
+          <CommentSection>
+            <CommentTitle>댓글</CommentTitle>
+            <CommentInputSection>
+              <TextareaAutosize
+                className="comment"
+                autoFocus
+                rows={1}
+                placeholder="좋은 댓글 부탁드립니다 :)"
+              />
+              <CommentInputEnter>입력</CommentInputEnter>
+            </CommentInputSection>
+          </CommentSection>
+        </Section>
       )}
+      <Footer />
     </>
   );
 };
+
+const Section = styled.div`
+  width: var(--common-post-width);
+  margin: var(--common-margin);
+`;
+
+const CarouselSection = styled.div`
+  margin: 0 auto;
+  margin-top: 5rem;
+  width: var(--common-post-width);
+  height: 30rem;
+  border: 1px solid black;
+`;
+
+const Title = styled.h1`
+  margin-top: 2rem;
+  font-size: 2rem;
+  font-weight: 500;
+`;
+
+const Profile = styled.div`
+  margin-top: 1rem;
+  display: flex;
+`;
+
+// const ProfileImage = styled.img``;
+const ProfileImage = styled.div`
+  width: 4rem;
+  height: 4rem;
+  border-radius: 100%;
+  text-align: center;
+  background-color: var(--gray-color-3);
+`;
+
+const ProfileInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-left: 0.5rem;
+`;
+const ProfilePharse = styled.p`
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+`;
+
+const Content = styled.p`
+  margin-top: 2rem;
+  border-bottom: 1px solid var(--gray-color-2);
+`;
+
+const CommentSection = styled.div`
+  margin-top: 2rem;
+`;
+
+const CommentTitle = styled.p`
+  font-size: 1.2rem;
+  font-weight: 500;
+`;
+
+const CommentInputSection = styled.div`
+  display: flex;
+  margin: 2rem 0;
+  border: 1px solid var(--gray-color-2);
+  border-radius: 0.2rem;
+  &:hover {
+    border: 2px solid var(--blue-sky-color-2);
+  }
+`;
+
+const CommentInput = styled.input``;
+
+const CommentInputEnter = styled.span`
+  flex-grow: 1;
+  padding-top: 1rem;
+  text-align: center;
+`;
 
 export default PostDetailPage;
