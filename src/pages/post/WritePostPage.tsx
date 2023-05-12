@@ -51,10 +51,6 @@ const WritePostPage = () => {
     if (typeof watchTitle === 'string') {
       setTitleLength(watchTitle.length);
     }
-    const today = new Date();
-    today.setHours(today.getHours() + 9);
-    today.toISOString().replace('T', '').substring(0, 19);
-    console.log(today.toISOString().replace('T', '').substring(0, 19));
   }, [watchTitle]);
 
   const onSubmit = async () => {

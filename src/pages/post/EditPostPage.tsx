@@ -4,7 +4,7 @@ import { doc, setDoc } from 'firebase/firestore/lite';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import TextareaAutosize from 'react-textarea-autosize';
 import { useRecoilValue } from 'recoil';
 import * as yup from 'yup';
@@ -29,6 +29,7 @@ const EditPostPage = () => {
   const [uploadImageFile, setUploadImageFile] = useState<FileList>();
   const loginUID = useRecoilValue(uid);
   const loginUserNickName = useRecoilValue(userInfo);
+  const { postID } = useParams();
   const navigate = useNavigate();
 
   const formSchema = yup.object({
@@ -50,10 +51,6 @@ const EditPostPage = () => {
     if (typeof watchTitle === 'string') {
       setTitleLength(watchTitle.length);
     }
-    const today = new Date();
-    today.setHours(today.getHours() + 9);
-    today.toISOString().replace('T', '').substring(0, 19);
-    console.log(today.toISOString().replace('T', '').substring(0, 19));
   }, [watchTitle]);
 
   const onSubmit = async () => {
