@@ -48,7 +48,7 @@ const TripPost = () => {
                 key={index}
                 to={`/post/${post.ID}`}
               >
-                <Img></Img>
+                <Img src={post.THUMBNAIL_IMAGE_URL} />
                 <DescriptionSection>
                   <Title>{post.TITLE}</Title>
                   <Nickname>작성자 : {post.NICKNAME}</Nickname>
@@ -96,11 +96,12 @@ const DescriptionSection = styled.div`
   width: 20rem;
 `;
 
-const Img = styled.div`
+const Img = styled.img`
   width: 20rem;
   height: 15rem;
   border: 1px solid black;
   border-radius: 0.5rem;
+  object-fit: contain;
 `;
 
 const Title = styled.p`
