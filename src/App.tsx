@@ -52,7 +52,7 @@ function App() {
           element={<WritePostPage />}
         />
         <Route
-          path="/post/:seq"
+          path="/post/:postID"
           element={<PostDetailPage />}
         />
       </Routes>
