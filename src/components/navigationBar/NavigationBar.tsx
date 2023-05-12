@@ -23,14 +23,6 @@ const NavigationBar = () => {
     setPath(location.pathname);
   }, [location]);
 
-  useEffect(() => {
-    // if (path === '/') {
-    //   homeRef.current.classList.add('selected');
-    // } else if (path === 'trip') {
-    //   tripRef.current.classList.add('selected');
-    // }
-  }, [path]);
-
   return (
     <>
       <NavSection>
