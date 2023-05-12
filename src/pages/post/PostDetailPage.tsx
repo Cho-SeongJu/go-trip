@@ -1,30 +1,38 @@
-import { doc, getDoc } from 'firebase/firestore/lite';
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { database } from '../../../firebase';
-import Header from '../../components/header/Header';
-import Loading from '../../components/Loading';
-import { DocumentData } from 'firebase/firestore/lite';
 import styled from '@emotion/styled';
-import Footer from '../../components/footer/Footer';
+import { DocumentData, deleteDoc, doc, getDoc } from 'firebase/firestore/lite';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import TextareaAutosize from 'react-textarea-autosize';
+import { database } from '../../../firebase';
+import Loading from '../../components/Loading';
+import ViewMoreIcon from '../../components/ViewMore';
 import CarouselComponent from '../../components/carousel/CarouselComponent';
-
-// interface PostDataType {
-//   UID: string;
-//   NICKNAME: string;
-//   TITLE: string;
-//   CONTENT: string;
-// }
+import Footer from '../../components/footer/Footer';
+import Header from '../../components/header/Header';
+import { useRecoilValue } from 'recoil';
+import { uid } from '../../store/data';
 
 const PostDetailPage = () => {
-  const { seq } = useParams();
+  const { postID } = useParams();
   const [loading, setLoading] = useState<boolean>(false);
   const [postData, setPostData] = useState<DocumentData>({});
+  const [moreMenuStatus, setMoreMenuStatus] = useState<boolean>(false);
+  const loginUser = useRecoilValue(uid);
+  const navigate = useNavigate();
+
+  const moreMenu = [
+    {
+      mode: 'edit',
+      label: '수정',
+    },
+    {
+      mode: 'delete',
+      label: '삭제',
+    },
+  ];
 
   const getPost = async () => {
-    const filterParams = String(seq);
-    console.log(filterParams);
+    const filterParams = String(postID);
     const docRef = doc(database, 'posts', filterParams);
 
     try {
@@ -37,7 +45,6 @@ const PostDetailPage = () => {
         return;
       } else {
         const data: DocumentData = docSnap.data();
-        console.log(data);
         if (data !== undefined) {
           setPostData(data);
         }
@@ -46,6 +53,29 @@ const PostDetailPage = () => {
       console.log(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const openMoreMenuHandle = () => {
+    moreMenuStatus ? setMoreMenuStatus(false) : setMoreMenuStatus(true);
+  };
+
+  const menuClickHandle = async (mode: string) => {
+    if (mode === 'edit') {
+      console.log(mode);
+    } else if (mode === 'delete') {
+      const confirmResult = confirm('삭제하시겠습니까?');
+
+      if (confirmResult) {
+        try {
+          await deleteDoc(doc(database, 'posts', String(postID)));
+          alert('삭제가 정상적으로 되었습니다!');
+          navigate('/trip');
+        } catch (error) {
+          alert('처리 중 오류가 발생하였습니다. 잠시 후 다시 삭제를 하세요.');
+          return;
+        }
+      } else return;
     }
   };
 
@@ -60,9 +90,25 @@ const PostDetailPage = () => {
         <Loading display="flex" />
       ) : (
         <Section>
-          <ToggleSection>
-            <Toggle>asd</Toggle>
-          </ToggleSection>
+          <MoreViewSection>
+            {postData.UID === loginUser && (
+              <MoreView onClick={openMoreMenuHandle}>
+                <ViewMoreIcon />
+                {moreMenuStatus && (
+                  <MoreMenuModal>
+                    {moreMenu.map((menu) => (
+                      <Menu
+                        key={menu.mode}
+                        onClick={() => menuClickHandle(menu.mode)}
+                      >
+                        {menu.label}
+                      </Menu>
+                    ))}
+                  </MoreMenuModal>
+                )}
+              </MoreView>
+            )}
+          </MoreViewSection>
           <CarouselSection>
             <CarouselComponent
               imageList={postData.IMAGE_URL_LIST}
@@ -84,7 +130,6 @@ const PostDetailPage = () => {
             <CommentInputSection>
               <TextareaAutosize
                 className="comment"
-                autoFocus
                 rows={1}
                 placeholder="좋은 댓글 부탁드립니다 :)"
               />
@@ -103,13 +148,16 @@ const Section = styled.div`
   margin: var(--common-margin);
 `;
 
-const ToggleSection = styled.div`
+const MoreViewSection = styled.div`
   margin-top: 2rem;
   height: 1rem;
 `;
 
-const Toggle = styled.span`
+const MoreView = styled.span`
   float: right;
+  position: relative;
+  border-radius: 100%;
+  cursor: pointer;
 `;
 
 const CarouselSection = styled.div`
@@ -119,8 +167,6 @@ const CarouselSection = styled.div`
   height: 30rem;
   border: 1px solid black;
 `;
-
-const Image = styled.img``;
 
 const Title = styled.h1`
   margin-top: 2rem;
@@ -179,6 +225,34 @@ const CommentInputEnter = styled.span`
   padding-top: 1rem;
   text-align: center;
   color: var(--gray-color-3);
+`;
+
+const MoreMenuModal = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  border: 1px solid var(--gray-color-1);
+  border-radius: 0.2rem;
+  background-color: var(--white-color-1);
+  transform: translateY(0.3rem) translateX(-4.1rem);
+  z-index: 99;
+`;
+
+const Menu = styled.p`
+  flex-grow: 1;
+  padding: 0.7rem 1rem;
+  width: 3rem;
+  border: 1px solid var(--gray-color-1);
+  // border-radius: 0.2rem;
+  font-size: 0.9rem;
+  text-align: center;
+
+  &:hover {
+    // background-color: var(--gray-color-2);
+    background-color: rgba(217, 217, 212, 0.44);
+  }
 `;
 
 export default PostDetailPage;
