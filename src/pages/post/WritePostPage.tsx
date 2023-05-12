@@ -14,13 +14,12 @@ import UploadCarousel from '../../components/carousel/UploadCarousel';
 import ErrorMessage from '../../components/errorMessage/ErrorMesage';
 import Header from '../../components/header/Header';
 import { uid, userInfo } from '../../store/data';
+import { getDate } from '../../store/date';
 
 interface PostFormType {
   title: string;
   content: string;
 }
-
-type DateType = string | number;
 
 const WritePostPage = () => {
   const [titleLength, setTitleLength] = useState<number>(0);
@@ -57,28 +56,6 @@ const WritePostPage = () => {
     today.toISOString().replace('T', '').substring(0, 19);
     console.log(today.toISOString().replace('T', '').substring(0, 19));
   }, [watchTitle]);
-
-  const getDate = () => {
-    const date = new Date();
-    const year = date.getFullYear().toString();
-
-    let month: DateType = date.getMonth() + 1;
-    month = month < 10 ? '0' + month.toString() : month.toString();
-
-    let day: DateType = date.getDate();
-    day = day < 10 ? '0' + day.toString() : day.toString();
-
-    let hour: DateType = date.getHours();
-    hour = hour < 10 ? '0' + hour.toString() : hour.toString();
-
-    let minites: DateType = date.getMinutes();
-    minites = minites < 10 ? '0' + minites.toString() : minites.toString();
-
-    let seconds: DateType = date.getSeconds();
-    seconds = seconds < 10 ? '0' + seconds.toString() : seconds.toString();
-
-    return year + month + day + hour + minites + seconds;
-  };
 
   const onSubmit = async () => {
     setLoading(true);
