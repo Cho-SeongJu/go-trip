@@ -15,6 +15,7 @@ import ErrorMessage from '../../components/errorMessage/ErrorMesage';
 import Header from '../../components/header/Header';
 import { uid, userInfo } from '../../store/data';
 import { getDate } from '../../store/date';
+import { postDetailData } from '../../store/postDetail';
 
 interface PostFormType {
   title: string;
@@ -29,6 +30,7 @@ const EditPostPage = () => {
   const [uploadImageFile, setUploadImageFile] = useState<FileList>();
   const loginUID = useRecoilValue(uid);
   const loginUserNickName = useRecoilValue(userInfo);
+  const postData = useRecoilValue(postDetailData);
   const { postID } = useParams();
   const navigate = useNavigate();
 
@@ -52,6 +54,12 @@ const EditPostPage = () => {
       setTitleLength(watchTitle.length);
     }
   }, [watchTitle]);
+
+  useEffect(() => {
+    setUploadImage(postData.IMAGE_URL_LIST);
+    setTitleLength(postData.TITLE.length);
+    setUploadImageName(postData.IMAGE_NAME_LIST);
+  }, []);
 
   const onSubmit = async () => {
     setLoading(true);
@@ -130,6 +138,7 @@ const EditPostPage = () => {
               placeholder="제목을 입력하세요."
               id="title"
               {...register('title')}
+              value={postData.TITLE}
             />
             <TitleLength>{titleLength} / 80</TitleLength>
           </TitleSection>
@@ -162,6 +171,7 @@ const EditPostPage = () => {
             rows={1}
             placeholder="내용을 입력하세요."
             id="content"
+            value={postData.CONTENT}
             {...register('content')}
           />
           {errors.content && <ErrorMessage role="alert">{errors.content.message}</ErrorMessage>}
