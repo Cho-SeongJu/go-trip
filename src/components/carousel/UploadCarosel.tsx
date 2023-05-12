@@ -1,10 +1,10 @@
 import styled from '@emotion/styled';
-import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import '../../assets/css/carousel.css';
+import CarouselComponent from './CarouselComponent';
 
 interface PropsType {
-  upload: string[] | null;
+  upload: string[];
 }
 const ImgCarousel = (props: PropsType) => {
   const uploadImageList = props.upload;
@@ -17,22 +17,7 @@ const ImgCarousel = (props: PropsType) => {
           <Pharse>이미지를 업로드 해주세요.</Pharse>
         </CarouselSection>
       ) : (
-        <Carousel
-          showThumbs={false}
-          showArrows={true}
-          infiniteLoop={true}
-          showStatus={false}
-          // autoPlay={true}
-        >
-          {uploadImageList?.map((image, index) => (
-            <SlideSection key={index}>
-              <UploadImage
-                src={image}
-                alt="carousel-image"
-              />
-            </SlideSection>
-          ))}
-        </Carousel>
+        <CarouselComponent imageList={uploadImageList} />
       )}
     </>
   );
