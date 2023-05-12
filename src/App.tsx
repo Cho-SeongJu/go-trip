@@ -7,6 +7,7 @@ import PostDetailPage from './pages/post/PostDetailPage.tsx';
 import WritePostPage from './pages/post/WritePostPage.tsx';
 import MainPage from './pages/MainPage.tsx';
 import MyPage from './pages/user/MyPage.tsx';
+import EditPostPage from './pages/post/EditPostPage.tsx';
 
 function App() {
   // const MainPage = lazy(() => import('./pages/MainPage'));
@@ -54,6 +55,10 @@ function App() {
         <Route
           path="/post/:postID"
           element={<PostDetailPage />}
+        />
+        <Route
+          path="/post/edit/:postID"
+          element={<EditPostPage />}
         />
       </Routes>
     </>
