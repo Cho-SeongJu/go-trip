@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { collection, doc, getDocs, setDoc } from 'firebase/firestore/lite';
-import { getStorage, ref, uploadBytes } from 'firebase/storage';
+import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -28,6 +28,7 @@ const WritePostPage = () => {
   const [uploadImage, setUploadImage] = useState<string[]>([]);
   const [uploadImageName, setUploadImageName] = useState<string[]>([]);
   const [uploadImageFile, setUploadImageFile] = useState<FileList>();
+  // const [imageURL, setImageURL] = useState<string>('');
   const loginUID = useRecoilValue(uid);
   const loginUserNickName = useRecoilValue(userInfo);
   const navigate = useNavigate();
@@ -83,28 +84,21 @@ const WritePostPage = () => {
     setLoading(true);
     const title = getValues().title;
     const content = getValues().content;
-    const querySnapShot = await getDocs(collection(database, 'posts'));
-    let postID = 0;
-
     const date = getData();
 
     try {
-      const size = querySnapShot.size;
-      const id = querySnapShot.docs[size - 1].id;
-      console.log(querySnapShot.docs[size - 1]);
-      postID = Number(id.substring(4, id.length));
-      console.log(postID);
-      uploadImageServer(date);
+      const imageURL = await uploadImageServer(date);
       await setDoc(doc(database, 'posts', 'post' + loginUID + date), {
         UID: loginUID,
         TITLE: title,
         CONTENT: content,
         NICKNAME: loginUserNickName.NICKNAME,
+        IMAGE_URL: imageURL,
       });
-      navigate(`/post/post${loginUID}${postID}`);
+      navigate(`/post/post${loginUID}${date}`);
     } catch (error) {
-      alert('처리 중 오류가 발생하였습니다. 잠시 후 다시 시도하시길 바랍니다.');
       console.log(error);
+      alert('처리 중 오류가 발생하였습니다. 잠시 후 다시 시도하시길 바랍니다.');
     } finally {
       setLoading(false);
     }
@@ -137,13 +131,21 @@ const WritePostPage = () => {
 
   const uploadImageServer = async (date: string) => {
     const storage = getStorage();
+    let imageURL = '';
 
     if (uploadImageFile !== undefined) {
       for (let i = 0; i < uploadImageName.length; i++) {
-        const storageRef = ref(storage, `images/${loginUID}${date}/${uploadImageName[i]}`);
+        const imageRef = `images/${loginUID}${date}/${uploadImageName[i]}`;
+        const storageRef = ref(storage, imageRef);
         await uploadBytes(storageRef, uploadImageFile[i]);
+
+        if (i === 0) {
+          imageURL = await getDownloadURL(ref(storage, `images/${loginUID}${date}/${uploadImageName[i]}`));
+        }
       }
     }
+
+    return imageURL;
   };
 
   return (
