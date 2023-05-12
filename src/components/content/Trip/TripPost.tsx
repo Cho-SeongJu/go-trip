@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { database } from '../../../../firebase';
 import Loading from '../../Loading';
+
 interface DataType {
   [key: string]: string;
 }
@@ -16,10 +17,6 @@ const TripPost = () => {
     setLoading(true);
     try {
       const querySnapShot = await getDocs(collection(database, 'posts'));
-      querySnapShot.docs.map((doc) => {
-        console.log(doc.id);
-      });
-
       const data = querySnapShot.docs.map((doc) => ({ ID: doc.id, ...doc.data() }));
       setPosts(data);
     } catch (error) {
@@ -32,6 +29,7 @@ const TripPost = () => {
   useEffect(() => {
     getPosts();
   }, []);
+
   return (
     <>
       <PostSection>
@@ -67,13 +65,12 @@ const PostSection = styled.div`
   grid-template-columns: 1fr 1fr 1fr;
   flex-wrap: wrap;
   width: var(--common-width);
-  height: calc(100vh - 10rem - 3.2rem - 15rem);
 `;
 
 const NonePostsSection = styled.div`
   display: flex;
   width: inherit;
-  height: inherit;
+  height: calc(100vh - 10rem - 3.2rem - 15rem);
   justify-content: center;
   align-items: center;
 `;
@@ -84,7 +81,6 @@ const Post = styled(Link)`
   margin: 1rem;
   width: 20rem;
   height: 22rem;
-  // border: 1px solid black;
   color: var(--black-color-1);
 `;
 
