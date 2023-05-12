@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { collection, doc, getDocs, setDoc } from 'firebase/firestore/lite';
+import { doc, setDoc } from 'firebase/firestore/lite';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -10,7 +10,7 @@ import { useRecoilValue } from 'recoil';
 import * as yup from 'yup';
 import { database } from '../../../firebase';
 import Loading from '../../components/Loading';
-import ImgCarousel from '../../components/carousel/ImgCarosel';
+import UploadCarousel from '../../components/carousel/UploadCarousel';
 import ErrorMessage from '../../components/errorMessage/ErrorMesage';
 import Header from '../../components/header/Header';
 import { uid, userInfo } from '../../store/data';
@@ -58,7 +58,7 @@ const WritePostPage = () => {
     console.log(today.toISOString().replace('T', '').substring(0, 19));
   }, [watchTitle]);
 
-  const getData = () => {
+  const getDate = () => {
     const date = new Date();
     const year = date.getFullYear().toString();
 
@@ -84,16 +84,17 @@ const WritePostPage = () => {
     setLoading(true);
     const title = getValues().title;
     const content = getValues().content;
-    const date = getData();
+    const date = getDate();
 
     try {
-      const imageURL = await uploadImageServer(date);
+      const imageURLList = await uploadImageServer(date);
       await setDoc(doc(database, 'posts', 'post' + loginUID + date), {
         UID: loginUID,
         TITLE: title,
         CONTENT: content,
         NICKNAME: loginUserNickName.NICKNAME,
-        IMAGE_URL: imageURL,
+        THUMBNAIL_IMAGE_URL: imageURLList[0],
+        IMAGE_URL_LIST: imageURLList,
       });
       navigate(`/post/post${loginUID}${date}`);
     } catch (error) {
@@ -122,7 +123,6 @@ const WritePostPage = () => {
 
     for (let i = 0; i < uploadImageList.length; i++) {
       const url = URL.createObjectURL(uploadImageList[i]);
-      console.log(typeof url);
       imageURLList.push(url);
     }
 
@@ -131,21 +131,19 @@ const WritePostPage = () => {
 
   const uploadImageServer = async (date: string) => {
     const storage = getStorage();
-    let imageURL = '';
+    const imageURLList: string[] = [];
 
     if (uploadImageFile !== undefined) {
       for (let i = 0; i < uploadImageName.length; i++) {
         const imageRef = `images/${loginUID}${date}/${uploadImageName[i]}`;
         const storageRef = ref(storage, imageRef);
         await uploadBytes(storageRef, uploadImageFile[i]);
-
-        if (i === 0) {
-          imageURL = await getDownloadURL(ref(storage, `images/${loginUID}${date}/${uploadImageName[i]}`));
-        }
+        const imageURL = await getDownloadURL(ref(storage, `images/${loginUID}${date}/${uploadImageName[i]}`));
+        imageURLList.push(imageURL);
       }
     }
 
-    return imageURL;
+    return imageURLList;
   };
 
   return (
@@ -164,7 +162,10 @@ const WritePostPage = () => {
           </TitleSection>
           {errors.title && <ErrorMessage role="alert">{errors.title.message}</ErrorMessage>}
           <ImageSection>
-            <ImgCarousel upload={uploadImage} />
+            <UploadCarousel
+              upload={uploadImage}
+              className="upload"
+            />
             <ImageUploadSection>
               <ImageUploadLabel htmlFor="inputFile">
                 이미지 추가

@@ -8,6 +8,7 @@ import { DocumentData } from 'firebase/firestore/lite';
 import styled from '@emotion/styled';
 import Footer from '../../components/footer/Footer';
 import TextareaAutosize from 'react-textarea-autosize';
+import CarouselComponent from '../../components/carousel/CarouselComponent';
 
 // interface PostDataType {
 //   UID: string;
@@ -62,7 +63,12 @@ const PostDetailPage = () => {
           <ToggleSection>
             <Toggle>asd</Toggle>
           </ToggleSection>
-          <CarouselSection></CarouselSection>
+          <CarouselSection>
+            <CarouselComponent
+              imageList={postData.IMAGE_URL_LIST}
+              className="detailPage"
+            />
+          </CarouselSection>
           <Title>{postData.TITLE}</Title>
           <Profile>
             {/* <ProfileImage src=""/> */}
@@ -113,6 +119,8 @@ const CarouselSection = styled.div`
   height: 30rem;
   border: 1px solid black;
 `;
+
+const Image = styled.img``;
 
 const Title = styled.h1`
   margin-top: 2rem;

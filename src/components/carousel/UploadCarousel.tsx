@@ -5,10 +5,11 @@ import CarouselComponent from './CarouselComponent';
 
 interface PropsType {
   upload: string[];
+  className: string;
 }
-const ImgCarousel = (props: PropsType) => {
+const UploadCarousel = (props: PropsType) => {
   const uploadImageList = props.upload;
-
+  const className = props.className;
   return (
     <>
       {uploadImageList?.length === 0 ? (
@@ -17,7 +18,10 @@ const ImgCarousel = (props: PropsType) => {
           <Pharse>이미지를 업로드 해주세요.</Pharse>
         </CarouselSection>
       ) : (
-        <CarouselComponent imageList={uploadImageList} />
+        <CarouselComponent
+          imageList={uploadImageList}
+          className={className}
+        />
       )}
     </>
   );
@@ -42,15 +46,4 @@ const Pharse = styled.p`
   }
 `;
 
-const SlideSection = styled.div`
-  width: 30rem;
-  height: 20rem;
-  overflow: hidden;
-  border: 1px solid black;
-`;
-
-const UploadImage = styled.img`
-  object-fit: contain;
-`;
-
-export default ImgCarousel;
+export default UploadCarousel;

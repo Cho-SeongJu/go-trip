@@ -3,11 +3,13 @@ import { Carousel } from 'react-responsive-carousel';
 
 interface PropsType {
   imageList: string[];
+  className: string;
 }
 
 const CarouselComponent = (props: PropsType) => {
   return (
     <Carousel
+      className={props.className}
       showThumbs={false}
       showArrows={true}
       infiniteLoop={true}
@@ -27,8 +29,6 @@ const CarouselComponent = (props: PropsType) => {
 };
 
 const SlideSection = styled.div`
-  width: 30rem;
-  height: 20rem;
   overflow: hidden;
   border: 1px solid black;
 `;
