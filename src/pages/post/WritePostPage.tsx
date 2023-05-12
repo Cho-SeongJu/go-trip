@@ -68,6 +68,7 @@ const WritePostPage = () => {
         NICKNAME: loginUserNickName.NICKNAME,
         THUMBNAIL_IMAGE_URL: imageURLList[0],
         IMAGE_URL_LIST: imageURLList,
+        IMAGE_NAME_LIST: uploadImageName,
       });
       navigate(`/post/post${loginUID}${date}`);
     } catch (error) {

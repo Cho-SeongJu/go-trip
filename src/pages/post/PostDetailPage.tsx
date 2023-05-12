@@ -9,8 +9,9 @@ import ViewMoreIcon from '../../components/ViewMore';
 import CarouselComponent from '../../components/carousel/CarouselComponent';
 import Footer from '../../components/footer/Footer';
 import Header from '../../components/header/Header';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { uid } from '../../store/data';
+import { postDetailData, test } from '../../store/postDetail';
 
 const PostDetailPage = () => {
   const { postID } = useParams();
@@ -19,6 +20,7 @@ const PostDetailPage = () => {
   const [moreMenuStatus, setMoreMenuStatus] = useState<boolean>(false);
   const loginUser = useRecoilValue(uid);
   const navigate = useNavigate();
+  const setRecoilPostData = useSetRecoilState(postDetailData);
 
   const moreMenu = [
     {
@@ -45,6 +47,7 @@ const PostDetailPage = () => {
         return;
       } else {
         const data: DocumentData = docSnap.data();
+        setRecoilPostData(data);
         if (data !== undefined) {
           setPostData(data);
         }
@@ -62,7 +65,7 @@ const PostDetailPage = () => {
 
   const menuClickHandle = async (mode: string) => {
     if (mode === 'edit') {
-      console.log(mode);
+      navigate(`/post/edit/${postID}`);
     } else if (mode === 'delete') {
       const confirmResult = confirm('삭제하시겠습니까?');
 
