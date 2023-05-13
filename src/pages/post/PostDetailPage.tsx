@@ -3,20 +3,31 @@ import { DocumentData, deleteDoc, doc, getDoc } from 'firebase/firestore/lite';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import TextareaAutosize from 'react-textarea-autosize';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { database } from '../../../firebase';
 import Loading from '../../components/Loading';
 import ViewMoreIcon from '../../components/ViewMore';
 import CarouselComponent from '../../components/carousel/CarouselComponent';
 import Footer from '../../components/footer/Footer';
 import Header from '../../components/header/Header';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { uid } from '../../store/data';
-import { postDetailData, test } from '../../store/postDetail';
+import { postDetailData } from '../../store/postDetail';
+
+interface ColorPropsType {
+  color: string;
+}
+
+interface CommentItemType {
+  comment: string;
+  nickname: string;
+  uid: string;
+}
 
 const PostDetailPage = () => {
   const { postID } = useParams();
   const [loading, setLoading] = useState<boolean>(false);
   const [postData, setPostData] = useState<DocumentData>({});
+  const [comment, setComment] = useState<CommentItemType[]>([]);
   const [moreMenuStatus, setMoreMenuStatus] = useState<boolean>(false);
   const loginUser = useRecoilValue(uid);
   const navigate = useNavigate();
@@ -36,10 +47,11 @@ const PostDetailPage = () => {
   const getPost = async () => {
     const filterParams = String(postID);
     const docRef = doc(database, 'posts', filterParams);
-
+    const commentRef = doc(database, 'comments', filterParams);
     try {
       setLoading(true);
       const docSnap = await getDoc(docRef);
+      const commentDocSnap = await getDoc(commentRef);
 
       if (!docSnap.exists()) {
         alert('존재하지 않는 게시물입니다.');
@@ -51,6 +63,13 @@ const PostDetailPage = () => {
         if (data !== undefined) {
           setPostData(data);
         }
+      }
+
+      if (!commentDocSnap.exists()) {
+        console.log('');
+      } else {
+        const commentData: DocumentData = commentDocSnap.data();
+        setComment(Array.from(commentData['comment']));
       }
     } catch (error) {
       console.log(error);
@@ -134,10 +153,12 @@ const PostDetailPage = () => {
               <TextareaAutosize
                 className="comment"
                 rows={1}
-                placeholder="좋은 댓글 부탁드립니다 :)"
+                placeholder={loginUser !== 'anonymous' ? '좋은 댓글 부탁드립니다 :)' : '로그인 후 이용 가능합니다.'}
+                disabled={loginUser !== 'anonymous' ? false : true}
               />
-              <CommentInputEnter>입력</CommentInputEnter>
+              <CommentInputEnter color={loginUser !== 'anonymous' ? 'var(--white-color-1)' : 'var(--gray-color-2)'}>입력</CommentInputEnter>
             </CommentInputSection>
+            <ReadCommentSection>{comment.length === 0 ? <NoneComment>등록된 댓글이 없습니다.</NoneComment> : comment.map((item) => <>{item.comment}</>)}</ReadCommentSection>
           </CommentSection>
         </Section>
       )}
@@ -223,12 +244,29 @@ const CommentInputSection = styled.div`
   border-radius: 0.2rem;
 `;
 
-const CommentInputEnter = styled.span`
+const CommentInputEnter = styled.span<ColorPropsType>`
   flex-grow: 1;
   padding-top: 1rem;
   text-align: center;
   color: var(--gray-color-3);
+  background-color: ${(props) => props.color};
 `;
+
+const ReadCommentSection = styled.div`
+  width: var(--common-post-width);
+  min-height: 5rem;
+  border-radius: 0.2rem;
+  margin-bottom: 2rem;
+`;
+
+const NoneComment = styled.p`
+  text-align: center;
+  margin-top: 2.2rem;
+  font-size: 0.8rem;
+  color: var(--gray-color-3);
+`;
+
+const Comment = styled.p``;
 
 const MoreMenuModal = styled.div`
   display: flex;
