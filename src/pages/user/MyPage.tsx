@@ -10,14 +10,26 @@ const MyPage = () => {
     <>
       <Header />
       <Tab menu={menu} />
-      <Section />
+      <Section>
+        <ProfileImageSection>
+          <ProfileImage />
+        </ProfileImageSection>
+      </Section>
       <Footer />
     </>
   );
 };
 
 const Section = styled.div`
+  width: var(--common-post-width);
+
+  border: 1px solid black;
+  margin: var(--common-margin);
   min-height: calc(100vh - 10rem - 3.2rem - 1.85rem);
 `;
+
+const ProfileImageSection = styled.div``;
+
+const ProfileImage = styled.img``;
 
 export default MyPage;
