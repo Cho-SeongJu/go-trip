@@ -9,6 +9,7 @@ const dataObj: DocumentData = {
   THUMBNAIL_IMAGE_URL: '',
   TITLE: '',
   UID: '',
+  IMAGE_TYPE_LIST: [],
 };
 
 export const postDetailData = atom({
