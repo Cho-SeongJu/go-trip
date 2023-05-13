@@ -141,7 +141,7 @@ const PostDetailPage = () => {
     }
   };
 
-  const DeleteCommentHandle = async () => {
+  const DeleteCommentHandle = async (item: CommentItemType) => {
     const result = confirm('댓글을 삭제하시겠습니까?');
     const commentDocRef = doc(database, 'comments', String(postID));
 
@@ -149,10 +149,10 @@ const PostDetailPage = () => {
       try {
         await updateDoc(commentDocRef, {
           comment: arrayRemove({
-            comment: '굳굳굳굳굳',
-            nickname: '닉네임',
-            seq: 0,
-            uid: 'test',
+            comment: item.comment,
+            nickname: item.nickname,
+            seq: item.seq,
+            uid: item.uid,
           }),
         });
         getComment();
@@ -238,7 +238,7 @@ const PostDetailPage = () => {
                     {item.nickname === loginUserNickname.NICKNAME && (
                       <CommentEditDelete>
                         <CommentLink>수정</CommentLink>
-                        <CommentLink onClick={DeleteCommentHandle}>삭제</CommentLink>
+                        <CommentLink onClick={() => DeleteCommentHandle(item)}>삭제</CommentLink>
                       </CommentEditDelete>
                     )}
                   </CommentProfileSection>
