@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
-import { DocumentData, arrayUnion, deleteDoc, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore/lite';
-import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { DocumentData, arrayRemove, arrayUnion, deleteDoc, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore/lite';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import TextareaAutosize from 'react-textarea-autosize';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { database } from '../../../firebase';
@@ -21,6 +21,7 @@ interface CommentItemType {
   comment: string;
   nickname: string;
   uid: string;
+  seq: number;
 }
 
 const PostDetailPage = () => {
@@ -50,11 +51,10 @@ const PostDetailPage = () => {
   const getPost = async () => {
     const filterParams = String(postID);
     const docRef = doc(database, 'posts', filterParams);
-    const commentRef = doc(database, 'comments', filterParams);
+
     try {
       setLoading(true);
       const docSnap = await getDoc(docRef);
-      const commentDocSnap = await getDoc(commentRef);
 
       if (!docSnap.exists()) {
         alert('존재하지 않는 게시물입니다.');
@@ -67,15 +67,21 @@ const PostDetailPage = () => {
           setPostData(data);
         }
       }
-
-      if (commentDocSnap.exists()) {
-        const commentData: DocumentData = commentDocSnap.data();
-        setComment(Array.from(commentData['comment']));
-      }
+      getComment();
     } catch (error) {
       console.log(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getComment = async () => {
+    const filterParams = String(postID);
+    const commentRef = doc(database, 'comments', filterParams);
+    const commentDocSnap = await getDoc(commentRef);
+    if (commentDocSnap.exists()) {
+      const commentData: DocumentData = commentDocSnap.data();
+      setComment(Array.from(commentData['comment']));
     }
   };
 
@@ -106,23 +112,55 @@ const PostDetailPage = () => {
     setTextAreaValue(e.target.value);
   };
 
-  const onSubmitHandle = async (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmitCommentHandle = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     if (textAreaValue.length === 0) {
       alert('댓글을 입력해주세요.');
       return;
     }
 
-    console.log(loginUser);
-    console.log(loginUserNickname);
-    const commentRef = doc(database, 'comments', String(postID));
+    let commentSeq = 0;
+    const commentDocRef = doc(database, 'comments', String(postID));
+
     try {
-      await updateDoc(commentRef, {
-        comment: arrayUnion({ comment: textAreaValue, nickname: loginUserNickname.NICKNAME, uid: loginUser }),
-      });
+      if (comment.length === 0) {
+        await setDoc(commentDocRef, {
+          comment: arrayUnion({ comment: textAreaValue, nickname: loginUserNickname.NICKNAME, uid: loginUser, seq: commentSeq }),
+        });
+      } else {
+        commentSeq = comment[comment.length - 1].seq;
+        await updateDoc(commentDocRef, {
+          comment: arrayUnion({ comment: textAreaValue, nickname: loginUserNickname.NICKNAME, uid: loginUser, seq: commentSeq }),
+        });
+      }
+      getComment();
+      setTextAreaValue('');
     } catch (error) {
       alert('댓글 등록을 실패하였습니다. 잠시 후 다시 시도해주세요.');
     }
+  };
+
+  const DeleteCommentHandle = async () => {
+    const result = confirm('댓글을 삭제하시겠습니까?');
+    const commentDocRef = doc(database, 'comments', String(postID));
+
+    if (result) {
+      try {
+        await updateDoc(commentDocRef, {
+          comment: arrayRemove({
+            comment: '굳굳굳굳굳',
+            nickname: '닉네임',
+            seq: 0,
+            uid: 'test',
+          }),
+        });
+        getComment();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    console.log('');
   };
 
   useEffect(() => {
@@ -173,14 +211,14 @@ const PostDetailPage = () => {
           <Content>{postData.CONTENT}</Content>
           <CommentSection>
             <CommentTitle>댓글</CommentTitle>
-            <Form onSubmit={onSubmitHandle}>
+            <Form onSubmit={onSubmitCommentHandle}>
               <TextareaAutosize
                 className="comment"
                 rows={1}
                 placeholder={loginUser !== 'anonymous' ? '좋은 댓글 부탁드립니다 :)' : '로그인 후 이용 가능합니다.'}
-                ref={commentRef}
                 disabled={loginUser !== 'anonymous' ? false : true}
                 onChange={TextAreaChangeHandle}
+                value={textAreaValue}
               />
               <CommentInputEnter
                 disabled={loginUser !== 'anonymous' ? false : true}
@@ -197,6 +235,12 @@ const PostDetailPage = () => {
                   <CommentProfileSection key={`${item.uid} + ${index}`}>
                     <CommentNickname>{item.nickname}</CommentNickname>
                     <Comment>{item.comment}</Comment>
+                    {item.nickname === loginUserNickname.NICKNAME && (
+                      <CommentEditDelete>
+                        <CommentLink>수정</CommentLink>
+                        <CommentLink onClick={DeleteCommentHandle}>삭제</CommentLink>
+                      </CommentEditDelete>
+                    )}
                   </CommentProfileSection>
                 ))
               )}
@@ -292,6 +336,12 @@ const CommentInputEnter = styled.button<ColorPropsType>`
   color: var(--gray-color-3);
   border: none;
   background-color: ${(props) => props.color};
+  cursor: pointer;
+`;
+
+const CommentEditDelete = styled.div`
+  display: inline;
+  float: right;
 `;
 
 const ReadCommentSection = styled.div`
@@ -310,17 +360,27 @@ const NoneComment = styled.p`
 
 const CommentProfileSection = styled.div`
   margin-bottom: 1rem;
+  font-size: 0.8rem;
 `;
 
 const CommentNickname = styled.span`
   border-right: 1px solid var(--gray-color-1);
-  font-size: 0.8rem;
   padding-right: 0.7rem;
 `;
 
 const Comment = styled.span`
   padding-left: 0.7rem;
-  font-size: 0.8rem;
+`;
+
+const CommentLink = styled.span`
+  padding: 0 0.2rem;
+  font-size: 0.7rem;
+  color: var(--gray-color-3);
+  cursor: pointer;
+
+  &: hover {
+    color: var(--blue-sky-color-2);
+  }
 `;
 
 const MoreMenuModal = styled.div`
