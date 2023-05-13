@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
-import { DocumentData, deleteDoc, doc, getDoc } from 'firebase/firestore/lite';
-import { useEffect, useState } from 'react';
+import { DocumentData, arrayUnion, deleteDoc, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore/lite';
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import TextareaAutosize from 'react-textarea-autosize';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
@@ -10,7 +10,7 @@ import ViewMoreIcon from '../../components/ViewMore';
 import CarouselComponent from '../../components/carousel/CarouselComponent';
 import Footer from '../../components/footer/Footer';
 import Header from '../../components/header/Header';
-import { uid } from '../../store/data';
+import { uid, userInfo } from '../../store/data';
 import { postDetailData } from '../../store/postDetail';
 
 interface ColorPropsType {
@@ -29,7 +29,10 @@ const PostDetailPage = () => {
   const [postData, setPostData] = useState<DocumentData>({});
   const [comment, setComment] = useState<CommentItemType[]>([]);
   const [moreMenuStatus, setMoreMenuStatus] = useState<boolean>(false);
+  const [textAreaValue, setTextAreaValue] = useState<string>('');
   const loginUser = useRecoilValue(uid);
+  const loginUserNickname = useRecoilValue(userInfo);
+  const commentRef = useRef(null);
   const navigate = useNavigate();
   const setRecoilPostData = useSetRecoilState(postDetailData);
 
@@ -65,9 +68,7 @@ const PostDetailPage = () => {
         }
       }
 
-      if (!commentDocSnap.exists()) {
-        console.log('');
-      } else {
+      if (commentDocSnap.exists()) {
         const commentData: DocumentData = commentDocSnap.data();
         setComment(Array.from(commentData['comment']));
       }
@@ -98,6 +99,29 @@ const PostDetailPage = () => {
           return;
         }
       } else return;
+    }
+  };
+
+  const TextAreaChangeHandle = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setTextAreaValue(e.target.value);
+  };
+
+  const onSubmitHandle = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (textAreaValue.length === 0) {
+      alert('댓글을 입력해주세요.');
+      return;
+    }
+
+    console.log(loginUser);
+    console.log(loginUserNickname);
+    const commentRef = doc(database, 'comments', String(postID));
+    try {
+      await updateDoc(commentRef, {
+        comment: arrayUnion({ comment: textAreaValue, nickname: loginUserNickname.NICKNAME, uid: loginUser }),
+      });
+    } catch (error) {
+      alert('댓글 등록을 실패하였습니다. 잠시 후 다시 시도해주세요.');
     }
   };
 
@@ -149,16 +173,34 @@ const PostDetailPage = () => {
           <Content>{postData.CONTENT}</Content>
           <CommentSection>
             <CommentTitle>댓글</CommentTitle>
-            <CommentInputSection>
+            <Form onSubmit={onSubmitHandle}>
               <TextareaAutosize
                 className="comment"
                 rows={1}
                 placeholder={loginUser !== 'anonymous' ? '좋은 댓글 부탁드립니다 :)' : '로그인 후 이용 가능합니다.'}
+                ref={commentRef}
                 disabled={loginUser !== 'anonymous' ? false : true}
+                onChange={TextAreaChangeHandle}
               />
-              <CommentInputEnter color={loginUser !== 'anonymous' ? 'var(--white-color-1)' : 'var(--gray-color-2)'}>입력</CommentInputEnter>
-            </CommentInputSection>
-            <ReadCommentSection>{comment.length === 0 ? <NoneComment>등록된 댓글이 없습니다.</NoneComment> : comment.map((item) => <>{item.comment}</>)}</ReadCommentSection>
+              <CommentInputEnter
+                disabled={loginUser !== 'anonymous' ? false : true}
+                color={loginUser !== 'anonymous' ? 'var(--white-color-1)' : 'var(--gray-color-2)'}
+              >
+                입력
+              </CommentInputEnter>
+            </Form>
+            <ReadCommentSection>
+              {comment.length === 0 ? (
+                <NoneComment>등록된 댓글이 없습니다.</NoneComment>
+              ) : (
+                comment.map((item, index) => (
+                  <CommentProfileSection key={`${item.uid} + ${index}`}>
+                    <CommentNickname>{item.nickname}</CommentNickname>
+                    <Comment>{item.comment}</Comment>
+                  </CommentProfileSection>
+                ))
+              )}
+            </ReadCommentSection>
           </CommentSection>
         </Section>
       )}
@@ -237,18 +279,18 @@ const CommentTitle = styled.p`
   font-weight: 500;
 `;
 
-const CommentInputSection = styled.div`
+const Form = styled.form`
   display: flex;
   margin: 2rem 0;
   border: 1px solid var(--gray-color-2);
   border-radius: 0.2rem;
 `;
 
-const CommentInputEnter = styled.span<ColorPropsType>`
+const CommentInputEnter = styled.button<ColorPropsType>`
   flex-grow: 1;
-  padding-top: 1rem;
   text-align: center;
   color: var(--gray-color-3);
+  border: none;
   background-color: ${(props) => props.color};
 `;
 
@@ -266,7 +308,20 @@ const NoneComment = styled.p`
   color: var(--gray-color-3);
 `;
 
-const Comment = styled.p``;
+const CommentProfileSection = styled.div`
+  margin-bottom: 1rem;
+`;
+
+const CommentNickname = styled.span`
+  border-right: 1px solid var(--gray-color-1);
+  font-size: 0.8rem;
+  padding-right: 0.7rem;
+`;
+
+const Comment = styled.span`
+  padding-left: 0.7rem;
+  font-size: 0.8rem;
+`;
 
 const MoreMenuModal = styled.div`
   display: flex;
