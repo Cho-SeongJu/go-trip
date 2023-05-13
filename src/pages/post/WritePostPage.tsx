@@ -27,7 +27,7 @@ const WritePostPage = () => {
   const [uploadImage, setUploadImage] = useState<string[]>([]);
   const [uploadImageName, setUploadImageName] = useState<string[]>([]);
   const [uploadImageFile, setUploadImageFile] = useState<FileList>();
-  // const [imageURL, setImageURL] = useState<string>('');
+  const [uploadImageType, setUploadImageType] = useState<string[]>([]);
   const loginUID = useRecoilValue(uid);
   const loginUserNickName = useRecoilValue(userInfo);
   const navigate = useNavigate();
@@ -69,6 +69,7 @@ const WritePostPage = () => {
         THUMBNAIL_IMAGE_URL: imageURLList[0],
         IMAGE_URL_LIST: imageURLList,
         IMAGE_NAME_LIST: uploadImageName,
+        IMAGE_TYPE_LIST: uploadImageType,
       });
       navigate(`/post/post${loginUID}${date}`);
     } catch (error) {
@@ -83,16 +84,20 @@ const WritePostPage = () => {
     if (event.target.files === null) return;
 
     const uploadImageList = event.target.files;
+    console.log(uploadImageList);
+
     setUploadImageFile(uploadImageList);
 
     const uploadImageNameList = uploadImageName.length === 0 ? [] : [...uploadImageName];
+    const uploadImageTypeList = uploadImageType.length === 0 ? [] : [...uploadImageType];
 
     for (let i = 0; i < uploadImageList.length; i++) {
       uploadImageNameList.push(uploadImageList[i].name);
+      uploadImageTypeList.push(uploadImageList[i].type);
     }
 
     setUploadImageName(uploadImageNameList);
-
+    setUploadImageType(uploadImageTypeList);
     const imageURLList = uploadImage.length === 0 ? [] : [...uploadImage];
 
     for (let i = 0; i < uploadImageList.length; i++) {
