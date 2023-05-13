@@ -1,13 +1,15 @@
 import TripContent from '../components/content/Trip/TripContent';
 import Footer from '../components/footer/Footer';
 import Header from '../components/header/Header';
-import NavigationBar from '../components/navigationBar/NavigationBar';
+import Tab from '../components/tab/Tab';
 
 const TripPage = () => {
+  const menu = ['home', 'trip'];
+
   return (
     <>
       <Header />
-      <NavigationBar />
+      <Tab menu={menu} />
       <TripContent />
       <Footer />
     </>

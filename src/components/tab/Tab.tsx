@@ -2,13 +2,43 @@ import styled from '@emotion/styled';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-const NavigationBar = () => {
+interface PropsType {
+  menu: string[];
+}
+
+interface TabMenuType {
+  [key: string]: {
+    path: string;
+    label: string;
+  };
+}
+
+const Tab = (props: PropsType) => {
+  const tabMenu: TabMenuType = {
+    home: {
+      path: '/',
+      label: '홈',
+    },
+    trip: {
+      path: '/trip',
+      label: '여행지',
+    },
+    editUserInfo: {
+      path: '/myPage/editUserInfo',
+      label: '회원정보수정',
+    },
+    likeList: {
+      path: '/myPage/like',
+      label: '좋아요 목록',
+    },
+  };
+
+  console.log(props.menu);
+
   const [path, setPath] = useState('');
   const homeRef = useRef(null);
   const tripRef = useRef(null);
   const location = useLocation();
-
-  console.log(location);
 
   const onClickHandle = (params: string) => {
     // if (params === 'home') {
@@ -27,28 +57,18 @@ const NavigationBar = () => {
     <>
       <NavSection>
         <Nav>
-          <NavLinkDiv>
-            <NavLink
-              to="/"
-              ref={homeRef}
-              onClick={() => {
-                onClickHandle('home');
-              }}
-            >
-              홈
-            </NavLink>
-          </NavLinkDiv>
-          <NavLinkDiv>
-            <NavLink
-              to="/trip"
-              ref={tripRef}
-              onClick={() => {
-                onClickHandle('trip');
-              }}
-            >
-              여행지
-            </NavLink>
-          </NavLinkDiv>
+          {props.menu.map((type) => (
+            <NavLinkDiv>
+              <NavLink
+                to={tabMenu[type].path}
+                onClick={() => {
+                  onClickHandle('home');
+                }}
+              >
+                {tabMenu[type].label}
+              </NavLink>
+            </NavLinkDiv>
+          ))}
         </Nav>
       </NavSection>
     </>
@@ -89,4 +109,4 @@ const NavLink = styled(Link)`
   }
 `;
 
-export default NavigationBar;
+export default Tab;
