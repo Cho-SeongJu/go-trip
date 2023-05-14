@@ -31,7 +31,7 @@ interface InfoType {
 const CHECK_NICKNAME_ERROR_MSG = '이미 사용중인 닉네임입니다.';
 
 const EditInfoPage = () => {
-  const menu = ['editUserInfo', 'likeList'];
+  const menu = ['editUserInfo', 'likeList', 'editPassword'];
   const [loading, setLoading] = useState<boolean>(false);
   const [checkNickNameResultMsg, setCheckNickNameResultMsg] = useState<string>('');
   const [loginUserInfo, setLoginUserInfo] = useState<InfoType>({ email: '', nickname: '' });
