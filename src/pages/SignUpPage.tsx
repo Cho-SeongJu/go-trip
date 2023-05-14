@@ -84,6 +84,7 @@ const SignUpPage = () => {
   };
 
   const onSubmit = async () => {
+    if (checkNickNameResultMsg.length !== 0) return;
     setLoading(true);
 
     const signUpData = getValues();
