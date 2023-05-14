@@ -37,8 +37,6 @@ const Tab = (props: PropsType) => {
     },
   };
 
-  console.log(props.menu);
-
   const [path, setPath] = useState('');
   const homeRef = useRef(null);
   const tripRef = useRef(null);
