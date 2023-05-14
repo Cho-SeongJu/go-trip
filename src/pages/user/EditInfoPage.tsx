@@ -1,11 +1,11 @@
 import styled from '@emotion/styled';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { getAuth } from 'firebase/auth';
-import { collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore/lite';
+import { DocumentData, collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore/lite';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import * as yup from 'yup';
 import { database } from '../../../firebase';
 import BtnSubmit from '../../components/BtnSubmit';
@@ -36,8 +36,9 @@ const EditInfoPage = () => {
   const [checkNickNameResultMsg, setCheckNickNameResultMsg] = useState<string>('');
   const [loginUserInfo, setLoginUserInfo] = useState<InfoType>({ email: '', nickname: '' });
   const [nickName, setNickName] = useState('');
+  const setUserInfo = useSetRecoilState(userInfo);
   const userID = useRecoilValue(uid);
-  const nickname = useRecoilValue(userInfo);
+  const currentNickname = useRecoilValue(userInfo);
   const navigate = useNavigate();
 
   const getInfo = () => {
@@ -47,9 +48,9 @@ const EditInfoPage = () => {
     if (user !== null && user.email !== null) {
       const userInfo: InfoType = {
         email: user.email,
-        nickname: nickname.NICKNAME,
+        nickname: currentNickname.NICKNAME,
       };
-      setNickName(nickname.NICKNAME);
+      setNickName(currentNickname.NICKNAME);
       setLoginUserInfo(userInfo);
     }
   };
@@ -75,6 +76,31 @@ const EditInfoPage = () => {
       await setDoc(doc(database, 'users', userID), {
         NICKNAME: nickName,
       });
+
+      const postRef = collection(database, 'posts');
+      const commentRef = collection(database, 'comments');
+
+      const postQuery = query(postRef, where('NICKNAME', '==', currentNickname.NICKNAME));
+      const commentQuery = query(commentRef, where('nickname', '==', currentNickname.NICKNAME));
+
+      const postQuerySnapShot = await getDocs(postQuery);
+      const postData = postQuerySnapShot.docs.map((doc) => ({ ID: doc.id, ...doc.data() }));
+
+      const commentQuerySnapShot = await getDocs(commentQuery);
+      const commentData = commentQuerySnapShot;
+      console.log(commentData);
+
+      if (postData.length !== 0) {
+        postData.forEach((post: DocumentData) => {
+          post.NICKNAME = nickName;
+        });
+
+        postData.forEach(async (post) => {
+          await setDoc(doc(database, 'posts', post.ID), post);
+        });
+      }
+
+      setUserInfo({ NICKNAME: nickName });
       alert('회원정보를 성공적으로 변경하였습니다.');
       navigate('/');
     } catch (error) {
@@ -96,7 +122,7 @@ const EditInfoPage = () => {
     } else if (value.length > 8) {
       setCheckNickNameResultMsg('최대 8자 입력 가능합니다.');
       return;
-    } else if (value === nickname.NICKNAME) {
+    } else if (value === currentNickname.NICKNAME) {
       setCheckNickNameResultMsg('현재 닉네임입니다.');
       return;
     }
