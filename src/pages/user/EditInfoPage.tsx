@@ -16,7 +16,6 @@ import Header from '../../components/header/Header';
 import Tab from '../../components/tab/Tab';
 import { uid, userInfo } from '../../store/data';
 import { FormValueType } from '../../type/type';
-import { ChangeEvent } from 'react';
 
 interface SignUpType extends FormValueType {
   address: string;
@@ -118,10 +117,6 @@ const EditInfoPage = () => {
     }
   };
 
-  const onChangeNicknameHandle = (e: ChangeEvent<HTMLInputElement>) => {
-    setNickName(e.target.value);
-  };
-
   useEffect(() => {
     getInfo();
   }, []);
@@ -151,7 +146,6 @@ const EditInfoPage = () => {
               id="nickname"
               {...register('nickName')}
               onBlur={checkNickName}
-              // onChange={() => onChangeNicknameHandle}
               defaultValue={nickName}
             />
             {checkNickNameResultMsg.length !== 0 ? (
