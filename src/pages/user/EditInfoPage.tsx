@@ -3,7 +3,7 @@ import Footer from '../../components/footer/Footer';
 import Header from '../../components/header/Header';
 import Tab from '../../components/tab/Tab';
 
-const MyPage = () => {
+const EditInfoPage = () => {
   const menu = ['editUserInfo', 'likeList'];
 
   return (
@@ -32,4 +32,4 @@ const ProfileImageSection = styled.div``;
 
 const ProfileImage = styled.img``;
 
-export default MyPage;
+export default EditInfoPage;
