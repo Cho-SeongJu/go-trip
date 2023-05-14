@@ -31,11 +31,12 @@ const PostDetailPage = () => {
   const [comment, setComment] = useState<CommentItemType[]>([]);
   const [moreMenuStatus, setMoreMenuStatus] = useState<boolean>(false);
   const [textAreaValue, setTextAreaValue] = useState<string>('');
-  const loginUser = useRecoilValue(uid);
-  const loginUserNickname = useRecoilValue(userInfo);
-  const commentRef = useRef(null);
+  const [commentDisabled, setCommentDisabled] = useState<boolean[]>([]);
+  const commentRef = useRef<HTMLElement>(null);
   const navigate = useNavigate();
   const setRecoilPostData = useSetRecoilState(postDetailData);
+  const loginUser = useRecoilValue(uid);
+  const loginUserNickname = useRecoilValue(userInfo);
 
   const moreMenu = [
     {
@@ -82,6 +83,9 @@ const PostDetailPage = () => {
     if (commentDocSnap.exists()) {
       const commentData: DocumentData = commentDocSnap.data();
       setComment(Array.from(commentData['comment']));
+      const arrLength = Array.from(commentData['comment']).length;
+      const booleanArr = new Array(arrLength).fill(true);
+      setCommentDisabled(booleanArr);
     }
   };
 
@@ -163,6 +167,21 @@ const PostDetailPage = () => {
     console.log('');
   };
 
+  const switchCommentDisabledHandle = (index: number) => {
+    // if (commentRef.current !== null) {
+    //   commentRef.current.disabled = false;
+    // }
+    const copyCommentDisabled: boolean[] = [];
+
+    commentDisabled.forEach((element) => {
+      copyCommentDisabled.push(element);
+    });
+
+    copyCommentDisabled[index] = true;
+
+    setCommentDisabled(copyCommentDisabled);
+  };
+
   useEffect(() => {
     getPost();
   }, []);
@@ -234,10 +253,16 @@ const PostDetailPage = () => {
                 comment.map((item, index) => (
                   <CommentProfileSection key={`${item.uid} + ${index}`}>
                     <CommentNickname>{item.nickname}</CommentNickname>
-                    <Comment>{item.comment}</Comment>
+                    <TextareaAutosize
+                      className="readComment"
+                      rows={1}
+                      value={item.comment}
+                      disabled={commentDisabled[index]}
+                      // ref={(element) => (commentRef.current[index] = element)}
+                    />
                     {item.nickname === loginUserNickname.NICKNAME && (
                       <CommentEditDelete>
-                        <CommentLink>수정</CommentLink>
+                        <CommentLink onClick={() => switchCommentDisabledHandle(index)}>수정</CommentLink>
                         <CommentLink onClick={() => DeleteCommentHandle(item)}>삭제</CommentLink>
                       </CommentEditDelete>
                     )}
@@ -359,17 +384,26 @@ const NoneComment = styled.p`
 `;
 
 const CommentProfileSection = styled.div`
+  display: flex;
   margin-bottom: 1rem;
   font-size: 0.8rem;
 `;
 
 const CommentNickname = styled.span`
   border-right: 1px solid var(--gray-color-1);
+  margin-top: 0.2rem;
   padding-right: 0.7rem;
 `;
 
-const Comment = styled.span`
+const Comment = styled.textarea`
+  display: inline;
+  padding: 0;
   padding-left: 0.7rem;
+  flex-grow: 1;
+  border: none;
+  background-color: var(--white-color-1);
+  font-family: 'Noto Sans KR', sans-serif;
+  resize: none;
 `;
 
 const CommentLink = styled.span`

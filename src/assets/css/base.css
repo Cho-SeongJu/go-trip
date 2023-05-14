@@ -48,3 +48,14 @@
   padding: 1rem;
   overflow: hidden;
 }
+
+.readComment {
+  padding: 0;
+  padding-left: 0.7rem;
+  flex-grow: 1;
+  border: none;
+  background-color: var(--white-color-1);
+  font-family: 'Noto Sans KR', sans-serif;
+  resize: none;
+  overflow: hidden;
+}
