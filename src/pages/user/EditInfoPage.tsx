@@ -87,8 +87,7 @@ const EditInfoPage = () => {
       const postData = postQuerySnapShot.docs.map((doc) => ({ ID: doc.id, ...doc.data() }));
 
       const commentQuerySnapShot = await getDocs(commentQuery);
-      const commentData = commentQuerySnapShot;
-      console.log(commentData);
+      const commentData = commentQuerySnapShot.docs.map((doc) => ({ ID: doc.id, ...doc.data() }));
 
       if (postData.length !== 0) {
         postData.forEach((post: DocumentData) => {
@@ -97,6 +96,16 @@ const EditInfoPage = () => {
 
         postData.forEach(async (post) => {
           await setDoc(doc(database, 'posts', post.ID), post);
+        });
+      }
+
+      if (commentData.length !== 0) {
+        commentData.forEach((post: DocumentData) => {
+          post.nickname = nickName;
+        });
+
+        commentData.forEach(async (post) => {
+          await setDoc(doc(database, 'comments', post.ID), post);
         });
       }
 
