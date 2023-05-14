@@ -7,6 +7,7 @@ import TripPage from './pages/TripPage.tsx';
 import EditPostPage from './pages/post/EditPostPage.tsx';
 import PostDetailPage from './pages/post/PostDetailPage.tsx';
 import WritePostPage from './pages/post/WritePostPage.tsx';
+import EditInfoPage from './pages/user/EditInfoPage.tsx';
 
 function App() {
   // const MainPage = lazy(() => import('./pages/MainPage'));
@@ -45,7 +46,7 @@ function App() {
         />
         <Route
           path="/user/profile/editInfo"
-          element={<EditPostPage />}
+          element={<EditInfoPage />}
         />
         <Route
           path="/writePost"
