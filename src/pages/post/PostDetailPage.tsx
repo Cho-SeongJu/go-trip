@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
-import { DocumentData, arrayRemove, arrayUnion, deleteDoc, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore/lite';
+import { DocumentData, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, where } from 'firebase/firestore/lite';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import TextareaAutosize from 'react-textarea-autosize';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { database } from '../../../firebase';
@@ -11,31 +11,25 @@ import CarouselComponent from '../../components/carousel/CarouselComponent';
 import Footer from '../../components/footer/Footer';
 import Header from '../../components/header/Header';
 import { uid, userInfo } from '../../store/data';
+import { getDate } from '../../store/date';
 import { postDetailData } from '../../store/postDetail';
 
 interface ColorPropsType {
   color: string;
 }
 
-interface CommentItemType {
-  comment: string;
-  nickname: string;
-  uid: string;
-  seq: number;
-}
-
 const PostDetailPage = () => {
   const { postID } = useParams();
   const [loading, setLoading] = useState<boolean>(false);
   const [postData, setPostData] = useState<DocumentData>({});
-  const [comment, setComment] = useState<CommentItemType[]>([]);
+  const [comment, setComment] = useState<DocumentData[]>([]);
   const [moreMenuStatus, setMoreMenuStatus] = useState<boolean>(false);
   const [textAreaValue, setTextAreaValue] = useState<string>('');
   const [commentDisabled, setCommentDisabled] = useState<boolean[]>([]);
   const commentRef = useRef<HTMLElement>(null);
   const navigate = useNavigate();
   const setRecoilPostData = useSetRecoilState(postDetailData);
-  const loginUser = useRecoilValue(uid);
+  const loginUser = String(useRecoilValue(uid));
   const loginUserNickname = useRecoilValue(userInfo);
 
   const moreMenu = [
@@ -77,16 +71,12 @@ const PostDetailPage = () => {
   };
 
   const getComment = async () => {
-    const filterParams = String(postID);
-    const commentRef = doc(database, 'comments', filterParams);
-    const commentDocSnap = await getDoc(commentRef);
-    if (commentDocSnap.exists()) {
-      const commentData: DocumentData = commentDocSnap.data();
-      setComment(Array.from(commentData['comment']));
-      const arrLength = Array.from(commentData['comment']).length;
-      const booleanArr = new Array(arrLength).fill(true);
-      setCommentDisabled(booleanArr);
-    }
+    const commentRef = collection(database, 'comments');
+    const commentQuery = query(commentRef, where('postID', '==', String(postID)));
+
+    const commentQuerySnapShot = await getDocs(commentQuery);
+    const commentData = commentQuerySnapShot.docs.map((doc) => ({ ID: doc.id, ...doc.data() }));
+    setComment(commentData);
   };
 
   const openMoreMenuHandle = () => {
@@ -124,20 +114,14 @@ const PostDetailPage = () => {
       return;
     }
 
-    let commentSeq = 0;
-    const commentDocRef = doc(database, 'comments', String(postID));
-
+    const randomNum = Math.floor(Math.random() * 101);
     try {
-      if (comment.length === 0) {
-        await setDoc(commentDocRef, {
-          comment: arrayUnion({ comment: textAreaValue, nickname: loginUserNickname.NICKNAME, uid: loginUser, seq: commentSeq }),
-        });
-      } else {
-        commentSeq = comment[comment.length - 1].seq;
-        await updateDoc(commentDocRef, {
-          comment: arrayUnion({ comment: textAreaValue, nickname: loginUserNickname.NICKNAME, uid: loginUser, seq: commentSeq }),
-        });
-      }
+      await setDoc(doc(database, 'comments', 'post' + loginUser + getDate() + randomNum), {
+        comment: textAreaValue,
+        nickname: loginUserNickname.NICKNAME,
+        uid: loginUser,
+        postID: String(postID),
+      });
       getComment();
       setTextAreaValue('');
     } catch (error) {
@@ -145,22 +129,15 @@ const PostDetailPage = () => {
     }
   };
 
-  const DeleteCommentHandle = async (item: CommentItemType) => {
+  const DeleteCommentHandle = async (item: DocumentData) => {
     const result = confirm('댓글을 삭제하시겠습니까?');
-    const commentDocRef = doc(database, 'comments', String(postID));
 
     if (result) {
       try {
-        await updateDoc(commentDocRef, {
-          comment: arrayRemove({
-            comment: item.comment,
-            nickname: item.nickname,
-            seq: item.seq,
-            uid: item.uid,
-          }),
-        });
+        await deleteDoc(doc(database, 'comments', item.ID));
         getComment();
       } catch (error) {
+        alert('댓글 삭제 중 오류가 발생하였습니다. 잠시 후에 다시 시도해주세요.');
         console.log(error);
       }
     }
