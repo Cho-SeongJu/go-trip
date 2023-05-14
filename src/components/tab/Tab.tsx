@@ -57,8 +57,8 @@ const Tab = (props: PropsType) => {
     <>
       <NavSection>
         <Nav>
-          {props.menu.map((type) => (
-            <NavLinkDiv>
+          {props.menu.map((type, index) => (
+            <NavLinkDiv key={`${type}${index}`}>
               <NavLink
                 to={tabMenu[type].path}
                 onClick={() => {
