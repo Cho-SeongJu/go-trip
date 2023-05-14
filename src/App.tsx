@@ -45,7 +45,7 @@ function App() {
           element={<SuccessSignUp />}
         />
         <Route
-          path="/user/profile/editInfo"
+          path="/user/profile/editUserInfo"
           element={<EditInfoPage />}
         />
         <Route
@@ -57,7 +57,7 @@ function App() {
           element={<PostDetailPage />}
         />
         <Route
-          path="/post/edit/:postID"
+          path="/post/edit/"
           element={<EditPostPage />}
         />
       </Routes>
