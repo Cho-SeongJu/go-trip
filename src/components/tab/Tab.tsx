@@ -24,12 +24,16 @@ const Tab = (props: PropsType) => {
       label: '여행지',
     },
     editUserInfo: {
-      path: '/myPage/editUserInfo',
+      path: '/user/profile/editUserInfo',
       label: '회원정보수정',
     },
     likeList: {
-      path: '/myPage/like',
+      path: '/user/profile/likeList',
       label: '좋아요 목록',
+    },
+    editPassword: {
+      path: '/user/profile/editPassword',
+      label: '비밀번호설정',
     },
   };
 
