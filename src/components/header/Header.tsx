@@ -47,7 +47,7 @@ const Header = () => {
               </WelcomePharse>
             )}
             {loginState ? <Logout onClick={() => logout()}>로그아웃</Logout> : <LinkButton to={'/user/login'}>로그인</LinkButton>}
-            {loginState ? <LinkButton to={'/user/profile'}>마이페이지</LinkButton> : <LinkButton to={'/user/signUp'}>회원가입</LinkButton>}
+            {loginState ? <LinkButton to={'/user/profile/editInfo'}>마이페이지</LinkButton> : <LinkButton to={'/user/signUp'}>회원가입</LinkButton>}
           </LoginSingUpLinkSection>
         </DetailSection>
       </HeaderSection>
