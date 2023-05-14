@@ -8,6 +8,8 @@ import EditPostPage from './pages/post/EditPostPage.tsx';
 import PostDetailPage from './pages/post/PostDetailPage.tsx';
 import WritePostPage from './pages/post/WritePostPage.tsx';
 import EditInfoPage from './pages/user/EditInfoPage.tsx';
+import LikeListPage from './pages/user/LikeListPage.tsx';
+import EditPasswordPage from './pages/user/EditPasswordPage.tsx';
 
 function App() {
   // const MainPage = lazy(() => import('./pages/MainPage'));
@@ -59,6 +61,14 @@ function App() {
         <Route
           path="/post/edit/"
           element={<EditPostPage />}
+        />
+        <Route
+          path="/user/profile/LikeList"
+          element={<LikeListPage />}
+        />
+        <Route
+          path="/user/profile/editPassword"
+          element={<EditPasswordPage />}
         />
       </Routes>
     </>
