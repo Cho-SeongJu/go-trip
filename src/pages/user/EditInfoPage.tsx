@@ -166,7 +166,7 @@ const EditInfoPage = () => {
 const Section = styled.div`
   width: var(--common-post-width);
   margin: var(--common-margin);
-  min-height: calc(100vh - 10rem - 3.2rem - 1.85rem);
+  min-height: calc(100vh - 10rem - 3.2rem - 5rem);
 `;
 
 const Form = styled.form`
