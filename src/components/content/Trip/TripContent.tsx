@@ -1,12 +1,23 @@
 import styled from '@emotion/styled';
-import { useNavigate } from 'react-router-dom';
+import { collection, getDocs, query, where } from 'firebase/firestore/lite';
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
+import { database } from '../../../../firebase';
 import { uid } from '../../../store/data';
-import TripPost from './TripPost';
+import Loading from '../../Loading';
+
+interface DataType {
+  [key: string]: string;
+}
 
 const TripContent = () => {
   const userAuth = useRecoilValue(uid);
   const navigate = useNavigate();
+  const [selectedValue, setSelectedValue] = useState<string>('글제목');
+  const [searchKeyword, setSearchKeyword] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [posts, setPosts] = useState<DataType[]>([]);
 
   const searchConditionArr = ['글제목', '작성자'];
 
@@ -18,13 +29,74 @@ const TripContent = () => {
     }
   };
 
+  const selecteValueHandle = (e: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedValue(e.target.value);
+  };
+
+  const changeKeywordHandle = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchKeyword(e.target.value);
+  };
+
+  const submitHandle = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (searchKeyword.length === 0) {
+      alert('검색할 내용을 입력해주세요.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const postRef = collection(database, 'posts');
+      let q;
+      if (selectedValue === '글제목') {
+        q = query(postRef, where('TITLE', '==', searchKeyword));
+      } else if (selectedValue === '작성자') {
+        q = query(postRef, where('NICKNAME', '==', searchKeyword));
+      }
+
+      if (q !== undefined) {
+        const querySnapshot = await getDocs(q);
+        const data = querySnapshot.docs.map((doc) => ({ ID: doc.id, ...doc.data() }));
+        console.log(data);
+        setPosts(data);
+      }
+    } catch (error) {
+      console.log(error);
+      alert('게시글 조회 중 오류가 발생하였습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getPosts = async () => {
+    setLoading(true);
+    try {
+      const querySnapShot = await getDocs(collection(database, 'posts'));
+      const data = querySnapShot.docs.map((doc) => ({ ID: doc.id, ...doc.data() }));
+      setPosts(data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getPosts();
+  }, []);
+
   return (
     <>
       <Section>
         <FilterSection>
-          <Sort>
+          <Form onSubmit={submitHandle}>
             <SelectBoxSection>
-              <Selectbox name="searchType">
+              <Selectbox
+                name="searchType"
+                onChange={selecteValueHandle}
+              >
                 {searchConditionArr.map((item, index) => (
                   <option
                     value={item}
@@ -36,8 +108,11 @@ const TripContent = () => {
               </Selectbox>
             </SelectBoxSection>
             <SearchKeywordSection>
-              <SearchKeyword type="text" />
-              <SearchIcon>
+              <SearchKeyword
+                type="text"
+                onChange={changeKeywordHandle}
+              />
+              <BtnSearch>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   xmlnsXlink="http://www.w3.org/1999/xlink"
@@ -67,12 +142,35 @@ const TripContent = () => {
                     </g>
                   </g>
                 </svg>
-              </SearchIcon>
+              </BtnSearch>
             </SearchKeywordSection>
             <WritePostButton onClick={CheckAuth}>글쓰기</WritePostButton>
-          </Sort>
+          </Form>
         </FilterSection>
-        <TripPost />
+        <PostSection>
+          {loading ? (
+            <Loading display="flex" />
+          ) : posts.length === 0 ? (
+            <NonePostsSection>
+              <NonePostsPharse>등록된 게시물이 없습니다.</NonePostsPharse>
+            </NonePostsSection>
+          ) : (
+            <>
+              {posts.map((post, index) => (
+                <Post
+                  key={index}
+                  to={`/post/${post.ID}`}
+                >
+                  <Img src={post.THUMBNAIL_IMAGE_URL} />
+                  <DescriptionSection>
+                    <Title>{post.TITLE}</Title>
+                    <Nickname>작성자 : {post.NICKNAME}</Nickname>
+                  </DescriptionSection>
+                </Post>
+              ))}
+            </>
+          )}
+        </PostSection>
       </Section>
     </>
   );
@@ -92,7 +190,7 @@ const SelectBoxSection = styled.div`
   margin: auto 0;
 `;
 
-const Sort = styled.div`
+const Form = styled.form`
   display: flex;
   float: right;
   margin-top: 2rem;
@@ -108,31 +206,6 @@ const Selectbox = styled.select`
   background-color: #fff;
 `;
 
-// const SearchCondition = styled.div`
-//   display: flex;
-//   justify-content: center;
-//   align-items: center;
-//   width: 5rem;
-//   height: 2rem;
-//   border: 1px solid black;
-// `;
-
-// const SearchPharse = styled.p`
-//   width: 5rem;
-// `;
-
-// const DropDown = styled.div`
-//   width: 3rem;
-//   height: 2rem;
-//   border: 1px solid black;
-// `;
-
-// const ConditionList = styled.ul`
-//   display: none;
-// `;
-
-// const ConditionListItem = styled.li``;
-
 const SearchKeywordSection = styled.div`
   display: flex;
   margin: auto 0.3rem;
@@ -146,19 +219,14 @@ const SearchKeyword = styled.input`
   width: 13rem;
 `;
 
-const SearchIcon = styled.span`
+const BtnSearch = styled.button`
   display: flex;
   align-items: center;
   margin: 0 0.5rem;
+  border: none;
+  background-color: var(--white-color-1);
+  cursor: pointer;
 `;
-
-// const WritePostSection = styled.div`
-//   display: flex;
-//   border-radius: 0.2rem;
-//   color: var(--white-color-1);
-//   background-color: var(--blue-sky-color-1);
-//   cursor: pointer;
-// `;
 
 const WritePostButton = styled.button`
   margin-left: 3rem;
@@ -174,10 +242,57 @@ const WritePostButton = styled.button`
   }
 `;
 
-// const DropDownIcon = styled.div`
-//   display: flex;
-//   align-items: center;
-//   margin-right: 0.7rem;
-// `;
+const PostSection = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  flex-wrap: wrap;
+  width: var(--common-width);
+`;
+
+const NonePostsSection = styled.div`
+  display: flex;
+  width: inherit;
+  height: calc(100vh - 10rem - 3.2rem - 15rem);
+  justify-content: center;
+  align-items: center;
+`;
+
+const NonePostsPharse = styled.p``;
+
+const Post = styled(Link)`
+  margin: 1rem;
+  width: 20rem;
+  height: 22rem;
+  color: var(--black-color-1);
+`;
+
+const DescriptionSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 20rem;
+`;
+
+const Img = styled.img`
+  width: 20rem;
+  height: 15rem;
+  border: 1px solid black;
+  border-radius: 0.5rem;
+  object-fit: contain;
+`;
+
+const Title = styled.p`
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+  font-size: 1.1rem;
+  font-weight: 500;
+`;
+
+const Nickname = styled.p`
+  margin: 0.5rem;
+  font-size: 0.8rem;
+`;
 
 export default TripContent;
