@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { DocumentData, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore/lite';
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import TextareaAutosize from 'react-textarea-autosize';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
@@ -360,7 +360,8 @@ const PostDetailPage = () => {
                         <CommentLink onClick={() => DeleteCommentHandle(item)}>삭제</CommentLink>
                       </CommentEditDelete>
                     ) : (
-                      loginUserNickname.NICKNAME !== 'anonymous' && (
+                      loginUserNickname.NICKNAME !== 'anonymous' &&
+                      item.nickname === loginUserNickname.NICKNAME && (
                         <CommentEditDelete>
                           <CommentLink onClick={() => commentEditHandle(item)}>수정완료</CommentLink>
                           <CommentLink onClick={() => switchCommentDisabledHandle(index, 'cancel')}>취소</CommentLink>
