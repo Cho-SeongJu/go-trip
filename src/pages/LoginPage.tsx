@@ -127,7 +127,6 @@ const LoginPage = () => {
         }
 
         setCookie('uid', userUID, { path: '/', expires: expireTime });
-        alert('구글 로그인 시 닉네임을 등록해야합니다.');
         navigate('/');
       }
     } catch (error) {
