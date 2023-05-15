@@ -13,6 +13,7 @@ import Header from '../../components/header/Header';
 import { uid, userInfo } from '../../store/data';
 import { getDate } from '../../store/date';
 import { postDetailData } from '../../store/postDetail';
+import ReactPaginate from 'react-paginate';
 
 interface ColorPropsType {
   color: string;
@@ -28,11 +29,12 @@ const PostDetailPage = () => {
   const [commentDisabled, setCommentDisabled] = useState<boolean[]>([]);
   const [editComment, setEditComment] = useState<string>('');
   const [likeData, setLikeData] = useState<DocumentData[]>([]);
+  const [currentPage, setCurrentPage] = useState(0);
   const navigate = useNavigate();
   const setRecoilPostData = useSetRecoilState(postDetailData);
   const loginUser = String(useRecoilValue(uid));
   const loginUserNickname = useRecoilValue(userInfo);
-
+  const asd = [1, 2, 3, 4, 5, 6, 7, 8, 8, 9, 90, 0, 0, 10, 123, 123, 123];
   const moreMenu = [
     {
       mode: 'edit',
@@ -47,7 +49,6 @@ const PostDetailPage = () => {
   const getPost = async () => {
     const filterParams = String(postID);
     const docRef = doc(database, 'posts', filterParams);
-    console.log(loginUserNickname);
     try {
       setLoading(true);
       const docSnap = await getDoc(docRef);
@@ -90,7 +91,6 @@ const PostDetailPage = () => {
 
     const likeQuerySnapShot = await getDocs(likeQuery);
     const data = likeQuerySnapShot.docs.map((doc) => ({ ID: doc.id, ...doc.data() }));
-    console.log(likeData.length);
     if (data.length > 0) {
       setLikeData(data);
     } else if (likeData.length > 0 && data.length === 0) {
@@ -159,7 +159,6 @@ const PostDetailPage = () => {
         console.log(error);
       }
     }
-    console.log('');
   };
 
   const switchCommentDisabledHandle = (index: number, mode: string) => {
@@ -213,7 +212,6 @@ const PostDetailPage = () => {
     if (likeData.length > 0) {
       try {
         await deleteDoc(doc(database, 'like', likeData[0].ID));
-        console.log('asd');
         getLike();
       } catch (error) {
         alert('처리 중 오류가 발생하였습니다. 잠시 후에 다시 시도해주세요.');
@@ -232,6 +230,18 @@ const PostDetailPage = () => {
         return;
       }
     }
+  };
+
+  // 한 페이지에 보여줄 게시물 수
+  const NUM_POSTS_PER_PAGE = 5;
+  // 페이지 수 계산
+  const pageCount = comment ? Math.ceil(comment.length / NUM_POSTS_PER_PAGE) : 0;
+  // 각 페이지 당 보여줄 데이터 인덱스 계산
+  const startIndex = currentPage * NUM_POSTS_PER_PAGE;
+
+  // 페이지네이션 클릭 시, 현재 페이지 변경
+  const handlePageClick = (data: { selected: number }) => {
+    setCurrentPage(data.selected);
   };
 
   useEffect(() => {
@@ -373,6 +383,24 @@ const PostDetailPage = () => {
               )}
             </ReadCommentSection>
           </CommentSection>
+          <div>
+            {asd.map((element) => (
+              <p>{element}</p>
+            ))}
+            <ReactPaginate
+              previousLabel={'이전'}
+              nextLabel={'다음'}
+              breakLabel={'...'}
+              pageCount={pageCount}
+              marginPagesDisplayed={2}
+              pageRangeDisplayed={5}
+              onPageChange={handlePageClick}
+              containerClassName={'pagination'}
+              activeClassName={'active'}
+              previousClassName={'pageLabelBtn'}
+              nextClassName={'pageLabelBtn'}
+            />
+          </div>
         </Section>
       )}
       <Footer />
