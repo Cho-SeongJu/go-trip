@@ -200,6 +200,16 @@ const PostDetailPage = () => {
   };
 
   const likeHandle = async () => {
+    if (loginUserNickname.NICKNAME === 'anonymous') {
+      const result = confirm('로그인 후 이용 가능합니다. 로그인 하시겠습니까?');
+
+      if (result) {
+        navigate('/user/login');
+      }
+
+      return;
+    }
+
     if (likeData.length > 0) {
       try {
         await deleteDoc(doc(database, 'like', likeData[0].ID));
@@ -273,9 +283,8 @@ const PostDetailPage = () => {
             className="postTextarea"
             rows={1}
             disabled
-          >
-            {postData.CONTENT}
-          </TextareaAutosize>
+            defaultValue={postData.CONTENT}
+          />
           <CommentSection>
             <CommentLike>
               <CommentTitle>댓글</CommentTitle>
