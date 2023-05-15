@@ -19,15 +19,18 @@ interface SignUpType extends FormValueType {
   reCheckPassword: string;
 }
 
-const CHECK_NICKNAME_ERROR_MSG = '이미 사용중인 닉네임입니다.';
-
 const SignUpPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
+  const [checkEmailResultMsg, setCheckEmailResultMsg] = useState<string>('');
   const [checkNickNameResultMsg, setCheckNickNameResultMsg] = useState<string>('');
   const navigate = useNavigate();
 
   const formSchema = yup.object({
-    email: yup.string().required('이메일은 필수 입력입니다.').email('이메일 형식이 아닙니다.'),
+    email: yup
+      .string()
+      .required('이메일은 필수 입력입니다.')
+      .email('이메일 형식이 아닙니다.')
+      .matches(/[a-z0-9]+@[a-z]+\.[a-z]{2,3}/, '이메일 형식이 아닙니다.'),
     password: yup
       .string()
       .required('비밀번호는 필수 입력입니다.')
@@ -47,6 +50,39 @@ const SignUpPage = () => {
     formState: { errors },
     getValues,
   } = useForm<SignUpType>({ mode: 'onBlur', resolver: yupResolver(formSchema) });
+
+  const checkEmail = async (event: React.FocusEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    const id = value.slice(0, value.indexOf('@'));
+
+    if (value.length === 0) {
+      setCheckEmailResultMsg('이메일은 필수 입력입니다.');
+      return;
+    }
+
+    if (id.length < 6) {
+      setCheckEmailResultMsg('이메일은 최소 6글자 이상 필수 입력입니다.');
+      return;
+    } else if (id.length > 16) {
+      setCheckEmailResultMsg('이메일은 최대 16글자 입력 가능합니다..');
+      return;
+    }
+
+    const emailRef = collection(database, 'users');
+    const q = query(emailRef, where('EMAIL', '==', value));
+
+    try {
+      const querySnapShot = await getDocs(q);
+      if (querySnapShot.docs.length !== 0) {
+        setCheckEmailResultMsg('이미 사용중인 이메일입니다.');
+      } else {
+        setCheckEmailResultMsg('');
+      }
+    } catch (error) {
+      alert('중복체크 중 오류가 발생하였습니다. 다시 진행해주시길 바랍니다.');
+      return;
+    }
+  };
 
   const checkNickName = async (event: React.FocusEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -69,16 +105,15 @@ const SignUpPage = () => {
     const nickNamRef = collection(database, 'users');
     const q = query(nickNamRef, where('NICKNAME', '==', value));
 
-    const querySnapShot = await getDocs(q);
-
     try {
+      const querySnapShot = await getDocs(q);
       if (querySnapShot.docs.length !== 0) {
-        setCheckNickNameResultMsg(CHECK_NICKNAME_ERROR_MSG);
+        setCheckNickNameResultMsg('이미 사용중인 닉네임입니다.');
       } else {
         setCheckNickNameResultMsg('');
       }
     } catch (error) {
-      alert('오류가 발생하였습니다. 다시 진행해주시길 바랍니다.');
+      alert('중복체크 중 오류가 발생하였습니다. 다시 진행해주시길 바랍니다.');
       return;
     }
   };
@@ -97,7 +132,9 @@ const SignUpPage = () => {
       const user = await createUserWithEmailAndPassword(auth, email, password);
       const userUID = user.user.uid;
       await setDoc(doc(database, 'users', userUID), {
+        EMAIL: email,
         NICKNAME: nickName,
+        UID: userUID,
       });
 
       navigate('/user/signUp/success');
@@ -131,8 +168,9 @@ const SignUpPage = () => {
             placeholder="이메일"
             id="email"
             {...register('email')}
+            onBlur={checkEmail}
           />
-          {errors.email && <ErrorMessage role="alert">{errors.email.message}</ErrorMessage>}
+          {checkEmailResultMsg.length !== 0 ? <ErrorMessage role="alert">{checkEmailResultMsg}</ErrorMessage> : errors.email && <ErrorMessage role="alert">{errors.email.message}</ErrorMessage>}
           <Label>비밀번호</Label>
           <Description>영문, 숫자, 특수문자를 포함한 8~16자 비밀번호를 입력해주세요.</Description>
           <InputBox
