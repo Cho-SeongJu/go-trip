@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { DocumentData, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, where } from 'firebase/firestore/lite';
+import { DocumentData, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore/lite';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import TextareaAutosize from 'react-textarea-autosize';
@@ -26,7 +26,7 @@ const PostDetailPage = () => {
   const [moreMenuStatus, setMoreMenuStatus] = useState<boolean>(false);
   const [textAreaValue, setTextAreaValue] = useState<string>('');
   const [commentDisabled, setCommentDisabled] = useState<boolean[]>([]);
-  const commentRef = useRef<HTMLElement>(null);
+  const [editComment, setEditComment] = useState<string>('');
   const navigate = useNavigate();
   const setRecoilPostData = useSetRecoilState(postDetailData);
   const loginUser = String(useRecoilValue(uid));
@@ -46,7 +46,7 @@ const PostDetailPage = () => {
   const getPost = async () => {
     const filterParams = String(postID);
     const docRef = doc(database, 'posts', filterParams);
-
+    console.log(loginUserNickname);
     try {
       setLoading(true);
       const docSnap = await getDoc(docRef);
@@ -77,6 +77,9 @@ const PostDetailPage = () => {
     const commentQuerySnapShot = await getDocs(commentQuery);
     const commentData = commentQuerySnapShot.docs.map((doc) => ({ ID: doc.id, ...doc.data() }));
     setComment(commentData);
+    const disabledType = new Array(commentData.length);
+    disabledType.fill(true);
+    setCommentDisabled(disabledType);
   };
 
   const openMoreMenuHandle = () => {
@@ -114,9 +117,8 @@ const PostDetailPage = () => {
       return;
     }
 
-    const randomNum = Math.floor(Math.random() * 101);
     try {
-      await setDoc(doc(database, 'comments', 'post' + loginUser + getDate() + randomNum), {
+      await setDoc(doc(database, 'comments', 'post' + getDate() + loginUser), {
         comment: textAreaValue,
         nickname: loginUserNickname.NICKNAME,
         uid: loginUser,
@@ -144,19 +146,41 @@ const PostDetailPage = () => {
     console.log('');
   };
 
-  const switchCommentDisabledHandle = (index: number) => {
-    // if (commentRef.current !== null) {
-    //   commentRef.current.disabled = false;
-    // }
+  const switchCommentDisabledHandle = (index: number, mode: string) => {
     const copyCommentDisabled: boolean[] = [];
 
-    commentDisabled.forEach((element) => {
-      copyCommentDisabled.push(element);
-    });
-
-    copyCommentDisabled[index] = true;
+    if (mode === 'edit') {
+      commentDisabled.forEach((element) => {
+        copyCommentDisabled.push(element);
+      });
+      copyCommentDisabled[index] = false;
+    } else if (mode === 'cancel') {
+      commentDisabled.forEach((element) => {
+        copyCommentDisabled.push(element);
+      });
+      copyCommentDisabled[index] = true;
+    }
 
     setCommentDisabled(copyCommentDisabled);
+  };
+
+  const onChangeComment = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setEditComment(e.target.value);
+  };
+
+  const commentEditHandle = async (item: DocumentData) => {
+    if (editComment.length === 0) return;
+
+    try {
+      const commentRef = doc(database, 'comments', item.ID);
+
+      await updateDoc(commentRef, {
+        comment: editComment,
+      });
+      getComment();
+    } catch (error) {
+      alert('댓글 수정 중 오류가 발생하였습니다. 잠시 후에 다시 시도해주세요.');
+    }
   };
 
   useEffect(() => {
@@ -233,15 +257,22 @@ const PostDetailPage = () => {
                     <TextareaAutosize
                       className="readComment"
                       rows={1}
-                      value={item.comment}
+                      defaultValue={item.comment}
                       disabled={commentDisabled[index]}
-                      // ref={(element) => (commentRef.current[index] = element)}
+                      onChange={onChangeComment}
                     />
-                    {item.nickname === loginUserNickname.NICKNAME && (
+                    {item.nickname === loginUserNickname.NICKNAME && commentDisabled[index] ? (
                       <CommentEditDelete>
-                        <CommentLink onClick={() => switchCommentDisabledHandle(index)}>수정</CommentLink>
+                        <CommentLink onClick={() => switchCommentDisabledHandle(index, 'edit')}>수정</CommentLink>
                         <CommentLink onClick={() => DeleteCommentHandle(item)}>삭제</CommentLink>
                       </CommentEditDelete>
+                    ) : (
+                      loginUserNickname.NICKNAME !== 'anonymous' && (
+                        <CommentEditDelete>
+                          <CommentLink onClick={() => commentEditHandle(item)}>수정완료</CommentLink>
+                          <CommentLink onClick={() => switchCommentDisabledHandle(index, 'cancel')}>취소</CommentLink>
+                        </CommentEditDelete>
+                      )
                     )}
                   </CommentProfileSection>
                 ))
@@ -339,11 +370,16 @@ const CommentInputEnter = styled.button<ColorPropsType>`
   border: none;
   background-color: ${(props) => props.color};
   cursor: pointer;
+
+  &:not(:disabled):hover {
+    color: var(--blue-sky-color-1);
+  }
 `;
 
 const CommentEditDelete = styled.div`
   display: inline;
   float: right;
+  margin-top: 0.4rem;
 `;
 
 const ReadCommentSection = styled.div`
@@ -368,7 +404,8 @@ const CommentProfileSection = styled.div`
 
 const CommentNickname = styled.span`
   border-right: 1px solid var(--gray-color-1);
-  margin-top: 0.2rem;
+  margin-top: 0.35rem;
+  padding-top: 0.1rem;
   padding-right: 0.7rem;
 `;
 
