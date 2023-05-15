@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { useEffect, useRef, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 
 interface PropsType {
   menu: string[];
@@ -37,17 +37,10 @@ const Tab = (props: PropsType) => {
     },
   };
 
-  const [path, setPath] = useState('');
-  const homeRef = useRef(null);
-  const tripRef = useRef(null);
+  const [path, setPath] = useState('/');
   const location = useLocation();
 
   const onClickHandle = (params: string) => {
-    // if (params === 'home') {
-    //   console.log(homeRef.current);
-    // } else if (params === 'trip') {
-    // }
-
     setPath(params);
   };
 
@@ -66,6 +59,7 @@ const Tab = (props: PropsType) => {
                 onClick={() => {
                   onClickHandle('home');
                 }}
+                className={tabMenu[type].path === path ? 'selected' : ''}
               >
                 {tabMenu[type].label}
               </NavLink>
