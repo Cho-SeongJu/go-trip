@@ -89,8 +89,8 @@ const TripContent = () => {
 
   return (
     <>
-      <Section>
-        <FilterSection>
+      <FilterSection>
+        <SearchFormSection>
           <Form onSubmit={submitHandle}>
             <SelectBoxSection>
               <Selectbox
@@ -146,7 +146,9 @@ const TripContent = () => {
             </SearchKeywordSection>
             <WritePostButton onClick={CheckAuth}>글쓰기</WritePostButton>
           </Form>
-        </FilterSection>
+        </SearchFormSection>
+      </FilterSection>
+      <Section>
         <PostSection>
           {loading ? (
             <Loading display="flex" />
@@ -183,7 +185,17 @@ const Section = styled.div`
 `;
 
 const FilterSection = styled.div`
-  width: inherit;
+  position: sticky;
+  top: 8.22rem;
+  height: 7rem;
+  background-color: var(--white-color-1);
+  box-shadow: 1px 3px 5px var(--gray-color-2);
+  z-index: 9999;
+`;
+
+const SearchFormSection = styled.div`
+  width: var(--common-width);
+  margin: var(--common-margin);
 `;
 
 const SelectBoxSection = styled.div`

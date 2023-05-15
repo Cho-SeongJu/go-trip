@@ -56,7 +56,11 @@ const Header = () => {
 };
 
 const HeaderSection = styled.header`
+  position: sticky;
+  top: 0;
+  background-color: var(--white-color-1);
   border-bottom: 1px solid var(--gray-color-2);
+  z-index: 9999;
 `;
 
 const DetailSection = styled.div`

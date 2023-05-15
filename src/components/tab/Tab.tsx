@@ -72,8 +72,12 @@ const Tab = (props: PropsType) => {
 };
 
 const NavSection = styled.div`
+  position: sticky;
+  top: 5.05rem;
+  z-index: 9999;
   width: 100%;
   border-bottom: 1px solid var(--gray-color-2);
+  background-color: var(--white-color-1);
 `;
 
 const Nav = styled.nav`
