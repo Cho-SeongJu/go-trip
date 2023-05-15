@@ -25,11 +25,19 @@
 
 .readComment {
   padding: 0;
-  padding-left: 0.7rem;
+  margin-left: 0.7rem;
+  margin-right: 0.7rem;
+  padding: 0.2rem 0.7rem;
+  border-radius: 0.2rem;
   flex-grow: 1;
-  border: none;
+  border: 1px solid var(--gray-color-1);
   background-color: var(--white-color-1);
   font-family: 'Noto Sans KR', sans-serif;
   resize: none;
   overflow: hidden;
+  outline: none;
+}
+
+.readComment:disabled {
+  border: 1px solid var(--white-color-1);
 }
