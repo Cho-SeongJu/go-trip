@@ -27,6 +27,7 @@ const PostDetailPage = () => {
   const [textAreaValue, setTextAreaValue] = useState<string>('');
   const [commentDisabled, setCommentDisabled] = useState<boolean[]>([]);
   const [editComment, setEditComment] = useState<string>('');
+  const [likeData, setLikeData] = useState<DocumentData[]>([]);
   const navigate = useNavigate();
   const setRecoilPostData = useSetRecoilState(postDetailData);
   const loginUser = String(useRecoilValue(uid));
@@ -63,6 +64,7 @@ const PostDetailPage = () => {
         }
       }
       getComment();
+      getLike();
     } catch (error) {
       console.log(error);
     } finally {
@@ -80,6 +82,20 @@ const PostDetailPage = () => {
     const disabledType = new Array(commentData.length);
     disabledType.fill(true);
     setCommentDisabled(disabledType);
+  };
+
+  const getLike = async () => {
+    const likeRef = collection(database, 'like');
+    const likeQuery = query(likeRef, where('postID', '==', String(postID)), where('nickname', '==', loginUserNickname.NICKNAME));
+
+    const likeQuerySnapShot = await getDocs(likeQuery);
+    const data = likeQuerySnapShot.docs.map((doc) => ({ ID: doc.id, ...doc.data() }));
+    console.log(likeData.length);
+    if (data.length > 0) {
+      setLikeData(data);
+    } else if (likeData.length > 0 && data.length === 0) {
+      setLikeData([]);
+    }
   };
 
   const openMoreMenuHandle = () => {
@@ -183,6 +199,31 @@ const PostDetailPage = () => {
     }
   };
 
+  const likeHandle = async () => {
+    if (likeData.length > 0) {
+      try {
+        await deleteDoc(doc(database, 'like', likeData[0].ID));
+        console.log('asd');
+        getLike();
+      } catch (error) {
+        alert('처리 중 오류가 발생하였습니다. 잠시 후에 다시 시도해주세요.');
+        return;
+      }
+    } else if (likeData.length === 0) {
+      try {
+        await setDoc(doc(database, 'like', 'like' + String(postID)), {
+          nickname: loginUserNickname.NICKNAME,
+          postID: String(postID),
+          uid: loginUser,
+        });
+        getLike();
+      } catch (error) {
+        alert('처리 중 오류가 발생하였습니다. 잠시 후에 다시 시도해주세요.');
+        return;
+      }
+    }
+  };
+
   useEffect(() => {
     getPost();
   }, []);
@@ -228,9 +269,52 @@ const PostDetailPage = () => {
               <ProfilePharse>작성일 : 2023-05-11</ProfilePharse>
             </ProfileInfo>
           </Profile>
-          <Content>{postData.CONTENT}</Content>
+          <TextareaAutosize
+            className="postTextarea"
+            rows={1}
+            disabled
+          >
+            {postData.CONTENT}
+          </TextareaAutosize>
           <CommentSection>
-            <CommentTitle>댓글</CommentTitle>
+            <CommentLike>
+              <CommentTitle>댓글</CommentTitle>
+              <Like onClick={likeHandle}>
+                {likeData.length === 0 ? (
+                  <svg
+                    data-name="Livello 1"
+                    id="Livello_1"
+                    viewBox="0 0 128 128"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width={23}
+                    height={23}
+                  >
+                    <title />
+                    <path d="M116.22,16.68C108,8.8,95.16,4.88,83.44,6.71,75,8,68.17,12.26,64.07,18.68c-4-6.53-10.62-10.84-18.93-12.22-11.61-1.91-25,2.19-33.37,10.21A38.19,38.19,0,0,0,0,44.05,39.61,39.61,0,0,0,11.74,72.65L59,119.94a7,7,0,0,0,9.94,0l47.29-47.3A39.61,39.61,0,0,0,128,44.05,38.19,38.19,0,0,0,116.22,16.68ZM112,68.4,64.73,115.7a1,1,0,0,1-1.46,0L16,68.4A33.66,33.66,0,0,1,6,44.11,32.23,32.23,0,0,1,15.94,21c5.89-5.67,14.78-9,23.29-9a30.38,30.38,0,0,1,4.94.4c5,.82,11.67,3.32,15.42,10.56A5.06,5.06,0,0,0,64,25.68h0a4.92,4.92,0,0,0,4.34-2.58h0c3.89-7.2,10.82-9.66,15.94-10.46,9.77-1.52,20.9,1.84,27.7,8.37A32.23,32.23,0,0,1,122,44.11,33.66,33.66,0,0,1,112,68.4Z" />
+                  </svg>
+                ) : (
+                  <svg
+                    version="1.1"
+                    id="Layer_1"
+                    xmlns="http://www.w3.org/2000/svg"
+                    xmlnsXlink="http://www.w3.org/1999/xlink"
+                    x="0px"
+                    y="0px"
+                    viewBox="0 0 426.668 426.668"
+                    xmlSpace="preserve"
+                    fill="red"
+                    width={23}
+                    height={23}
+                  >
+                    <path
+                      d="M401.788,74.476c-63.492-82.432-188.446-33.792-188.446,49.92
+	c0-83.712-124.962-132.356-188.463-49.92c-65.63,85.222-0.943,234.509,188.459,320.265
+	C402.731,308.985,467.418,159.698,401.788,74.476z"
+                    />
+                  </svg>
+                )}
+              </Like>
+            </CommentLike>
             <Form onSubmit={onSubmitCommentHandle}>
               <TextareaAutosize
                 className="comment"
@@ -342,18 +426,33 @@ const ProfilePharse = styled.p`
   align-items: center;
 `;
 
-const Content = styled.p`
+const Content = styled.textarea`
+  width: inherit;
   padding: 2rem 0;
   border-bottom: 1px solid var(--gray-color-2);
+  over
 `;
 
 const CommentSection = styled.div`
   margin-top: 2rem;
 `;
 
+const CommentLike = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
 const CommentTitle = styled.p`
   font-size: 1.2rem;
   font-weight: 500;
+`;
+
+const Like = styled.span`
+  cursor: pointer;
+
+  &: hover {
+    fill: var(--red-color-1);
+  }
 `;
 
 const Form = styled.form`
@@ -407,17 +506,6 @@ const CommentNickname = styled.span`
   margin-top: 0.35rem;
   padding-top: 0.1rem;
   padding-right: 0.7rem;
-`;
-
-const Comment = styled.textarea`
-  display: inline;
-  padding: 0;
-  padding-left: 0.7rem;
-  flex-grow: 1;
-  border: none;
-  background-color: var(--white-color-1);
-  font-family: 'Noto Sans KR', sans-serif;
-  resize: none;
 `;
 
 const CommentLink = styled.span`
