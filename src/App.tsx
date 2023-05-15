@@ -59,7 +59,7 @@ function App() {
           element={<PostDetailPage />}
         />
         <Route
-          path="/post/edit/"
+          path="/post/edit/:postID"
           element={<EditPostPage />}
         />
         <Route
