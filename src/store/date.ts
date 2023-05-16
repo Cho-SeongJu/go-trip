@@ -21,3 +21,12 @@ export const getDate = () => {
 
   return year + month + day + hour + minites + seconds;
 };
+
+export const getExpireTime = () => {
+  const nowTime = new Date();
+  const expireTime = new Date();
+
+  expireTime.setMinutes(nowTime.getMinutes() + 60);
+
+  return expireTime;
+};
