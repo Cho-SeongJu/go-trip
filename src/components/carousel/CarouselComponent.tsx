@@ -4,6 +4,11 @@ import { Carousel } from 'react-responsive-carousel';
 interface PropsType {
   imageList: string[];
   className: string;
+  height: string;
+}
+
+interface UploadImgPropsType {
+  height: string;
 }
 
 const CarouselComponent = (props: PropsType) => {
@@ -21,6 +26,7 @@ const CarouselComponent = (props: PropsType) => {
           <UploadImage
             src={image}
             alt="carousel-image"
+            height={props.height}
           />
         </SlideSection>
       ))}
@@ -32,9 +38,9 @@ const SlideSection = styled.div`
   overflow: hidden;
 `;
 
-const UploadImage = styled.img`
+const UploadImage = styled.img<UploadImgPropsType>`
   width: var(--common-post-width);
-  height: 30rem;
+  height: ${(props) => props.height};
   object-fit: contain;
   border-radius: 0.3rem;
 `;

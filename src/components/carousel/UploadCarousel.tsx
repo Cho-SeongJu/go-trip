@@ -18,10 +18,13 @@ const UploadCarousel = (props: PropsType) => {
           <Pharse>이미지를 업로드 해주세요.</Pharse>
         </CarouselSection>
       ) : (
-        <CarouselComponent
-          imageList={uploadImageList}
-          className={className}
-        />
+        <CarouselSection>
+          <CarouselComponent
+            imageList={uploadImageList}
+            className={className}
+            height={'20rem'}
+          />
+        </CarouselSection>
       )}
     </>
   );
