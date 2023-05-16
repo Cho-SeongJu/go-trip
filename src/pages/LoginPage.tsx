@@ -1,22 +1,22 @@
 import styled from '@emotion/styled';
 import { GoogleAuthProvider, browserSessionPersistence, getAuth, setPersistence, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore/lite';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useCookies } from 'react-cookie';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import { auth, database } from '../../firebase';
 import BtnSubmit from '../components/BtnSubmit';
+import Logo from '../components/Logo';
 import ErrorMessage from '../components/errorMessage/ErrorMesage';
 import { uid, userInfo } from '../store/data';
 import { ErrorType, FormValueType } from '../type/type';
-import Logo from '../components/Logo';
 
 type ErrorMsgType = string;
 
 const LoginPage = () => {
-  const [cookies, setCookie] = useCookies(['uid']);
+  const [, setCookie] = useCookies(['uid']);
   const [errorMsg, setErrorMsg] = useState<ErrorMsgType>();
   const [clickLoginBtn, setClickLoginBtn] = useState<boolean>(false);
   const setLoginUserInfo = useSetRecoilState(userInfo);
@@ -27,10 +27,6 @@ const LoginPage = () => {
   const expireTime = new Date();
 
   expireTime.setMinutes(nowTime.getMinutes() + 60);
-
-  useEffect(() => {
-    console.log(cookies);
-  }, [cookies]);
 
   const {
     register,
@@ -95,7 +91,7 @@ const LoginPage = () => {
       const credential = GoogleAuthProvider.credentialFromResult(result);
       if (credential !== null) {
         const user = result.user;
-
+        console.log(user);
         const userUID = user.uid;
         const docRef = doc(database, 'users', userUID);
         const docSnap = await getDoc(docRef);
