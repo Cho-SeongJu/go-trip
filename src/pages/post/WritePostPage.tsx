@@ -14,7 +14,8 @@ import UploadCarousel from '../../components/carousel/UploadCarousel';
 import ErrorMessage from '../../components/errorMessage/ErrorMesage';
 import Header from '../../components/header/Header';
 import { uid, userInfo } from '../../store/data';
-import { getDate } from '../../store/date';
+import { getDate, getExpireTime } from '../../store/date';
+import { useCookies } from 'react-cookie';
 
 interface PostFormType {
   title: string;
@@ -28,6 +29,7 @@ const WritePostPage = () => {
   const [uploadImageName, setUploadImageName] = useState<string[]>([]);
   const [uploadImageFile, setUploadImageFile] = useState<FileList>();
   const [uploadImageType, setUploadImageType] = useState<string[]>([]);
+  const [, setCookie] = useCookies(['uid']);
   const loginUID = useRecoilValue(uid);
   const loginUserNickName = useRecoilValue(userInfo);
   const navigate = useNavigate();
@@ -125,6 +127,11 @@ const WritePostPage = () => {
     return imageURLList;
   };
 
+  const setCookieHandle = () => {
+    const expireTime = getExpireTime();
+    setCookie('uid', loginUID, { path: '/', expires: expireTime });
+  };
+
   return (
     <>
       <Header />
@@ -173,12 +180,14 @@ const WritePostPage = () => {
           {errors.content && <ErrorMessage role="alert">{errors.content.message}</ErrorMessage>}
           <ButtonSection>
             <Button
+              onClick={setCookieHandle}
               color="var(--blue-sky-color-1)"
               type="submit"
             >
               저장
             </Button>
             <Button
+              onClick={setCookieHandle}
               type="button"
               color="var(--gray-color-3)"
             >

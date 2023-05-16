@@ -1,6 +1,10 @@
 import styled from '@emotion/styled';
 import { useEffect, useRef, useState } from 'react';
+import { useCookies } from 'react-cookie';
 import { Link, useLocation, useParams } from 'react-router-dom';
+import { getExpireTime } from '../../store/date';
+import { uid } from '../../store/data';
+import { useRecoilValue } from 'recoil';
 
 interface PropsType {
   menu: string[];
@@ -14,6 +18,9 @@ interface TabMenuType {
 }
 
 const Tab = (props: PropsType) => {
+  const [, setCookie] = useCookies(['uid']);
+  const userId = useRecoilValue(uid);
+
   const tabMenu: TabMenuType = {
     home: {
       path: '/',
@@ -41,6 +48,8 @@ const Tab = (props: PropsType) => {
   const location = useLocation();
 
   const onClickHandle = (params: string) => {
+    const expireTime = getExpireTime();
+    setCookie('uid', userId, { path: '/', expires: expireTime });
     setPath(params);
   };
 

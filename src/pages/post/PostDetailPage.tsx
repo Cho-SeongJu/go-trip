@@ -11,9 +11,10 @@ import CarouselComponent from '../../components/carousel/CarouselComponent';
 import Footer from '../../components/footer/Footer';
 import Header from '../../components/header/Header';
 import { uid, userInfo } from '../../store/data';
-import { getDate } from '../../store/date';
+import { getDate, getExpireTime } from '../../store/date';
 import { postDetailData } from '../../store/postDetail';
 import ReactPaginate from 'react-paginate';
+import { useCookies } from 'react-cookie';
 
 interface ColorPropsType {
   color: string;
@@ -33,6 +34,7 @@ const PostDetailPage = () => {
   const [commentDisabled, setCommentDisabled] = useState<boolean[]>([]);
   const [editComment, setEditComment] = useState<string>('');
   const [likeData, setLikeData] = useState<DocumentData[]>([]);
+  const [, setCookie] = useCookies(['uid']);
   const navigate = useNavigate();
   const setRecoilPostData = useSetRecoilState(postDetailData);
   const loginUser = String(useRecoilValue(uid));
@@ -244,6 +246,11 @@ const PostDetailPage = () => {
     }
   };
 
+  const setCookieHandle = () => {
+    const expireTime = getExpireTime();
+    setCookie('uid', loginUser, { path: '/', expires: expireTime });
+  };
+
   useEffect(() => {
     getPost();
   }, []);
@@ -379,6 +386,7 @@ const PostDetailPage = () => {
                 value={textAreaValue}
               />
               <CommentInputEnter
+                onClick={setCookieHandle}
                 disabled={loginUser !== 'anonymous' ? false : true}
                 color={loginUser !== 'anonymous' ? 'var(--white-color-1)' : 'var(--gray-color-2)'}
               >

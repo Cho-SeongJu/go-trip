@@ -2,16 +2,18 @@ import styled from '@emotion/styled';
 import { useEffect, useMemo, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import { Link, useNavigate } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { uid, userInfo } from '../../store/data';
 import Logo from '../Logo';
 import { auth } from '../../../firebase';
+import { getExpireTime } from '../../store/date';
 
 const Header = () => {
   const [loginState, setLoginState] = useState<boolean>();
   const [userUID, setUserUID] = useRecoilState(uid);
   const [loginUserInfo, setLoginUserInfo] = useRecoilState(userInfo);
-  const [, , removeCookie] = useCookies(['uid']);
+  const [, setCookie, removeCookie] = useCookies(['uid']);
+  const userId = useRecoilValue(uid);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,6 +36,11 @@ const Header = () => {
     }
   };
 
+  const setCookieHandle = () => {
+    const expireTime = getExpireTime();
+    setCookie('uid', userId, { path: '/', expires: expireTime });
+  };
+
   return (
     <>
       <HeaderSection>
@@ -47,7 +54,16 @@ const Header = () => {
               </WelcomePharse>
             )}
             {loginState ? <Logout onClick={() => logout()}>로그아웃</Logout> : <LinkButton to={'/user/login'}>로그인</LinkButton>}
-            {loginState ? <LinkButton to={'/user/profile/editUserInfo'}>마이페이지</LinkButton> : <LinkButton to={'/user/signUp'}>회원가입</LinkButton>}
+            {loginState ? (
+              <LinkButton
+                onClick={setCookieHandle}
+                to={'/user/profile/editUserInfo'}
+              >
+                마이페이지
+              </LinkButton>
+            ) : (
+              <LinkButton to={'/user/signUp'}>회원가입</LinkButton>
+            )}
           </LoginSingUpLinkSection>
         </DetailSection>
       </HeaderSection>

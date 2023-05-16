@@ -6,18 +6,21 @@ import { useRecoilValue } from 'recoil';
 import { database } from '../../../../firebase';
 import { uid } from '../../../store/data';
 import Loading from '../../Loading';
+import { getExpireTime } from '../../../store/date';
+import { useCookies } from 'react-cookie';
 
 interface DataType {
   [key: string]: string;
 }
 
 const TripContent = () => {
-  const userAuth = useRecoilValue(uid);
-  const navigate = useNavigate();
   const [selectedValue, setSelectedValue] = useState<string>('글제목');
   const [searchKeyword, setSearchKeyword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [posts, setPosts] = useState<DataType[]>([]);
+  const [, setCookie] = useCookies(['uid']);
+  const userAuth = useRecoilValue(uid);
+  const navigate = useNavigate();
 
   const searchConditionArr = ['글제목', '작성자'];
 
@@ -25,6 +28,8 @@ const TripContent = () => {
     if (userAuth === 'anonymous') {
       navigate('/user/login');
     } else {
+      const expireTime = getExpireTime();
+      setCookie('uid', userAuth, { path: '/', expires: expireTime });
       navigate('/writePost');
     }
   };
@@ -81,6 +86,11 @@ const TripContent = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const setCookieHandle = () => {
+    const expireTime = getExpireTime();
+    setCookie('uid', userAuth, { path: '/', expires: expireTime });
   };
 
   useEffect(() => {
@@ -161,6 +171,7 @@ const TripContent = () => {
               {posts.map((post, index) => (
                 <Post
                   key={index}
+                  onClick={setCookieHandle}
                   to={`/post/${post.ID}`}
                 >
                   <Img src={post.THUMBNAIL_IMAGE_URL} />

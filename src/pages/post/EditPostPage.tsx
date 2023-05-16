@@ -14,8 +14,9 @@ import UploadCarousel from '../../components/carousel/UploadCarousel';
 import ErrorMessage from '../../components/errorMessage/ErrorMesage';
 import Header from '../../components/header/Header';
 import { uid, userInfo } from '../../store/data';
-import { getDate } from '../../store/date';
 import { postDetailData } from '../../store/postDetail';
+import { getExpireTime } from '../../store/date';
+import { useCookies } from 'react-cookie';
 
 interface PostFormType {
   title: string;
@@ -27,7 +28,10 @@ const EditPostPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [uploadImage, setUploadImage] = useState<string[]>([]);
   const [uploadImageName, setUploadImageName] = useState<string[]>([]);
-  const [uploadImageFile, setUploadImageFile] = useState<FileList>();
+  const [uploadImageFile, setUploadImageFile] = useState<File[]>([]);
+  const [uploadImageType, setUploadImageType] = useState<string[]>([]);
+  const [propsImageURLList, setPropsImageURLList] = useState<string[]>([]);
+  const [, setCookie] = useCookies(['uid']);
   const loginUID = useRecoilValue(uid);
   const loginUserNickName = useRecoilValue(userInfo);
   const postData = useRecoilValue(postDetailData);
@@ -59,17 +63,46 @@ const EditPostPage = () => {
     setUploadImage(postData.IMAGE_URL_LIST);
     setTitleLength(postData.TITLE.length);
     setUploadImageName(postData.IMAGE_NAME_LIST);
+    setPropsImageURLList(postData.IMAGE_URL_LIST);
+    setUploadImageType(postData.IMAGE_TYPE_LIST);
   }, []);
+
+  const createFile = async () => {
+    const fileList: File[] = [];
+
+    for (let i = 0; i < propsImageURLList.length; i++) {
+      const response = await fetch(propsImageURLList[i]);
+      const data = await response.blob();
+      console.log(data);
+      const metadata = {
+        type: uploadImageType[i],
+      };
+      const imageName = uploadImageName[i];
+
+      const file = new File([data], imageName, metadata);
+      fileList.push(file);
+    }
+
+    setUploadImageFile(fileList);
+  };
+
+  useEffect(() => {
+    createFile();
+  }, [uploadImageType]);
+
+  useEffect(() => {
+    console.log(uploadImageFile);
+  }, [uploadImageFile]);
 
   const onSubmit = async () => {
     setLoading(true);
     const title = getValues().title;
     const content = getValues().content;
-    const date = getDate();
 
     try {
-      const imageURLList = await uploadImageServer(date);
-      await setDoc(doc(database, 'posts', 'post' + loginUID + date), {
+      const imageURLList = await uploadImageServer();
+      console.log(postID);
+      await setDoc(doc(database, 'posts', String(postID)), {
         UID: loginUID,
         TITLE: title,
         CONTENT: content,
@@ -77,7 +110,7 @@ const EditPostPage = () => {
         THUMBNAIL_IMAGE_URL: imageURLList[0],
         IMAGE_URL_LIST: imageURLList,
       });
-      navigate(`/post/post${loginUID}${date}`);
+      navigate(`/post/${postID}`);
     } catch (error) {
       console.log(error);
       alert('처리 중 오류가 발생하였습니다. 잠시 후 다시 시도하시길 바랍니다.');
@@ -89,42 +122,54 @@ const EditPostPage = () => {
   const handleUploadImages = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files === null) return;
 
-    const uploadImageList = event.target.files;
+    const uploadImageList = uploadImageFile.length === 0 ? Array.from(event.target.files) : [...uploadImageFile, ...Array.from(event.target.files)];
+    console.log(uploadImageList);
     setUploadImageFile(uploadImageList);
 
     const uploadImageNameList = uploadImageName.length === 0 ? [] : [...uploadImageName];
 
-    for (let i = 0; i < uploadImageList.length; i++) {
-      uploadImageNameList.push(uploadImageList[i].name);
-    }
+    const nowUploadImageList = event.target.files;
 
+    for (let i = 0; i < nowUploadImageList.length; i++) {
+      uploadImageNameList.push(nowUploadImageList[i].name);
+    }
+    console.log(uploadImageNameList);
     setUploadImageName(uploadImageNameList);
 
     const imageURLList = uploadImage.length === 0 ? [] : [...uploadImage];
 
-    for (let i = 0; i < uploadImageList.length; i++) {
-      const url = URL.createObjectURL(uploadImageList[i]);
+    for (let i = 0; i < nowUploadImageList.length; i++) {
+      const url = URL.createObjectURL(nowUploadImageList[i]);
       imageURLList.push(url);
     }
+    console.log(imageURLList);
 
     setUploadImage(imageURLList);
   };
 
-  const uploadImageServer = async (date: string) => {
+  const uploadImageServer = async () => {
     const storage = getStorage();
     const imageURLList: string[] = [];
 
     if (uploadImageFile !== undefined) {
+      console.log(uploadImageFile);
       for (let i = 0; i < uploadImageName.length; i++) {
-        const imageRef = `images/${loginUID}${date}/${uploadImageName[i]}`;
+        const imageRef = `images/${String(postID)}/${uploadImageName[i]}`;
         const storageRef = ref(storage, imageRef);
+        console.log(uploadImageFile[i]);
         await uploadBytes(storageRef, uploadImageFile[i]);
-        const imageURL = await getDownloadURL(ref(storage, `images/${loginUID}${date}/${uploadImageName[i]}`));
+        const imageURL = await getDownloadURL(ref(storage, `images/${String(postID)}/${uploadImageName[i]}`));
+        console.log(imageURL);
         imageURLList.push(imageURL);
       }
     }
 
     return imageURLList;
+  };
+
+  const setCookieHandle = () => {
+    const expireTime = getExpireTime();
+    setCookie('uid', loginUID, { path: '/', expires: expireTime });
   };
 
   return (
@@ -138,7 +183,7 @@ const EditPostPage = () => {
               placeholder="제목을 입력하세요."
               id="title"
               {...register('title')}
-              value={postData.TITLE}
+              defaultValue={postData.TITLE}
             />
             <TitleLength>{titleLength} / 80</TitleLength>
           </TitleSection>
@@ -171,18 +216,20 @@ const EditPostPage = () => {
             rows={1}
             placeholder="내용을 입력하세요."
             id="content"
-            value={postData.CONTENT}
+            defaultValue={postData.CONTENT}
             {...register('content')}
           />
           {errors.content && <ErrorMessage role="alert">{errors.content.message}</ErrorMessage>}
           <ButtonSection>
             <Button
+              onClick={setCookieHandle}
               color="var(--blue-sky-color-1)"
               type="submit"
             >
-              저장
+              수정
             </Button>
             <Button
+              onClick={setCookieHandle}
               type="button"
               color="var(--gray-color-3)"
             >

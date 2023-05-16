@@ -12,6 +12,7 @@ import Logo from '../components/Logo';
 import ErrorMessage from '../components/errorMessage/ErrorMesage';
 import { uid, userInfo } from '../store/data';
 import { ErrorType, FormValueType } from '../type/type';
+import { getExpireTime } from '../store/date';
 
 type ErrorMsgType = string;
 
@@ -22,11 +23,6 @@ const LoginPage = () => {
   const setLoginUserInfo = useSetRecoilState(userInfo);
   const setUID = useSetRecoilState(uid);
   const navigate = useNavigate();
-
-  const nowTime = new Date();
-  const expireTime = new Date();
-
-  expireTime.setMinutes(nowTime.getMinutes() + 60);
 
   const {
     register,
@@ -64,6 +60,7 @@ const LoginPage = () => {
       }
 
       console.log('로그인 성공');
+      const expireTime = getExpireTime();
       setCookie('uid', uid, { path: '/', expires: expireTime });
       navigate('/');
     } catch (error) {
@@ -124,6 +121,7 @@ const LoginPage = () => {
           }
         }
 
+        const expireTime = getExpireTime();
         setCookie('uid', userUID, { path: '/', expires: expireTime });
         navigate('/');
       }

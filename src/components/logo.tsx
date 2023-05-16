@@ -1,12 +1,27 @@
 import styled from '@emotion/styled';
 import { Link } from 'react-router-dom';
 import logo from '../../public/logo.svg';
+import { useCookies } from 'react-cookie';
+import { uid } from '../store/data';
+import { useRecoilValue } from 'recoil';
+import { getExpireTime } from '../store/date';
 
 const Logo = () => {
+  const [, setCookie] = useCookies(['uid']);
+  const userId = useRecoilValue(uid);
+
+  const setCookieHandle = () => {
+    const expireTime = getExpireTime();
+    setCookie('uid', userId, { path: '/', expires: expireTime });
+  };
+
   return (
     <>
       <Heading>
-        <HomeLink to="/" />
+        <HomeLink
+          onClick={setCookieHandle}
+          to="/"
+        />
       </Heading>
     </>
   );
