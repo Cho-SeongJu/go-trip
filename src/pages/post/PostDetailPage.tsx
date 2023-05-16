@@ -289,6 +289,7 @@ const PostDetailPage = () => {
             <CarouselComponent
               imageList={postData.IMAGE_URL_LIST}
               className="detailPage"
+              height="30rem"
             />
           </CarouselSection>
           <Title>{postData.TITLE}</Title>
