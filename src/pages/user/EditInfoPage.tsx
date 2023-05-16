@@ -1,8 +1,8 @@
 import styled from '@emotion/styled';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { getAuth } from 'firebase/auth';
-import { DocumentData, collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore/lite';
-import { useEffect, useState } from 'react';
+import { DocumentData, collection, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore/lite';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
@@ -16,6 +16,7 @@ import Header from '../../components/header/Header';
 import Tab from '../../components/tab/Tab';
 import { uid, userInfo } from '../../store/data';
 import { FormValueType } from '../../type/type';
+import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 
 interface SignUpType extends FormValueType {
   address: string;
@@ -28,6 +29,16 @@ interface InfoType {
   nickname: string;
 }
 
+interface StylePropsType {
+  backgroundImage: string;
+}
+
+interface ImageObjType {
+  profileImage: string;
+  profileImageName: string;
+  profileImageFile: File | null;
+}
+
 const CHECK_NICKNAME_ERROR_MSG = '이미 사용중인 닉네임입니다.';
 
 const EditInfoPage = () => {
@@ -36,14 +47,36 @@ const EditInfoPage = () => {
   const [checkNickNameResultMsg, setCheckNickNameResultMsg] = useState<string>('');
   const [loginUserInfo, setLoginUserInfo] = useState<InfoType>({ email: '', nickname: '' });
   const [nickName, setNickName] = useState('');
+  const [initImageName, setInitImageName] = useState<string>('');
+  const [profileExist, setProfileExist] = useState<boolean>(false);
+  const [profileImageObj, setProfileImageObj] = useState<ImageObjType>({ profileImage: '', profileImageName: '', profileImageFile: null });
   const setUserInfo = useSetRecoilState(userInfo);
   const userID = useRecoilValue(uid);
   const currentNickname = useRecoilValue(userInfo);
   const navigate = useNavigate();
 
-  const getInfo = () => {
+  const getInfo = async () => {
     const auth = getAuth();
     const user = auth.currentUser;
+
+    const docRef = doc(database, 'users', userID);
+    try {
+      setLoading(true);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        if (docSnap.data().PROFILE_IMAGE === undefined) {
+          setProfileImageObj({ profileImage: '', profileImageName: '', profileImageFile: null });
+        } else {
+          setProfileImageObj({ profileImage: docSnap.data().PROFILE_IMAGE, profileImageName: docSnap.data().PROFILE_IMAGE_NAME, profileImageFile: null });
+          setInitImageName(docSnap.data().PROFILE_IMAGE_NAME);
+          setProfileExist(true);
+        }
+      }
+    } catch {
+      alert('조회 중 오류가 발생하였습니다. 잠시 후에 다시 시도해주세요.');
+    } finally {
+      setLoading(false);
+    }
 
     if (user !== null && user.email !== null) {
       const userInfo: InfoType = {
@@ -73,10 +106,34 @@ const EditInfoPage = () => {
     const nickName = signUpData.nickName;
 
     try {
-      await setDoc(doc(database, 'users', userID), {
-        NICKNAME: nickName,
-      });
+      const storage = getStorage();
+      const userRef = doc(database, 'users', userID);
 
+      if (profileExist && profileImageObj.profileImage === '') {
+        const deleteRef = ref(storage, `images/users/${userID}/${initImageName}`);
+
+        await deleteObject(deleteRef);
+
+        await updateDoc(doc(database, 'users', userID), {
+          NICKNAME: nickName,
+          PROFILE_IMAGE: '',
+          PROFILE_IMAGE_NAME: '',
+        });
+      } else {
+        const imageRef = `images/users/${userID}/${profileImageObj.profileImageName}`;
+        const storageRef = ref(storage, imageRef);
+
+        if (profileImageObj.profileImageFile !== null) {
+          await uploadBytes(storageRef, profileImageObj.profileImageFile);
+        }
+        const imageURL = await getDownloadURL(ref(storage, `images/users/${userID}/${profileImageObj.profileImageName}`));
+
+        await updateDoc(userRef, {
+          NICKNAME: nickName,
+          PROFILE_IMAGE: imageURL,
+          PROFILE_IMAGE_NAME: profileImageObj.profileImageName,
+        });
+      }
       const postRef = collection(database, 'posts');
       const commentRef = collection(database, 'comments');
 
@@ -114,6 +171,7 @@ const EditInfoPage = () => {
       navigate('/');
     } catch (error) {
       console.log(error);
+      alert('처리 중 오류가 발생하였습니다. 잠시 후에 다시 시도해주세요.');
     } finally {
       setLoading(false);
     }
@@ -152,6 +210,20 @@ const EditInfoPage = () => {
     }
   };
 
+  const imageChangeHandle = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files !== null) {
+      if (event.target.files.length === 0) return;
+      const uploadImage = event.target.files[0];
+      const imageURL = URL.createObjectURL(uploadImage);
+      console.log(uploadImage.name);
+      setProfileImageObj({ profileImage: imageURL, profileImageName: uploadImage.name, profileImageFile: uploadImage });
+    }
+  };
+
+  const imageDeleteHandle = () => {
+    setProfileImageObj({ profileImage: '', profileImageName: '', profileImageFile: null });
+  };
+
   useEffect(() => {
     getInfo();
   }, []);
@@ -161,8 +233,41 @@ const EditInfoPage = () => {
       <Header />
       <Tab menu={menu} />
       <Section>
-        <ProfileImageSection>
-          <ProfileImage />
+        <ProfileSection>
+          <ImageSection>
+            <ProfileImageSection>
+              {profileImageObj.profileImage === '' ? (
+                <InputImageLabel htmlFor="profileImage">
+                  <svg
+                    width="20rem"
+                    height="10rem"
+                    viewBox="0 0 16 16"
+                    fill="var(--gray-color-2)"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
+                    />
+                    <path
+                      fillRule="evenodd"
+                      d="M4.285 9.567a.5.5 0 0 1 .683.183A3.498 3.498 0 0 0 8 11.5a3.498 3.498 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.498 4.498 0 0 1 8 12.5a4.498 4.498 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683z"
+                    />
+                    <path d="M7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5zm4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5z" />
+                  </svg>
+                </InputImageLabel>
+              ) : (
+                <ProfileImage src={profileImageObj.profileImage} />
+              )}
+
+              {profileImageObj.profileImage !== '' && <BtnImageDelete onClick={imageDeleteHandle}>삭제</BtnImageDelete>}
+              <InputImage
+                type="file"
+                id="profileImage"
+                onChange={imageChangeHandle}
+              />
+            </ProfileImageSection>
+          </ImageSection>
           <Form onSubmit={handleSubmit(onSubmit)}>
             <Label>이메일</Label>
             <InputBox
@@ -190,7 +295,7 @@ const EditInfoPage = () => {
             )}
             <BtnSubmit>회원정보수정</BtnSubmit>
           </Form>
-        </ProfileImageSection>
+        </ProfileSection>
       </Section>
       <Footer />
       {loading && <Loading display={loading ? 'flex' : 'none'} />}
@@ -229,8 +334,64 @@ const InputBox = styled.input`
   outline: none;
 `;
 
-const ProfileImageSection = styled.div``;
+const ProfileSection = styled.div``;
 
-const ProfileImage = styled.img``;
+const ImageSection = styled.div`
+  width: var(--common-post-width);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 5rem;
+`;
+
+const InputImageLabel = styled.label`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 12rem;
+  height: 12rem;
+  border-radius: 100%;
+  cursor: pointer;
+`;
+
+const InputImage = styled.input`
+  display: none;
+`;
+
+const ProfileImageSection = styled.div`
+  position: relative;
+  width: 12rem;
+  height: 12rem;
+  border: 1px solid var(--gray-color-2);
+  border-radius: 100%;
+  text-align: center;
+  background-color: var(--white-color-1);
+
+  &: hover {
+    opacity: 0.5;
+  }
+`;
+
+const BtnImageDelete = styled.button`
+  position: absolute;
+  top: 15%;
+  right: 20%;
+  border: none;
+  border-radius: 0.2rem;
+  background-color: var(--blue-sky-color-1);
+  padding: 0.3rem 0.5rem;
+  color: var(--white-color-1);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+`;
+
+const ProfileImage = styled.img`
+  width: 12rem;
+  height: 12rem;
+  object-fit: contain;
+  border-radius: 100%;
+`;
 
 export default EditInfoPage;
