@@ -37,8 +37,13 @@ const Header = () => {
   };
 
   const setCookieHandle = () => {
-    const expireTime = getExpireTime();
-    setCookie('uid', userId, { path: '/', expires: expireTime });
+    if (userId === 'anonymous') {
+      navigate('/user/login');
+      return;
+    } else {
+      const expireTime = getExpireTime();
+      setCookie('uid', userId, { path: '/', expires: expireTime });
+    }
   };
 
   return (

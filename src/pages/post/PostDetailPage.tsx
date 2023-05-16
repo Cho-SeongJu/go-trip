@@ -117,6 +117,11 @@ const PostDetailPage = () => {
   };
 
   const menuClickHandle = async (mode: string) => {
+    if (loginUser === 'anonymous') {
+      navigate('/user/login');
+      return;
+    }
+
     if (mode === 'edit') {
       navigate(`/post/edit/${postID}`);
     } else if (mode === 'delete') {
@@ -142,6 +147,11 @@ const PostDetailPage = () => {
   const onSubmitCommentHandle = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (loginUser === 'anonymous') {
+      navigate('/user/login');
+      return;
+    }
+
     if (textAreaValue.length === 0) {
       alert('댓글을 입력해주세요.');
       return;
@@ -162,6 +172,11 @@ const PostDetailPage = () => {
   };
 
   const DeleteCommentHandle = async (item: DocumentData) => {
+    if (loginUser === 'anonymous') {
+      navigate('/user/login');
+      return;
+    }
+
     const result = confirm('댓글을 삭제하시겠습니까?');
 
     if (result) {
@@ -176,7 +191,17 @@ const PostDetailPage = () => {
   };
 
   const switchCommentDisabledHandle = (index: number, mode: string) => {
+    if (loginUser === 'anonymous') {
+      navigate('/user/login');
+      return;
+    }
+
     const copyCommentDisabled: boolean[] = [];
+
+    if (loginUser === 'anonymous') {
+      navigate('/user/login');
+      return;
+    }
 
     if (mode === 'edit') {
       commentDisabled.forEach((element) => {
@@ -198,6 +223,11 @@ const PostDetailPage = () => {
   };
 
   const commentEditHandle = async (item: DocumentData) => {
+    if (loginUser === 'anonymous') {
+      navigate('/user/login');
+      return;
+    }
+
     if (editComment.length === 0) return;
 
     try {
