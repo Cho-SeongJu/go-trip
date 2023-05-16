@@ -1,14 +1,14 @@
 import styled from '@emotion/styled';
+import { collection, documentId, getDocs, query, where } from 'firebase/firestore/lite';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useRecoilValue } from 'recoil';
+import { database } from '../../../firebase';
+import Loading from '../../components/Loading';
 import Footer from '../../components/footer/Footer';
 import Header from '../../components/header/Header';
 import Tab from '../../components/tab/Tab';
-import Loading from '../../components/Loading';
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
-import { collection, documentId, getDoc, getDocs, query, where } from 'firebase/firestore/lite';
-import { database } from '../../../firebase';
-import { useRecoilValue } from 'recoil';
-import { Link, useNavigate } from 'react-router-dom';
-import { uid, userInfo } from '../../store/data';
+import { userInfo } from '../../store/data';
 
 interface DataType {
   [key: string]: string;
@@ -17,11 +17,7 @@ interface DataType {
 const LikeListPage = () => {
   const menu = ['editUserInfo', 'likeList', 'editPassword'];
 
-  const userAuth = useRecoilValue(uid);
-  const navigate = useNavigate();
   const loginUserNickname = useRecoilValue(userInfo);
-  const [selectedValue, setSelectedValue] = useState<string>('글제목');
-  const [searchKeyword, setSearchKeyword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [posts, setPosts] = useState<DataType[]>([]);
 
@@ -49,6 +45,7 @@ const LikeListPage = () => {
   useEffect(() => {
     getPosts();
   }, []);
+
   return (
     <>
       <Header />
@@ -113,6 +110,14 @@ const Post = styled(Link)`
   width: 20rem;
   height: 22rem;
   color: var(--black-color-1);
+
+  &:hover img {
+    transform: scale(1.1);
+  }
+
+  & img {
+    transition: all 0.1s linear;
+  }
 `;
 
 const DescriptionSection = styled.div`

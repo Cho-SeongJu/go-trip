@@ -276,6 +276,14 @@ const Post = styled(Link)`
   width: 20rem;
   height: 22rem;
   color: var(--black-color-1);
+
+  &:hover img {
+    transform: scale(1.1);
+  }
+
+  & img {
+    transition: all 0.1s linear;
+  }
 `;
 
 const DescriptionSection = styled.div`
@@ -289,7 +297,7 @@ const DescriptionSection = styled.div`
 const Img = styled.img`
   width: 20rem;
   height: 15rem;
-  border: 1px solid black;
+  border: 1px solid var(--gray-color-1);
   border-radius: 0.5rem;
   object-fit: contain;
 `;
