@@ -1,0 +1,43 @@
+.pagination {
+  display: flex;
+  justify-content: center;
+  width: var(--common-post-width);
+  font-size: 0.8rem;
+}
+
+.currentPage {
+  padding: 0.7rem 0.7rem;
+  background-color: var;
+  cursor: pointer;
+}
+
+.pagination li {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.pagination li a {
+  padding: 0.7rem 0.7rem;
+}
+
+.pagination li.active {
+  background-color: var(--gray-color-1);
+  border-radius: 0.2rem;
+  color: var(--white-color-1);
+}
+
+.pageLabelBtn {
+  /* padding: 0.7rem 1rem; */
+  cursor: pointer;
+  border-radius: 0.2rem;
+}
+
+.pageLabelBtn li a {
+  padding: 0.7rem 0.7rem;
+}
+
+.pageLabelBtn:hover {
+  background-color: var(--blue-sky-color-1);
+  color: var(--white-color-1);
+}

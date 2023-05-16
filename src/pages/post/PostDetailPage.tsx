@@ -24,17 +24,18 @@ const PostDetailPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [postData, setPostData] = useState<DocumentData>({});
   const [comment, setComment] = useState<DocumentData[]>([]);
+  const [currentComment, setCurrentComment] = useState<DocumentData>([]);
+  const [pageCount, setPageCount] = useState(0);
+  const [itemOffset, setItemOffset] = useState(0);
   const [moreMenuStatus, setMoreMenuStatus] = useState<boolean>(false);
   const [textAreaValue, setTextAreaValue] = useState<string>('');
   const [commentDisabled, setCommentDisabled] = useState<boolean[]>([]);
   const [editComment, setEditComment] = useState<string>('');
   const [likeData, setLikeData] = useState<DocumentData[]>([]);
-  const [currentPage, setCurrentPage] = useState(0);
   const navigate = useNavigate();
   const setRecoilPostData = useSetRecoilState(postDetailData);
   const loginUser = String(useRecoilValue(uid));
   const loginUserNickname = useRecoilValue(userInfo);
-  const asd = [1, 2, 3, 4, 5, 6, 7, 8, 8, 9, 90, 0, 0, 10, 123, 123, 123];
   const moreMenu = [
     {
       mode: 'edit',
@@ -45,6 +46,7 @@ const PostDetailPage = () => {
       label: '삭제',
     },
   ];
+  const itemsPerPage = 5;
 
   const getPost = async () => {
     const filterParams = String(postID);
@@ -232,21 +234,20 @@ const PostDetailPage = () => {
     }
   };
 
-  // 한 페이지에 보여줄 게시물 수
-  const NUM_POSTS_PER_PAGE = 5;
-  // 페이지 수 계산
-  const pageCount = comment ? Math.ceil(comment.length / NUM_POSTS_PER_PAGE) : 0;
-  // 각 페이지 당 보여줄 데이터 인덱스 계산
-  const startIndex = currentPage * NUM_POSTS_PER_PAGE;
-
-  // 페이지네이션 클릭 시, 현재 페이지 변경
-  const handlePageClick = (data: { selected: number }) => {
-    setCurrentPage(data.selected);
-  };
-
   useEffect(() => {
     getPost();
   }, []);
+
+  useEffect(() => {
+    const endOffset = itemOffset + itemsPerPage;
+    setCurrentComment(comment.slice(itemOffset, endOffset));
+    setPageCount(Math.ceil(comment.length / itemsPerPage));
+  }, [comment, itemOffset, itemsPerPage]);
+
+  const handlePageClick = (event: { selected: number }) => {
+    const newOffset = (event.selected * itemsPerPage) % comment.length;
+    setItemOffset(newOffset);
+  };
 
   return (
     <>
@@ -354,7 +355,7 @@ const PostDetailPage = () => {
               {comment.length === 0 ? (
                 <NoneComment>등록된 댓글이 없습니다.</NoneComment>
               ) : (
-                comment.map((item, index) => (
+                currentComment.map((item: DocumentData, index: number) => (
                   <CommentProfileSection key={`${item.uid} + ${index}`}>
                     <CommentNickname>{item.nickname}</CommentNickname>
                     <TextareaAutosize
@@ -382,25 +383,22 @@ const PostDetailPage = () => {
                 ))
               )}
             </ReadCommentSection>
+            <PaginationContainer>
+              <ReactPaginate
+                previousLabel={'이전'}
+                nextLabel={'다음'}
+                breakLabel={'...'}
+                pageCount={pageCount}
+                marginPagesDisplayed={2}
+                pageRangeDisplayed={5}
+                onPageChange={handlePageClick}
+                containerClassName={'pagination'}
+                activeClassName={'active'}
+                previousClassName={'pageLabelBtn'}
+                nextClassName={'pageLabelBtn'}
+              />
+            </PaginationContainer>
           </CommentSection>
-          <div>
-            {asd.map((element) => (
-              <p>{element}</p>
-            ))}
-            <ReactPaginate
-              previousLabel={'이전'}
-              nextLabel={'다음'}
-              breakLabel={'...'}
-              pageCount={pageCount}
-              marginPagesDisplayed={2}
-              pageRangeDisplayed={5}
-              onPageChange={handlePageClick}
-              containerClassName={'pagination'}
-              activeClassName={'active'}
-              previousClassName={'pageLabelBtn'}
-              nextClassName={'pageLabelBtn'}
-            />
-          </div>
         </Section>
       )}
       <Footer />
@@ -464,13 +462,6 @@ const ProfilePharse = styled.p`
   align-items: center;
 `;
 
-const Content = styled.textarea`
-  width: inherit;
-  padding: 2rem 0;
-  border-bottom: 1px solid var(--gray-color-2);
-  over
-`;
-
 const CommentSection = styled.div`
   margin-top: 2rem;
 `;
@@ -521,7 +512,6 @@ const CommentEditDelete = styled.div`
 
 const ReadCommentSection = styled.div`
   width: var(--common-post-width);
-  min-height: 5rem;
   border-radius: 0.2rem;
   margin-bottom: 2rem;
 `;
@@ -537,6 +527,7 @@ const CommentProfileSection = styled.div`
   display: flex;
   margin-bottom: 1rem;
   font-size: 0.8rem;
+  // height: 3rem;
 `;
 
 const CommentNickname = styled.span`
@@ -583,6 +574,12 @@ const Menu = styled.p`
     // background-color: var(--gray-color-2);
     background-color: rgba(217, 217, 212, 0.44);
   }
+`;
+
+const PaginationContainer = styled.div`
+  width: var(--common-post-width);
+  height: 2rem;
+  margin-bottom: 3rem;
 `;
 
 export default PostDetailPage;
