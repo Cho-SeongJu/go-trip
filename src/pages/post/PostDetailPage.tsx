@@ -27,6 +27,7 @@ const PostDetailPage = () => {
   const [currentComment, setCurrentComment] = useState<DocumentData>([]);
   const [pageCount, setPageCount] = useState(0);
   const [itemOffset, setItemOffset] = useState(0);
+  const [createUserProfile, setCreateUserProfile] = useState<string>('');
   const [moreMenuStatus, setMoreMenuStatus] = useState<boolean>(false);
   const [textAreaValue, setTextAreaValue] = useState<string>('');
   const [commentDisabled, setCommentDisabled] = useState<boolean[]>([]);
@@ -62,6 +63,15 @@ const PostDetailPage = () => {
       } else {
         const data: DocumentData = docSnap.data();
         setRecoilPostData(data);
+        const userRef = doc(database, 'users', data.UID);
+        const userDocRef = await getDoc(userRef);
+
+        if (userDocRef.exists()) {
+          if (userDocRef.data().PROFILE_IMAGE !== '') {
+            setCreateUserProfile(userDocRef.data().PROFILE_IMAGE);
+          }
+        }
+
         if (data !== undefined) {
           setPostData(data);
         }
@@ -283,8 +293,31 @@ const PostDetailPage = () => {
           </CarouselSection>
           <Title>{postData.TITLE}</Title>
           <Profile>
+            <ProfileImage>
+              {createUserProfile === '' ? (
+                <svg
+                  width="60px"
+                  height="64px"
+                  viewBox="0 0 16 16"
+                  fill="gray"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
+                  />
+                  <path
+                    fillRule="evenodd"
+                    d="M4.285 9.567a.5.5 0 0 1 .683.183A3.498 3.498 0 0 0 8 11.5a3.498 3.498 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.498 4.498 0 0 1 8 12.5a4.498 4.498 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683z"
+                  />
+                  <path d="M7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5zm4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5z" />
+                </svg>
+              ) : (
+                <Image src={createUserProfile} />
+              )}
+            </ProfileImage>
             {/* <ProfileImage src=""/> */}
-            <ProfileImage>.</ProfileImage>
+
             <ProfileInfo>
               <ProfilePharse>작성자 : {postData.NICKNAME}</ProfilePharse>
               <ProfilePharse>작성일 : 2023-05-11</ProfilePharse>
@@ -383,21 +416,23 @@ const PostDetailPage = () => {
                 ))
               )}
             </ReadCommentSection>
-            <PaginationContainer>
-              <ReactPaginate
-                previousLabel={'이전'}
-                nextLabel={'다음'}
-                breakLabel={'...'}
-                pageCount={pageCount}
-                marginPagesDisplayed={2}
-                pageRangeDisplayed={5}
-                onPageChange={handlePageClick}
-                containerClassName={'pagination'}
-                activeClassName={'active'}
-                previousClassName={'pageLabelBtn'}
-                nextClassName={'pageLabelBtn'}
-              />
-            </PaginationContainer>
+            {comment.length > 0 && (
+              <PaginationContainer>
+                <ReactPaginate
+                  previousLabel={'이전'}
+                  nextLabel={'다음'}
+                  breakLabel={'...'}
+                  pageCount={pageCount}
+                  marginPagesDisplayed={2}
+                  pageRangeDisplayed={5}
+                  onPageChange={handlePageClick}
+                  containerClassName={'pagination'}
+                  activeClassName={'active'}
+                  previousClassName={'pageLabelBtn'}
+                  nextClassName={'pageLabelBtn'}
+                />
+              </PaginationContainer>
+            )}
           </CommentSection>
         </Section>
       )}
@@ -428,7 +463,8 @@ const CarouselSection = styled.div`
   margin-top: 2rem;
   width: var(--common-post-width);
   height: 30rem;
-  border: 1px solid black;
+  border: 1px solid var(--gray-color-2);
+  border-radius: 0.3rem;
 `;
 
 const Title = styled.h1`
@@ -442,13 +478,19 @@ const Profile = styled.div`
   display: flex;
 `;
 
-// const ProfileImage = styled.img``;
 const ProfileImage = styled.div`
   width: 4rem;
   height: 4rem;
   border-radius: 100%;
+  border: 1px solid var(--gray-color-2);
   text-align: center;
-  background-color: var(--gray-color-3);
+`;
+
+const Image = styled.img`
+  width: 4rem;
+  height: 4rem;
+  border-radius: 100%;
+  object-fit: contain;
 `;
 
 const ProfileInfo = styled.div`
@@ -513,7 +555,7 @@ const CommentEditDelete = styled.div`
 const ReadCommentSection = styled.div`
   width: var(--common-post-width);
   border-radius: 0.2rem;
-  margin-bottom: 2rem;
+  margin-bottom: 5rem;
 `;
 
 const NoneComment = styled.p`

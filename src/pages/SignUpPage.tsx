@@ -135,6 +135,8 @@ const SignUpPage = () => {
         EMAIL: email,
         NICKNAME: nickName,
         UID: userUID,
+        PROFILE_IMAGE: '',
+        PROFILE_IMAGE_NAME: '',
       });
 
       navigate('/user/signUp/success');

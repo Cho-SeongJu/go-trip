@@ -30,11 +30,13 @@ const CarouselComponent = (props: PropsType) => {
 
 const SlideSection = styled.div`
   overflow: hidden;
-  border: 1px solid black;
 `;
 
 const UploadImage = styled.img`
+  width: var(--common-post-width);
+  height: 30rem;
   object-fit: contain;
+  border-radius: 0.3rem;
 `;
 
 export default CarouselComponent;

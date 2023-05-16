@@ -53,6 +53,7 @@ const LoginPage = () => {
       const docSnap = await getDoc(docRef);
 
       setUID(uid);
+
       const nickname = docSnap.data();
 
       if (nickname !== undefined) {
@@ -91,7 +92,6 @@ const LoginPage = () => {
       const credential = GoogleAuthProvider.credentialFromResult(result);
       if (credential !== null) {
         const user = result.user;
-        console.log(user);
         const userUID = user.uid;
         const docRef = doc(database, 'users', userUID);
         const docSnap = await getDoc(docRef);
@@ -101,6 +101,8 @@ const LoginPage = () => {
             EMAIL: user.email,
             NICKNAME: user.displayName,
             UID: userUID,
+            PROFILE_IMAGE: '',
+            PROFILE_IMAGE_NAME: '',
           });
           setUID(userUID);
 
