@@ -123,6 +123,8 @@ const WritePostPage = () => {
         SECOND_ADDRESS: selectedSecondArea,
         DETAIL_ADDRESS: getValues().detailAddress,
         PROFILE_IMAGE: image,
+        INQUIRE_COUNT: 0,
+        LIKE_COUNT: 0,
         CREATED_AT: getDate(),
       });
       navigate(`/post/post${loginUID}${date}`);

@@ -238,6 +238,10 @@ const TripContent = () => {
                   <Img src={post.THUMBNAIL_IMAGE_URL} />
                   <DescriptionSection>
                     <Title>{post.TITLE}</Title>
+                    <CountSection>
+                      <Count>조회수 {post.INQUIRE_COUNT}</Count>
+                      <Count>좋아요 {post.LIKE_COUNT}</Count>
+                    </CountSection>
                     <WriterSection>
                       {post.PROFILE_IMAGE === undefined ? (
                         <svg
@@ -414,9 +418,24 @@ const Title = styled.div`
   word-break: break-all;
 `;
 
+const CountSection = styled.div`
+  display: flex;
+  margin-top: 0.3rem;
+`;
+
+const Count = styled.p`
+  color: var(--gray-color-3);
+  font-weight: 300;
+  font-size: 0.8rem;
+
+  &:first-of-type {
+    margin-right: 0.5rem;
+  }
+`;
+
 const WriterSection = styled.div`
   display: flex;
-  margin-top: 0.5rem;
+  margin-top: 0.7rem;
 
   & > svg {
     margin: auto 0;
@@ -432,6 +451,7 @@ const ProfileImage = styled.img`
   width: 1.7rem;
   height: 1.7rem;
   object-fit: contain;
+  border-radius: 100%;
 `;
 
 export default TripContent;

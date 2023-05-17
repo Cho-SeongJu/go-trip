@@ -34,6 +34,7 @@ const PostDetailPage = () => {
   const [commentDisabled, setCommentDisabled] = useState<boolean[]>([]);
   const [editComment, setEditComment] = useState<string>('');
   const [likeData, setLikeData] = useState<DocumentData[]>([]);
+  const [likeCount, setLikeCount] = useState<number>();
   const [, setCookie] = useCookies(['uid']);
   const navigate = useNavigate();
   const setRecoilPostData = useSetRecoilState(postDetailData);
@@ -76,12 +77,21 @@ const PostDetailPage = () => {
 
         if (data !== undefined) {
           setPostData(data);
+          setLikeCount(data.LIKE_COUNT);
+          console.log(data);
+          let count = data.INQUIRE_COUNT;
+          count++;
+
+          await updateDoc(doc(database, 'posts', filterParams), {
+            INQUIRE_COUNT: count,
+          });
         }
       }
       getComment();
       getLike();
     } catch (error) {
       console.log(error);
+      alert('처리 중 오류가 발생하였습니다. 잠시 후에 다시 시도해주세요.');
     } finally {
       setLoading(false);
     }
@@ -253,9 +263,17 @@ const PostDetailPage = () => {
       return;
     }
 
+    let getLikeCount = likeCount as number;
+
     if (likeData.length > 0) {
       try {
         await deleteDoc(doc(database, 'like', likeData[0].ID));
+
+        getLikeCount--;
+        await updateDoc(doc(database, 'posts', String(postID)), {
+          LIKE_COUNT: getLikeCount,
+        });
+        setLikeCount(getLikeCount);
         getLike();
       } catch (error) {
         alert('처리 중 오류가 발생하였습니다. 잠시 후에 다시 시도해주세요.');
@@ -268,6 +286,12 @@ const PostDetailPage = () => {
           postID: String(postID),
           uid: loginUser,
         });
+
+        getLikeCount++;
+        await updateDoc(doc(database, 'posts', String(postID)), {
+          LIKE_COUNT: getLikeCount,
+        });
+        setLikeCount(getLikeCount);
         getLike();
       } catch (error) {
         alert('처리 중 오류가 발생하였습니다. 잠시 후에 다시 시도해주세요.');
@@ -403,6 +427,14 @@ const PostDetailPage = () => {
             disabled
             defaultValue={postData.CONTENT}
           />
+          <CountSection>
+            <Count>
+              조회수 <CountStrong>{postData.INQUIRE_COUNT}</CountStrong>
+            </Count>
+            <Count>
+              좋아요 <CountStrong>{likeCount}</CountStrong>
+            </Count>
+          </CountSection>
           <CommentSection>
             <CommentLike>
               <CommentTitle>댓글</CommentTitle>
@@ -591,6 +623,26 @@ const Address = styled.div`
   margin-left: 0.3rem;
   font-size: 1.1rem;
   font-weight: 500;
+`;
+
+const CountSection = styled.div`
+  display: flex;
+  margin-top: 5rem;
+`;
+
+const Count = styled.p`
+  color: var(--gray-color-1);
+  font-weight: 500;
+  font-size: 1rem;
+
+  &:first-of-type {
+    margin-right: 1rem;
+  }
+`;
+
+const CountStrong = styled.span`
+  font-weight: 600;
+  color: var(--gray-color-3);
 `;
 
 const CommentSection = styled.div`
