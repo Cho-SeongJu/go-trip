@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
-import { areaCondition } from '../store/area';
 import styled from '@emotion/styled';
+import { areaCondition } from '../store/area';
 
 interface PropsType {
   selectedArea: string;
@@ -9,10 +8,6 @@ interface PropsType {
 
 const Area = (props: PropsType) => {
   const { selectedArea, setSelectedArea } = props;
-
-  useEffect(() => {
-    setSelectedArea(areaCondition[0]);
-  }, []);
 
   const onClickHandle = (element: string) => {
     setSelectedArea(element);
