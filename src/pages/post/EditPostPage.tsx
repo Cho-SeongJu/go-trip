@@ -17,10 +17,16 @@ import Header from '../../components/header/Header';
 import { uid } from '../../store/data';
 import { getExpireTime } from '../../store/date';
 import { postDetailData } from '../../store/postDetail';
+import { areaArr, areaObj } from '../../store/area';
 
 interface PostFormType {
   title: string;
   content: string;
+  detailAddress: string;
+}
+
+interface SecondAreaType {
+  [key: string]: string[];
 }
 
 const EditPostPage = () => {
@@ -31,6 +37,15 @@ const EditPostPage = () => {
   const [uploadImageType, setUploadImageType] = useState<string[]>([]);
   const [newUploadImage, setNewUploadImage] = useState<File[]>([]);
   const [newUploadImageName, setNewUploadImageName] = useState<string[]>([]);
+  const [mainAreaList, setMainAreaList] = useState<string[]>([]);
+  const [secondAreaList, setSecondAreaList] = useState<SecondAreaType>({ 전체: [] });
+  const [selectedMainArea, setSelectedMainArea] = useState<string>('전체');
+  const [selectedSecondArea, setSelectedSecondArea] = useState<string>('전체');
+  const [open, setOpen] = useState<boolean>(false);
+  const [secondOpen, setSecondOpen] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string>('');
+  const [imageErrorMsg, setImageErrorMsg] = useState<string>('');
+  const [init, setInit] = useState<boolean>(true);
   const [, setCookie] = useCookies(['uid']);
   const loginUID = useRecoilValue(uid);
   const postData = useRecoilValue(postDetailData);
@@ -39,6 +54,7 @@ const EditPostPage = () => {
 
   const formSchema = yup.object({
     title: yup.string().required('제목 입력은 필수입니다.').min(6, '최소 6자 필수 입력입니다.').max(80, '최대 80자까지 입력 가능합니다.'),
+    detailAddress: yup.string().required('상세주소 입력은 필수입니다.'),
     content: yup.string().required('내용 입력은 필수입니다.').min(12, '최소 12자 필수 입력입니다.'),
   });
 
@@ -52,18 +68,41 @@ const EditPostPage = () => {
 
   const watchTitle = watch('title');
 
-  const onSubmit = async () => {
-    setLoading(true);
-    const title = getValues().title;
-    const content = getValues().content;
+  const check = (uploadImage: string[]) => {
+    let result = true;
+    if (uploadImage.length === 0) {
+      setImageErrorMsg('이미지 업로드는 1장 이상 필수입니다.');
+      result = false;
+    }
 
+    if (selectedMainArea === '전체' || selectedSecondArea === '전체') {
+      setErrorMsg('주소를 선택해주세요.');
+      result = false;
+    } else {
+      setErrorMsg('');
+    }
+
+    return result;
+  };
+
+  const onSubmit = async () => {
     try {
       await uploadImageServer();
+      if (!check(uploadImage)) return;
+
+      setLoading(true);
+
+      const title = getValues().title;
+      const content = getValues().content;
+
       await updateDoc(doc(database, 'posts', String(postID)), {
         TITLE: title,
         CONTENT: content,
         IMAGE_URL_LIST: uploadImage,
         IMAGE_NAME_LIST: uploadImageName,
+        MAIN_ADDRESS: selectedMainArea,
+        SECOND_ADDRESS: selectedSecondArea,
+        DETAIL_ADDRESS: getValues().detailAddress,
       });
       navigate(`/post/${postID}`);
     } catch (error) {
@@ -152,6 +191,29 @@ const EditPostPage = () => {
     }
   };
 
+  const changeSelectedMainArea = (area: string) => {
+    setSelectedMainArea(area);
+    setOpen(false);
+    setInit(false);
+  };
+
+  const changeSelectedSecondArea = (area: string) => {
+    setSelectedSecondArea(area);
+    setSecondOpen(false);
+    setInit(false);
+  };
+
+  const onClickSelectAreaHandle = (type: string) => {
+    if (type === 'main') {
+      open ? setOpen(false) : setOpen(true);
+      setSecondOpen(false);
+      setSelectedSecondArea('');
+    } else if (type === 'second') {
+      secondOpen ? setSecondOpen(false) : setSecondOpen(true);
+      setOpen(false);
+    }
+  };
+
   const setCookieHandle = () => {
     const expireTime = getExpireTime();
     setCookie('uid', loginUID, { path: '/', expires: expireTime });
@@ -167,6 +229,10 @@ const EditPostPage = () => {
     setUploadImage(postData.IMAGE_URL_LIST);
     setTitleLength(postData.TITLE.length);
     setUploadImageName(postData.IMAGE_NAME_LIST);
+    setMainAreaList(areaArr);
+    setSecondAreaList(areaObj);
+    setSelectedMainArea(String(postData.MAIN_ADDRESS));
+    setSelectedSecondArea(String(postData.SECOND_ADDRESS));
   }, []);
 
   return (
@@ -216,6 +282,52 @@ const EditPostPage = () => {
               </ImageList>
             </ImageUploadSection>
           </ImageSection>
+          {imageErrorMsg.length !== 0 && <ErrorMessage role="alert">{imageErrorMsg}</ErrorMessage>}
+          <AreaSelectSection>
+            <SelectedAreaSection>
+              <SelectArea onClick={() => onClickSelectAreaHandle('main')}>{init ? postData.MAIN_ADDRESS : selectedMainArea}</SelectArea>
+              {open && (
+                <MainAreaList>
+                  {mainAreaList.map((area) => (
+                    <Area onClick={() => changeSelectedMainArea(area)}>{area}</Area>
+                  ))}
+                </MainAreaList>
+              )}
+            </SelectedAreaSection>
+            <SelectedAreaSection>
+              <SecondSelectArea onClick={() => onClickSelectAreaHandle('second')}>
+                {init ? postData.SECOND_ADDRESS : selectedSecondArea ? selectedSecondArea : secondAreaList[selectedMainArea][0]}
+              </SecondSelectArea>
+              {secondOpen && (
+                <MainAreaList>
+                  {init
+                    ? secondAreaList[postData.MAIN_ADDRESS].map((area) => (
+                        <Area
+                          // onClick={() => ()}
+                          onClick={() => changeSelectedSecondArea(area)}
+                        >
+                          {area}
+                        </Area>
+                      ))
+                    : secondAreaList[selectedMainArea].map((area) => (
+                        <Area
+                          // onClick={() => ()}
+                          onClick={() => changeSelectedSecondArea(area)}
+                        >
+                          {area}
+                        </Area>
+                      ))}
+                </MainAreaList>
+              )}
+            </SelectedAreaSection>
+          </AreaSelectSection>
+          <DetailAddressInput
+            type="text"
+            placeholder="상세주소"
+            {...register('detailAddress')}
+            defaultValue={postData.DETAIL_ADDRESS}
+          />
+          {errors.detailAddress ? <ErrorMessage role="alert">{errors.detailAddress.message}</ErrorMessage> : errorMsg.length !== 0 && <ErrorMessage role="alert">{errorMsg}</ErrorMessage>}
           <TextareaAutosize
             className="writePostTextArea"
             autoFocus
@@ -357,6 +469,76 @@ const Button = styled.button`
   font-size: 1rem;
   color: var(--white-color-1);
   cursor: pointer;
+`;
+
+const AreaSelectSection = styled.div`
+  display: flex;
+  margin-top: 3rem;
+`;
+
+const SelectedAreaSection = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  &:not(:first-of-type) {
+    margin-left: 1rem;
+  }
+`;
+
+const MainAreaList = styled.div`
+  width: 6rem;
+  border-left: 1px solid var(--gray-color-2);
+  border-right: 1px solid var(--gray-color-2);
+  border-bottom: 1px solid var(--gray-color-2);
+`;
+
+const SelectArea = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 6rem;
+  height: 2.7rem;
+  border: 1px solid var(--gray-color-2);
+  border-radius: 0.2rem;
+  cursor: pointer;
+`;
+
+const SecondSelectArea = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 6rem;
+  height: 2.7rem;
+  border: 1px solid var(--gray-color-2);
+  border-radius: 0.2rem;
+  cursor: pointer;
+`;
+
+const Area = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 6rem;
+  height: 2.7rem;
+  border-bottom: 1px solid var(--gray-color-2);
+  font-size: 0.9rem;
+  cursor: pointer;
+
+  &: hover {
+    background-color: var(--blue-sky-color-1);
+    color: var(--white-color-1);
+  }
+`;
+
+const DetailAddressInput = styled.input`
+  font-family: 'Noto Sans KR', sans-serif;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  padding: 0.7rem;
+  font-size: 1rem;
+  border: 1px solid var(--gray-color-2);
+  border-radius: 0.2rem;
+  outline: none;
 `;
 
 export default EditPostPage;
