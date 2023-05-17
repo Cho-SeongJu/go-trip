@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { getAuth } from 'firebase/auth';
 import { DocumentData, collection, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore/lite';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
@@ -29,10 +29,6 @@ interface InfoType {
   nickname: string;
 }
 
-interface StylePropsType {
-  backgroundImage: string;
-}
-
 interface ImageObjType {
   profileImage: string;
   profileImageName: string;
@@ -53,6 +49,7 @@ const EditInfoPage = () => {
   const setUserInfo = useSetRecoilState(userInfo);
   const userID = useRecoilValue(uid);
   const currentNickname = useRecoilValue(userInfo);
+  const nicknameRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
   const getInfo = async () => {
@@ -64,12 +61,14 @@ const EditInfoPage = () => {
       setLoading(true);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        if (docSnap.data().PROFILE_IMAGE === undefined) {
+        if (docSnap.data().PROFILE_IMAGE === '') {
           setProfileImageObj({ profileImage: '', profileImageName: '', profileImageFile: null });
+          console.log(1);
         } else {
           setProfileImageObj({ profileImage: docSnap.data().PROFILE_IMAGE, profileImageName: docSnap.data().PROFILE_IMAGE_NAME, profileImageFile: null });
           setInitImageName(docSnap.data().PROFILE_IMAGE_NAME);
           setProfileExist(true);
+          console.log(2);
         }
       }
     } catch {
@@ -89,7 +88,7 @@ const EditInfoPage = () => {
   };
 
   const formSchema = yup.object({
-    nickName: yup.string().required('닉네임은 필수 입력입니다.').min(2, '최소 2자 필수 입력입니다.').max(8, '최대 8자 입력 가능합니다.'),
+    // nickName: yup.string().required('닉네임은 필수 입력입니다.').min(2, '최소 2자 필수 입력입니다.').max(8, '최대 8자 입력 가능합니다.'),
   });
 
   const {
@@ -101,21 +100,35 @@ const EditInfoPage = () => {
 
   const onSubmit = async () => {
     if (checkNickNameResultMsg.length !== 0) return;
-    setLoading(true);
     const signUpData = getValues();
-    const nickName = signUpData.nickName;
+    const signUpnickName = nicknameRef.current?.value;
+    if (!profileExist && profileImageObj.profileImage === '' && nickName === signUpnickName) {
+      console.log(signUpData.nickName);
+      console.log(signUpnickName);
+      alert('변경된 정보가 없습니다.');
+      return;
+    }
+    setLoading(true);
 
     try {
       const storage = getStorage();
       const userRef = doc(database, 'users', userID);
 
       if (profileExist && profileImageObj.profileImage === '') {
+        console.log('qwe');
         const deleteRef = ref(storage, `images/users/${userID}/${initImageName}`);
 
         await deleteObject(deleteRef);
 
         await updateDoc(doc(database, 'users', userID), {
-          NICKNAME: nickName,
+          NICKNAME: signUpnickName,
+          PROFILE_IMAGE: '',
+          PROFILE_IMAGE_NAME: '',
+        });
+      } else if (!profileExist && profileImageObj.profileImage === '') {
+        console.log('asd');
+        await updateDoc(userRef, {
+          NICKNAME: signUpnickName,
           PROFILE_IMAGE: '',
           PROFILE_IMAGE_NAME: '',
         });
@@ -129,7 +142,7 @@ const EditInfoPage = () => {
         const imageURL = await getDownloadURL(ref(storage, `images/users/${userID}/${profileImageObj.profileImageName}`));
 
         await updateDoc(userRef, {
-          NICKNAME: nickName,
+          NICKNAME: signUpnickName,
           PROFILE_IMAGE: imageURL,
           PROFILE_IMAGE_NAME: profileImageObj.profileImageName,
         });
@@ -148,7 +161,7 @@ const EditInfoPage = () => {
 
       if (postData.length !== 0) {
         postData.forEach((post: DocumentData) => {
-          post.NICKNAME = nickName;
+          post.NICKNAME = signUpnickName;
         });
 
         postData.forEach(async (post) => {
@@ -158,7 +171,7 @@ const EditInfoPage = () => {
 
       if (commentData.length !== 0) {
         commentData.forEach((post: DocumentData) => {
-          post.nickname = nickName;
+          post.nickname = signUpnickName;
         });
 
         commentData.forEach(async (post) => {
@@ -166,7 +179,7 @@ const EditInfoPage = () => {
         });
       }
 
-      setUserInfo({ NICKNAME: nickName });
+      if (signUpnickName !== undefined) setUserInfo({ NICKNAME: signUpnickName });
       alert('회원정보를 성공적으로 변경하였습니다.');
       navigate('/');
     } catch (error) {
@@ -179,7 +192,7 @@ const EditInfoPage = () => {
 
   const checkNickName = async (event: React.FocusEvent<HTMLInputElement>) => {
     const value = event.target.value;
-
+    console.log(value);
     if (value.length === 0) {
       setCheckNickNameResultMsg('닉네임은 필수 입력입니다.');
       return;
@@ -189,24 +202,30 @@ const EditInfoPage = () => {
     } else if (value.length > 8) {
       setCheckNickNameResultMsg('최대 8자 입력 가능합니다.');
       return;
-    } else if (value === currentNickname.NICKNAME) {
-      setCheckNickNameResultMsg('현재 닉네임입니다.');
-      return;
     }
+    // } else if (value === nickName) {
+    //   setCheckNickNameResultMsg('현재 닉네임입니다.');
+    //   return;
+    // }
 
     const nickNamRef = collection(database, 'users');
     const q = query(nickNamRef, where('NICKNAME', '==', value));
     const querySnapShot = await getDocs(q);
 
-    try {
-      if (querySnapShot.docs.length !== 0) {
-        setCheckNickNameResultMsg(CHECK_NICKNAME_ERROR_MSG);
-      } else {
-        setCheckNickNameResultMsg('');
+    if (nickName !== value) {
+      console.log('asd');
+      try {
+        if (querySnapShot.docs.length !== 0) {
+          setCheckNickNameResultMsg(CHECK_NICKNAME_ERROR_MSG);
+        } else {
+          setCheckNickNameResultMsg('');
+        }
+      } catch (error) {
+        alert('오류가 발생하였습니다. 다시 진행해주시길 바랍니다.');
+        return;
       }
-    } catch (error) {
-      alert('오류가 발생하였습니다. 다시 진행해주시길 바랍니다.');
-      return;
+    } else if (nickName === value) {
+      setCheckNickNameResultMsg('');
     }
   };
 
@@ -236,8 +255,8 @@ const EditInfoPage = () => {
         <ProfileSection>
           <ImageSection>
             <ProfileImageSection>
-              {profileImageObj.profileImage === '' ? (
-                <InputImageLabel htmlFor="profileImage">
+              <InputImageLabel htmlFor="profileImage">
+                {profileImageObj.profileImage === '' ? (
                   <svg
                     width="20rem"
                     height="10rem"
@@ -255,10 +274,10 @@ const EditInfoPage = () => {
                     />
                     <path d="M7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5zm4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5z" />
                   </svg>
-                </InputImageLabel>
-              ) : (
-                <ProfileImage src={profileImageObj.profileImage} />
-              )}
+                ) : (
+                  <ProfileImage src={profileImageObj.profileImage} />
+                )}
+              </InputImageLabel>
 
               {profileImageObj.profileImage !== '' && <BtnImageDelete onClick={imageDeleteHandle}>삭제</BtnImageDelete>}
               <InputImage
@@ -287,6 +306,7 @@ const EditInfoPage = () => {
               {...register('nickName')}
               onBlur={checkNickName}
               defaultValue={nickName}
+              ref={nicknameRef}
             />
             {checkNickNameResultMsg.length !== 0 ? (
               <ErrorMessage role="alert">{checkNickNameResultMsg}</ErrorMessage>
@@ -368,7 +388,11 @@ const ProfileImageSection = styled.div`
   text-align: center;
   background-color: var(--white-color-1);
 
-  &: hover {
+  &:hover svg {
+    fill: rgba(239, 239, 239, 0.9);
+  }
+
+  &:hover img {
     opacity: 0.5;
   }
 `;
