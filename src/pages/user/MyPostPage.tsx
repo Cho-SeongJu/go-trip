@@ -1,38 +1,34 @@
 import styled from '@emotion/styled';
+import { collection, getDocs, query, where } from 'firebase/firestore/lite';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useRecoilValue } from 'recoil';
+import { database } from '../../../firebase';
+import Loading from '../../components/Loading';
 import Footer from '../../components/footer/Footer';
 import Header from '../../components/header/Header';
 import Tab from '../../components/tab/Tab';
-import { useRecoilValue } from 'recoil';
-import { userInfo } from '../../store/data';
-import { useEffect, useState } from 'react';
+import { uid } from '../../store/data';
 import { myPagemenu } from '../../store/menu';
 import { DataType } from '../../type/type';
-import { collection, documentId, getDocs, query, where } from 'firebase/firestore/lite';
-import { database } from '../../../firebase';
-import Loading from '../../components/Loading';
-import { Link } from 'react-router-dom';
 
 const MyPostPage = () => {
-  const loginUserNickname = useRecoilValue(userInfo);
   const [loading, setLoading] = useState<boolean>(false);
   const [posts, setPosts] = useState<DataType[]>([]);
+  const loginUID = useRecoilValue(uid);
 
   const getPosts = async () => {
     setLoading(true);
     try {
-      const likeRef = collection(database, 'like');
-      const likeQuery = query(likeRef, where('nickname', '==', loginUserNickname.NICKNAME));
-      const likeQuerySnapShot = await getDocs(likeQuery);
-      const likeData = likeQuerySnapShot.docs.map((doc) => ({ ...doc.data() }.postID));
+      const ref = collection(database, 'posts');
+      const q = query(ref, where('UID', '==', String(loginUID)));
+      const querySnapShot = await getDocs(q);
+      const data = querySnapShot.docs.map((doc) => ({ ID: doc.id, ...doc.data() }));
 
-      const likePostRef = collection(database, 'posts');
-      const likePostQuery = query(likePostRef, where(documentId(), 'in', likeData));
-      const likePostQuerySnapShot = await getDocs(likePostQuery);
-      const likePostData = likePostQuerySnapShot.docs.map((doc) => ({ ID: doc.id, ...doc.data() }));
-
-      setPosts(likePostData);
+      setPosts(data);
     } catch (error) {
       console.log(error);
+      alert('처리 중 오류가 발생하였습니다. 잠시 후에 다시 시도해주세요.');
     } finally {
       setLoading(false);
     }
@@ -52,7 +48,7 @@ const MyPostPage = () => {
             <Loading display="flex" />
           ) : posts.length === 0 ? (
             <NonePostsSection>
-              <NonePostsPharse>좋아한 게시물이 없습니다.</NonePostsPharse>
+              <NonePostsPharse>내가 쓴 게시물이 없습니다.</NonePostsPharse>
             </NonePostsSection>
           ) : (
             <>
@@ -64,7 +60,37 @@ const MyPostPage = () => {
                   <Img src={post.THUMBNAIL_IMAGE_URL} />
                   <DescriptionSection>
                     <Title>{post.TITLE}</Title>
-                    <Nickname>작성자 : {post.NICKNAME}</Nickname>
+                    <CountSection>
+                      <Count>조회수 {post.INQUIRE_COUNT}</Count>
+                      <Count>좋아요 {post.LIKE_COUNT}</Count>
+                    </CountSection>
+                    <WriterSection>
+                      {post.PROFILE_IMAGE === undefined ? (
+                        <svg
+                          width="1.7rem"
+                          height="1.7rem"
+                          viewBox="0 0 16 16"
+                          fill="var(--blue-sky-color-1)"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
+                          />
+                          <path
+                            fillRule="evenodd"
+                            d="M4.285 9.567a.5.5 0 0 1 .683.183A3.498 3.498 0 0 0 8 11.5a3.498 3.498 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.498 4.498 0 0 1 8 12.5a4.498 4.498 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683z"
+                          />
+                          <path d="M7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5zm4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5z" />
+                        </svg>
+                      ) : (
+                        <ProfileImage
+                          src={post.PROFILE_IMAGE}
+                          alt="프로필 이미지"
+                        />
+                      )}
+                      <Nickname>작성자 : {post.NICKNAME}</Nickname>
+                    </WriterSection>
                   </DescriptionSection>
                 </Post>
               ))}
@@ -107,7 +133,7 @@ const Post = styled(Link)`
   height: 22rem;
   color: var(--black-color-1);
 
-  &:hover img {
+  &:hover > img {
     transform: scale(1.1);
   }
 
@@ -138,11 +164,43 @@ const Title = styled.p`
   overflow: hidden;
   font-size: 1.1rem;
   font-weight: 500;
+  word-break: break-all;
+`;
+
+const CountSection = styled.div`
+  display: flex;
+  margin-top: 0.3rem;
+`;
+
+const Count = styled.p`
+  color: var(--gray-color-3);
+  font-weight: 300;
+  font-size: 0.8rem;
+
+  &:first-of-type {
+    margin-right: 0.5rem;
+  }
+`;
+
+const WriterSection = styled.div`
+  display: flex;
+  margin-top: 0.7rem;
+
+  & > svg {
+    margin: auto 0;
+  }
 `;
 
 const Nickname = styled.p`
   margin: 0.5rem;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
+`;
+
+const ProfileImage = styled.img`
+  width: 1.7rem;
+  height: 1.7rem;
+  object-fit: contain;
+  border-radius: 100%;
 `;
 
 export default MyPostPage;
