@@ -24,10 +24,6 @@ const Tab = (props: PropsType) => {
   const tabMenu: TabMenuType = {
     home: {
       path: '/',
-      label: '홈',
-    },
-    trip: {
-      path: '/trip',
       label: '여행지',
     },
     editUserInfo: {

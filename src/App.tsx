@@ -28,7 +28,7 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={<MainPage />}
+          element={<TripPage />}
         />
         <Route
           path="/trip"
