@@ -34,6 +34,10 @@ const Tab = (props: PropsType) => {
       path: '/user/profile/likeList',
       label: '좋아요 목록',
     },
+    myPost: {
+      path: '/uset/profile/myPost',
+      label: '내가 쓴 글',
+    },
     editPassword: {
       path: '/user/profile/editPassword',
       label: '비밀번호설정',

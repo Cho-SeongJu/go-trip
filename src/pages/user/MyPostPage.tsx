@@ -1,18 +1,18 @@
 import styled from '@emotion/styled';
-import { collection, documentId, getDocs, query, where } from 'firebase/firestore/lite';
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
-import { database } from '../../../firebase';
-import Loading from '../../components/Loading';
 import Footer from '../../components/footer/Footer';
 import Header from '../../components/header/Header';
 import Tab from '../../components/tab/Tab';
+import { useRecoilValue } from 'recoil';
 import { userInfo } from '../../store/data';
+import { useEffect, useState } from 'react';
 import { myPagemenu } from '../../store/menu';
 import { DataType } from '../../type/type';
+import { collection, documentId, getDocs, query, where } from 'firebase/firestore/lite';
+import { database } from '../../../firebase';
+import Loading from '../../components/Loading';
+import { Link } from 'react-router-dom';
 
-const LikeListPage = () => {
+const MyPostPage = () => {
   const loginUserNickname = useRecoilValue(userInfo);
   const [loading, setLoading] = useState<boolean>(false);
   const [posts, setPosts] = useState<DataType[]>([]);
@@ -145,4 +145,4 @@ const Nickname = styled.p`
   font-size: 0.8rem;
 `;
 
-export default LikeListPage;
+export default MyPostPage;

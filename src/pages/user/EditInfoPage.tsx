@@ -17,6 +17,7 @@ import Tab from '../../components/tab/Tab';
 import { uid, userInfo } from '../../store/data';
 import { FormValueType } from '../../type/type';
 import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import { myPagemenu } from '../../store/menu';
 
 interface SignUpType extends FormValueType {
   address: string;
@@ -38,7 +39,6 @@ interface ImageObjType {
 const CHECK_NICKNAME_ERROR_MSG = '이미 사용중인 닉네임입니다.';
 
 const EditInfoPage = () => {
-  const menu = ['editUserInfo', 'likeList', 'editPassword'];
   const [loading, setLoading] = useState<boolean>(false);
   const [checkNickNameResultMsg, setCheckNickNameResultMsg] = useState<string>('');
   const [loginUserInfo, setLoginUserInfo] = useState<InfoType>({ email: '', nickname: '' });
@@ -250,7 +250,7 @@ const EditInfoPage = () => {
   return (
     <>
       <Header />
-      <Tab menu={menu} />
+      <Tab menu={myPagemenu} />
       <Section>
         <ProfileSection>
           <ImageSection>

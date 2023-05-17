@@ -12,6 +12,7 @@ import Header from '../../components/header/Header';
 import Tab from '../../components/tab/Tab';
 import { ErrorType, FormValueType } from '../../type/type';
 import Loading from '../../components/Loading';
+import { myPagemenu } from '../../store/menu';
 
 interface SignUpType extends FormValueType {
   currentPassword: string;
@@ -19,7 +20,6 @@ interface SignUpType extends FormValueType {
 }
 
 const EditPasswordPage = () => {
-  const menu = ['editUserInfo', 'likeList', 'editPassword'];
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
@@ -85,7 +85,7 @@ const EditPasswordPage = () => {
   return (
     <>
       <Header />
-      <Tab menu={menu} />
+      <Tab menu={myPagemenu} />
       <Section>
         <Form onSubmit={handleSubmit(onSubmit)}>
           <Label>비밀번호</Label>

@@ -8,3 +8,7 @@ export interface FormValueType {
 }
 
 export type UIDType = string;
+
+export interface DataType {
+  [key: string]: string;
+}
