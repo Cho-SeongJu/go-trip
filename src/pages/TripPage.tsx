@@ -4,7 +4,7 @@ import Header from '../components/header/Header';
 import Tab from '../components/tab/Tab';
 
 const TripPage = () => {
-  const menu = ['home', 'trip'];
+  const menu = ['home'];
 
   return (
     <>
