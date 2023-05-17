@@ -78,7 +78,6 @@ const PostDetailPage = () => {
         if (data !== undefined) {
           setPostData(data);
           setLikeCount(data.LIKE_COUNT);
-          console.log(data);
           let count = data.INQUIRE_COUNT;
           count++;
 

@@ -64,7 +64,6 @@ const TripContent = () => {
       if (q !== undefined) {
         const querySnapshot = await getDocs(q);
         const data = querySnapshot.docs.map((doc) => ({ ID: doc.id, ...doc.data() }));
-        console.log(data);
         setPosts(data);
       }
     } catch (error) {
