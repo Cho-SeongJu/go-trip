@@ -362,7 +362,7 @@ const PostDetailPage = () => {
             </ProfileInfo>
           </Profile>
           <AddressSection>
-            <p>
+            <div>
               <svg
                 version="1.0"
                 xmlns="http://www.w3.org/2000/svg"
@@ -391,7 +391,7 @@ const PostDetailPage = () => {
                   />
                 </g>
               </svg>
-            </p>
+            </div>
             <Address>{postData.MAIN_ADDRESS}</Address>
             <Address>{postData.SECOND_ADDRESS}</Address>
             <Address>{postData.DETAIL_ADDRESS}</Address>
