@@ -86,11 +86,10 @@ const EditPostPage = () => {
   };
 
   const onSubmit = async () => {
+    setLoading(true);
     try {
       await uploadImageServer();
       if (!check(uploadImage)) return;
-
-      setLoading(true);
 
       const title = getValues().title;
       const content = getValues().content;
@@ -396,6 +395,7 @@ const WritePostSection = styled.div`
   flex-direction: column;
   width: 50rem;
   margin: var(--common-margin);
+  margin-bottom: 6rem;
 `;
 
 const TitleSection = styled.div`
@@ -529,7 +529,9 @@ const SelectedAreaSection = styled.div`
 `;
 
 const MainAreaList = styled.div`
-  width: 6rem;
+  width: 8rem;
+  height: 15rem;
+  overflow: auto
   border-left: 1px solid var(--gray-color-2);
   border-right: 1px solid var(--gray-color-2);
   border-bottom: 1px solid var(--gray-color-2);
@@ -539,7 +541,7 @@ const SelectArea = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 6rem;
+  width: 8rem;
   height: 2.7rem;
   border: 1px solid var(--gray-color-2);
   border-radius: 0.2rem;
@@ -550,7 +552,7 @@ const SecondSelectArea = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 6rem;
+  width: 8rem;
   height: 2.7rem;
   border: 1px solid var(--gray-color-2);
   border-radius: 0.2rem;
@@ -561,7 +563,7 @@ const Area = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 6rem;
+  width: 8rem;
   height: 2.7rem;
   border-bottom: 1px solid var(--gray-color-2);
   font-size: 0.9rem;

@@ -546,6 +546,7 @@ const Title = styled.h1`
   margin-top: 2rem;
   font-size: 2rem;
   font-weight: 500;
+  word-break: break-all;
 `;
 
 const Profile = styled.div`
