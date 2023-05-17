@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { doc, setDoc } from 'firebase/firestore/lite';
+import { doc, getDoc, setDoc, where } from 'firebase/firestore/lite';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -102,6 +102,11 @@ const WritePostPage = () => {
       const title = getValues().title;
       const content = getValues().content;
 
+      const docSnap = await getDoc(doc(database, 'users', String(loginUID)));
+      const data = docSnap.data();
+      let image = '';
+      if (data) image = data.PROFILE_IMAGE;
+
       await setDoc(doc(database, 'posts', 'post' + loginUID + date), {
         UID: loginUID,
         TITLE: title,
@@ -113,6 +118,7 @@ const WritePostPage = () => {
         MAIN_ADDRESS: selectedMainArea,
         SECOND_ADDRESS: selectedSecondArea,
         DETAIL_ADDRESS: getValues().detailAddress,
+        PROFILE_IMAGE: image,
         CREATED_AT: getDate(),
       });
       navigate(`/post/post${loginUID}${date}`);
