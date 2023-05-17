@@ -444,7 +444,7 @@ const ImageUploadSection = styled.div`
 const ImageUploadLabel = styled.label`
   padding: 1rem;
   margin-bottom: 1rem;
-  background-color: var(--black-color-2);
+  background-color: var(--blue-sky-color-1);
   color: var(--white-color-1);
   text-align: center;
   border-radius: 2rem;
