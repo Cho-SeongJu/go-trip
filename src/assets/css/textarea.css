@@ -1,8 +1,9 @@
 .writePostTextArea {
+  font-family: 'Noto Sans KR', sans-serif;
   margin-top: 3rem;
   margin-bottom: 1rem;
   padding: 1rem;
-  border: 1px solid var(--gray-color-1);
+  border: 1px solid var(--gray-color-2);
   border-radius: 0.2rem;
   outline: none;
   font-size: 1rem;
@@ -15,6 +16,7 @@
 }
 
 .postTextarea {
+  font-family: 'Noto Sans KR', sans-serif;
   margin-top: 2rem;
   width: var(--common-post-width);
   border: none;
@@ -39,6 +41,7 @@
 }
 
 .readComment {
+  font-family: 'Noto Sans KR', sans-serif;
   padding: 0;
   margin-left: 0.7rem;
   margin-right: 0.7rem;
