@@ -35,7 +35,7 @@ const Tab = (props: PropsType) => {
       label: '좋아요 목록',
     },
     myPost: {
-      path: '/uset/profile/myPost',
+      path: '/user/profile/myPost',
       label: '내가 쓴 글',
     },
     editPassword: {
