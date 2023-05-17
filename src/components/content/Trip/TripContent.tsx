@@ -10,6 +10,7 @@ import { uid } from '../../../store/data';
 import { getExpireTime } from '../../../store/date';
 import Area from '../../Area';
 import Loading from '../../Loading';
+import ReactPaginate from 'react-paginate';
 
 interface DataType {
   [key: string]: string;
@@ -21,12 +22,15 @@ const TripContent = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [posts, setPosts] = useState<DataType[]>([]);
   const [selectedArea, setSelectedArea] = useState<string>(areaCondition[0]);
+  const [currentPost, setCurrentPost] = useState<DocumentData>([]);
+  const [pageCount, setPageCount] = useState(0);
+  const [itemOffset, setItemOffset] = useState(0);
   const [, setCookie] = useCookies(['uid']);
-  const target = useRef(null);
   const userAuth = useRecoilValue(uid);
   const navigate = useNavigate();
 
   const searchConditionArr = ['글제목', '작성자'];
+  const itemsPerPage = 15;
 
   const CheckAuth = () => {
     if (userAuth === 'anonymous') {
@@ -76,10 +80,10 @@ const TripContent = () => {
     try {
       let firstQuery;
       if (selectedArea === '전체') {
-        firstQuery = query(collection(database, 'posts'), orderBy('CREATED_AT', 'desc'), limit(15));
+        firstQuery = query(collection(database, 'posts'), orderBy('CREATED_AT', 'desc'));
       } else {
         const key = filterArea[selectedArea];
-        firstQuery = query(collection(database, 'posts'), where('MAIN_ADDRESS', '==', key), orderBy('CREATED_AT', 'desc'), limit(15));
+        firstQuery = query(collection(database, 'posts'), where('MAIN_ADDRESS', '==', key), orderBy('CREATED_AT', 'desc'));
       }
 
       const querySnapShot = await getDocs(firstQuery);
@@ -103,6 +107,17 @@ const TripContent = () => {
   const setCookieHandle = () => {
     const expireTime = getExpireTime();
     setCookie('uid', userAuth, { path: '/', expires: expireTime });
+  };
+
+  useEffect(() => {
+    const endOffset = itemOffset + itemsPerPage;
+    setCurrentPost(posts.slice(itemOffset, endOffset));
+    setPageCount(Math.ceil(posts.length / itemsPerPage));
+  }, [posts, itemOffset, itemsPerPage]);
+
+  const handlePageClick = (event: { selected: number }) => {
+    const newOffset = (event.selected * itemsPerPage) % posts.length;
+    setItemOffset(newOffset);
   };
 
   const getData = useCallback(async () => {
@@ -191,7 +206,7 @@ const TripContent = () => {
             </NonePostsSection>
           ) : (
             <>
-              {posts.map((post, index) => (
+              {currentPost.map((post: DocumentData, index: number) => (
                 <Post
                   key={index}
                   onClick={setCookieHandle}
@@ -237,6 +252,23 @@ const TripContent = () => {
             </>
           )}
         </PostSection>
+        {posts.length > 0 && (
+          <PaginationContainer>
+            <ReactPaginate
+              previousLabel={'이전'}
+              nextLabel={'다음'}
+              breakLabel={'...'}
+              pageCount={pageCount}
+              marginPagesDisplayed={2}
+              pageRangeDisplayed={15}
+              onPageChange={handlePageClick}
+              containerClassName={'pagination'}
+              activeClassName={'active'}
+              previousClassName={'pageLabelBtn'}
+              nextClassName={'pageLabelBtn'}
+            />
+          </PaginationContainer>
+        )}
       </Section>
     </>
   );
@@ -342,7 +374,7 @@ const Post = styled(Link)`
   margin: 1rem;
   margin-top: 2rem;
   width: 20rem;
-  height: 22rem;
+  height: 25rem;
   color: var(--black-color-1);
 
   &:hover > img {
@@ -415,4 +447,10 @@ const ProfileImage = styled.img`
   border-radius: 100%;
 `;
 
+const PaginationContainer = styled.div`
+  width: var(--common-post-width);
+  height: 2rem;
+  margin: var(--common-margin);
+  margin-bottom: 3rem;
+`;
 export default TripContent;

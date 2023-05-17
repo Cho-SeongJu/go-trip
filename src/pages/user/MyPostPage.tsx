@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { collection, getDocs, query, where } from 'firebase/firestore/lite';
+import { DocumentData, collection, getDocs, query, where } from 'firebase/firestore/lite';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
@@ -11,11 +11,17 @@ import Tab from '../../components/tab/Tab';
 import { uid } from '../../store/data';
 import { myPagemenu } from '../../store/menu';
 import { DataType } from '../../type/type';
+import ReactPaginate from 'react-paginate';
 
 const MyPostPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [posts, setPosts] = useState<DataType[]>([]);
+  const [currentPost, setCurrentPost] = useState<DocumentData>([]);
+  const [pageCount, setPageCount] = useState(0);
+  const [itemOffset, setItemOffset] = useState(0);
   const loginUID = useRecoilValue(uid);
+
+  const itemsPerPage = 15;
 
   const getPosts = async () => {
     setLoading(true);
@@ -32,6 +38,17 @@ const MyPostPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    const endOffset = itemOffset + itemsPerPage;
+    setCurrentPost(posts.slice(itemOffset, endOffset));
+    setPageCount(Math.ceil(posts.length / itemsPerPage));
+  }, [posts, itemOffset, itemsPerPage]);
+
+  const handlePageClick = (event: { selected: number }) => {
+    const newOffset = (event.selected * itemsPerPage) % posts.length;
+    setItemOffset(newOffset);
   };
 
   useEffect(() => {
@@ -52,7 +69,7 @@ const MyPostPage = () => {
             </NonePostsSection>
           ) : (
             <>
-              {posts.map((post, index) => (
+              {currentPost.map((post: DocumentData, index: number) => (
                 <Post
                   key={index}
                   to={`/post/${post.ID}`}
@@ -97,6 +114,23 @@ const MyPostPage = () => {
             </>
           )}
         </PostSection>
+        {posts.length > 0 && (
+          <PaginationContainer>
+            <ReactPaginate
+              previousLabel={'이전'}
+              nextLabel={'다음'}
+              breakLabel={'...'}
+              pageCount={pageCount}
+              marginPagesDisplayed={2}
+              pageRangeDisplayed={15}
+              onPageChange={handlePageClick}
+              containerClassName={'pagination'}
+              activeClassName={'active'}
+              previousClassName={'pageLabelBtn'}
+              nextClassName={'pageLabelBtn'}
+            />
+          </PaginationContainer>
+        )}
       </Section>
       <Footer />
     </>
@@ -130,7 +164,7 @@ const NonePostsPharse = styled.p``;
 const Post = styled(Link)`
   margin: 1rem;
   width: 20rem;
-  height: 22rem;
+  height: 25rem;
   color: var(--black-color-1);
 
   &:hover > img {
@@ -201,6 +235,13 @@ const ProfileImage = styled.img`
   height: 1.7rem;
   object-fit: contain;
   border-radius: 100%;
+`;
+
+const PaginationContainer = styled.div`
+  width: var(--common-post-width);
+  height: 2rem;
+  margin: var(--common-margin);
+  margin-bottom: 3rem;
 `;
 
 export default MyPostPage;
