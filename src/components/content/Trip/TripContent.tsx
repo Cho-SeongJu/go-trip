@@ -1,15 +1,15 @@
 import styled from '@emotion/styled';
 import { DocumentData, collection, getDocs, limit, orderBy, query, startAfter, where } from 'firebase/firestore/lite';
 import { ChangeEvent, FormEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { useCookies } from 'react-cookie';
 import { Link, useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { database } from '../../../../firebase';
+import { areaCondition, filterArea } from '../../../store/area';
 import { uid } from '../../../store/data';
-import Loading from '../../Loading';
 import { getExpireTime } from '../../../store/date';
-import { useCookies } from 'react-cookie';
 import Area from '../../Area';
-import { filterArea } from '../../../store/area';
+import Loading from '../../Loading';
 
 interface DataType {
   [key: string]: string;
@@ -20,11 +20,9 @@ const TripContent = () => {
   const [searchKeyword, setSearchKeyword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [posts, setPosts] = useState<DataType[]>([]);
-  const [target, setTarget] = useState('');
-  const [selectedArea, setSelectedArea] = useState<string>('');
-  const [lastVisible, setlastVisible] = useState<DocumentData>();
+  const [selectedArea, setSelectedArea] = useState<string>(areaCondition[0]);
   const [, setCookie] = useCookies(['uid']);
-  const loader = useRef<HTMLDivElement>(null);
+  const target = useRef(null);
   const userAuth = useRecoilValue(uid);
   const navigate = useNavigate();
 
@@ -75,63 +73,22 @@ const TripContent = () => {
 
   const getPosts = async () => {
     setLoading(true);
-    // if (posts.length === 0) {
     try {
       let firstQuery;
       if (selectedArea === '전체') {
         firstQuery = query(collection(database, 'posts'), orderBy('CREATED_AT', 'desc'), limit(15));
       } else {
         const key = filterArea[selectedArea];
-        console.log(selectedArea);
-        console.log(key);
         firstQuery = query(collection(database, 'posts'), where('MAIN_ADDRESS', '==', key), orderBy('CREATED_AT', 'desc'), limit(15));
       }
 
       const querySnapShot = await getDocs(firstQuery);
       const data = querySnapShot.docs.map((doc) => ({ ID: doc.id, ...doc.data() }));
       setPosts(data);
-      setlastVisible(querySnapShot.docs[querySnapShot.docs.length - 1]);
     } catch (error) {
       console.log(error);
     } finally {
       setLoading(false);
-    }
-    // } else {
-    // console.log(lastVisible);
-    // try {
-    //   const next = query(collection(database, 'posts'), orderBy('CREATED_AT'), startAfter(lastVisible), limit(15));
-    //   const nextDocumentSnapshots = await getDocs(next);
-    //   for (let i = 0; i < nextDocumentSnapshots.docs.length; i++) {
-    //     console.log(nextDocumentSnapshots.docs[i].data());
-    //   }
-    //   const nextData = nextDocumentSnapshots.docs.map((doc) => ({ ID: doc.id, ...doc.data() }));
-    //   setPosts([...posts, ...nextData]);
-    // } catch (error) {
-    //   console.log(error);
-    // } finally {
-    //   setLoading(false);
-    // }
-    // }
-  };
-
-  const infinity = async () => {
-    // const first = query(collection(database, 'posts'), orderBy('CREATE_AT'), limit(2));
-    // const documentSnapshots = await getDocs(first);
-    // for (let i = 0; i < documentSnapshots.docs.length; i++) {
-    //   console.log(documentSnapshots.docs[i].data());
-    // }
-    // console.log(documentSnapshots.docs);
-
-    // const lastVisible = documentSnapshots.docs[documentSnapshots.docs.length - 1];
-    console.log(lastVisible);
-    const next = query(collection(database, 'posts'), orderBy('CREATED_AT'), startAfter(lastVisible), limit(15));
-    try {
-      const nextDocumentSnapshots = await getDocs(next);
-      for (let i = 0; i < nextDocumentSnapshots.docs.length; i++) {
-        console.log(nextDocumentSnapshots.docs[i].data());
-      }
-    } catch (error) {
-      console.log(error);
     }
   };
 
@@ -148,9 +105,13 @@ const TripContent = () => {
     setCookie('uid', userAuth, { path: '/', expires: expireTime });
   };
 
-  useEffect(() => {
+  const getData = useCallback(async () => {
     getPosts();
   }, [selectedArea]);
+
+  useEffect(() => {
+    getData();
+  }, [getData]);
 
   return (
     <>
@@ -220,6 +181,7 @@ const TripContent = () => {
         </SearchFormSection>
       </FilterSection>
       <Section>
+        <div>전체 좋아요</div>
         <PostSection>
           {loading ? (
             <Loading display="flex" />
@@ -276,7 +238,6 @@ const TripContent = () => {
           )}
         </PostSection>
       </Section>
-      <div ref={loader} />
     </>
   );
 };
