@@ -27,8 +27,9 @@ const WritePostPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [uploadImage, setUploadImage] = useState<string[]>([]);
   const [uploadImageName, setUploadImageName] = useState<string[]>([]);
-  const [uploadImageFile, setUploadImageFile] = useState<FileList>();
-  const [uploadImageType, setUploadImageType] = useState<string[]>([]);
+  const [uploadImageFile, setUploadImageFile] = useState<File[]>([]);
+  // const [uploadImageType, setUploadImageType] = useState<string[]>([]);
+  // const [uploadImageSize, setUploadImageSize] = useState<number[]>([]);
   const [, setCookie] = useCookies(['uid']);
   const loginUID = useRecoilValue(uid);
   const loginUserNickName = useRecoilValue(userInfo);
@@ -63,6 +64,7 @@ const WritePostPage = () => {
 
     try {
       const imageURLList = await uploadImageServer(date);
+
       await setDoc(doc(database, 'posts', 'post' + loginUID + date), {
         UID: loginUID,
         TITLE: title,
@@ -71,7 +73,9 @@ const WritePostPage = () => {
         THUMBNAIL_IMAGE_URL: imageURLList[0],
         IMAGE_URL_LIST: imageURLList,
         IMAGE_NAME_LIST: uploadImageName,
-        IMAGE_TYPE_LIST: uploadImageType,
+        // IMAGE_TYPE_LIST: uploadImageType,
+        // IMAGE_SIZE_LIST: uploadImageSize,
+        CREATED_AT: getDate(),
       });
       navigate(`/post/post${loginUID}${date}`);
     } catch (error) {
@@ -85,21 +89,25 @@ const WritePostPage = () => {
   const handleUploadImages = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files === null) return;
 
-    const uploadImageList = event.target.files;
+    const uploadImageList = Array.from(event.target.files);
     console.log(uploadImageList);
 
     setUploadImageFile(uploadImageList);
 
     const uploadImageNameList = uploadImageName.length === 0 ? [] : [...uploadImageName];
-    const uploadImageTypeList = uploadImageType.length === 0 ? [] : [...uploadImageType];
+    // const uploadImageTypeList = uploadImageType.length === 0 ? [] : [...uploadImageType];
+    // const uploadImageSizeList = uploadImageSize.length === 0 ? [] : [...uploadImageSize];
 
     for (let i = 0; i < uploadImageList.length; i++) {
       uploadImageNameList.push(uploadImageList[i].name);
-      uploadImageTypeList.push(uploadImageList[i].type);
+      // uploadImageTypeList.push(uploadImageList[i].type);
+      // uploadImageSizeList.push(uploadImageList[i].size);
     }
 
     setUploadImageName(uploadImageNameList);
-    setUploadImageType(uploadImageTypeList);
+    // setUploadImageType(uploadImageTypeList);
+    // setUploadImageSize(uploadImageSizeList);
+
     const imageURLList = uploadImage.length === 0 ? [] : [...uploadImage];
 
     for (let i = 0; i < uploadImageList.length; i++) {
@@ -116,15 +124,63 @@ const WritePostPage = () => {
 
     if (uploadImageFile !== undefined) {
       for (let i = 0; i < uploadImageName.length; i++) {
-        const imageRef = `images/${loginUID}${date}/${uploadImageName[i]}`;
+        const imageRef = `images/posts/post${loginUID}${date}/content/${uploadImageName[i]}`;
         const storageRef = ref(storage, imageRef);
+        console.log(uploadImageFile[i]);
         await uploadBytes(storageRef, uploadImageFile[i]);
-        const imageURL = await getDownloadURL(ref(storage, `images/${loginUID}${date}/${uploadImageName[i]}`));
+        const imageURL = await getDownloadURL(ref(storage, `images/posts/post${loginUID}${date}/content/${uploadImageName[i]}`));
         imageURLList.push(imageURL);
       }
     }
 
     return imageURLList;
+  };
+
+  const DeleteImageHandle = (index: number) => {
+    const imageNameList = uploadImageName.map((element) => {
+      return element;
+    });
+
+    const imageURL = uploadImage.map((element) => {
+      return element;
+    });
+    // const imageType = uploadImageType.map((element) => {
+    //   return element;
+    // });
+
+    const imageFile = uploadImageFile.map((element) => {
+      return element;
+    });
+
+    if (index === 0 && imageFile !== undefined) {
+      console.log('asd');
+      imageNameList.shift();
+      imageFile.shift();
+      imageURL.shift();
+      // imageType.shift();
+      setUploadImageName(imageNameList);
+      setUploadImageFile(imageFile);
+      setUploadImage(imageURL);
+      // setUploadImageType(imageType);
+    } else if (index === imageNameList.length - 1) {
+      imageNameList.pop();
+      imageFile.pop();
+      imageURL.pop();
+      // imageType.pop();
+      setUploadImageName(imageNameList);
+      setUploadImageFile(imageFile);
+      setUploadImage(imageURL);
+      // setUploadImageType(imageType);
+    } else {
+      imageNameList.splice(index, 1);
+      imageFile.splice(index, 1);
+      imageURL.splice(index, 1);
+      // imageType.splice(index, 1);
+      setUploadImageName(imageNameList);
+      setUploadImageFile(imageFile);
+      setUploadImage(imageURL);
+      // setUploadImageType(imageType);
+    }
   };
 
   const setCookieHandle = () => {
@@ -160,11 +216,20 @@ const WritePostPage = () => {
                   id="inputFile"
                   multiple
                   onChange={handleUploadImages}
+                  accept=".jpg, .png, .jpeg"
                 />
               </ImageUploadLabel>
               <ImageList>
-                {uploadImageName.map((image) => (
-                  <ImageName>{image}</ImageName>
+                {uploadImageName.map((image, index) => (
+                  <Item key={`${image}${index}`}>
+                    <ImageName>{image}</ImageName>
+                    <BtnImageDelete
+                      type="button"
+                      onClick={() => DeleteImageHandle(index)}
+                    >
+                      X
+                    </BtnImageDelete>
+                  </Item>
                 ))}
               </ImageList>
             </ImageUploadSection>
@@ -273,9 +338,25 @@ const ImageList = styled.div`
   overflow: auto;
 `;
 
+const Item = styled.div`
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--gray-color-1);
+`;
+
+const BtnImageDelete = styled.button`
+  border: none;
+  background-color: var(--white-color-1);
+  padding: 0.6rem 0.8rem;
+  cursor: pointer;
+  border-radius: 0.2rem;
+  &: hover {
+    background-color: var(--gray-color-2);
+  }
+`;
+
 const ImageName = styled.p`
   padding: 0.6rem 0.5rem;
-  border-bottom: 1px solid var(--gray-color-1);
   font-size: 0.9rem;
 `;
 
