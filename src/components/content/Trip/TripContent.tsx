@@ -380,7 +380,7 @@ const Post = styled(Link)`
   height: 22rem;
   color: var(--black-color-1);
 
-  &:hover img {
+  &:hover > img {
     transform: scale(1.1);
   }
 
