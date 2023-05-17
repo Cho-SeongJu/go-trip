@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
-import { collection, getDocs, query, where } from 'firebase/firestore/lite';
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import { DocumentData, collection, getDocs, limit, orderBy, query, startAfter, where } from 'firebase/firestore/lite';
+import { ChangeEvent, FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { database } from '../../../../firebase';
@@ -8,6 +8,8 @@ import { uid } from '../../../store/data';
 import Loading from '../../Loading';
 import { getExpireTime } from '../../../store/date';
 import { useCookies } from 'react-cookie';
+import Area from '../../Area';
+import { filterArea } from '../../../store/area';
 
 interface DataType {
   [key: string]: string;
@@ -18,7 +20,11 @@ const TripContent = () => {
   const [searchKeyword, setSearchKeyword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [posts, setPosts] = useState<DataType[]>([]);
+  const [target, setTarget] = useState('');
+  const [selectedArea, setSelectedArea] = useState<string>('');
+  const [lastVisible, setlastVisible] = useState<DocumentData>();
   const [, setCookie] = useCookies(['uid']);
+  const loader = useRef<HTMLDivElement>(null);
   const userAuth = useRecoilValue(uid);
   const navigate = useNavigate();
 
@@ -32,14 +38,6 @@ const TripContent = () => {
       setCookie('uid', userAuth, { path: '/', expires: expireTime });
       navigate('/writePost');
     }
-  };
-
-  const selecteValueHandle = (e: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedValue(e.target.value);
-  };
-
-  const changeKeywordHandle = (e: ChangeEvent<HTMLInputElement>) => {
-    setSearchKeyword(e.target.value);
   };
 
   const submitHandle = async (e: FormEvent<HTMLFormElement>) => {
@@ -77,15 +75,72 @@ const TripContent = () => {
 
   const getPosts = async () => {
     setLoading(true);
+    // if (posts.length === 0) {
     try {
-      const querySnapShot = await getDocs(collection(database, 'posts'));
+      let firstQuery;
+      if (selectedArea === '전체') {
+        firstQuery = query(collection(database, 'posts'), orderBy('CREATED_AT', 'desc'), limit(15));
+      } else {
+        const key = filterArea[selectedArea];
+        console.log(selectedArea);
+        console.log(key);
+        firstQuery = query(collection(database, 'posts'), where('MAIN_ADDRESS', '==', key), orderBy('CREATED_AT', 'desc'), limit(15));
+      }
+
+      const querySnapShot = await getDocs(firstQuery);
       const data = querySnapShot.docs.map((doc) => ({ ID: doc.id, ...doc.data() }));
       setPosts(data);
+      setlastVisible(querySnapShot.docs[querySnapShot.docs.length - 1]);
     } catch (error) {
       console.log(error);
     } finally {
       setLoading(false);
     }
+    // } else {
+    // console.log(lastVisible);
+    // try {
+    //   const next = query(collection(database, 'posts'), orderBy('CREATED_AT'), startAfter(lastVisible), limit(15));
+    //   const nextDocumentSnapshots = await getDocs(next);
+    //   for (let i = 0; i < nextDocumentSnapshots.docs.length; i++) {
+    //     console.log(nextDocumentSnapshots.docs[i].data());
+    //   }
+    //   const nextData = nextDocumentSnapshots.docs.map((doc) => ({ ID: doc.id, ...doc.data() }));
+    //   setPosts([...posts, ...nextData]);
+    // } catch (error) {
+    //   console.log(error);
+    // } finally {
+    //   setLoading(false);
+    // }
+    // }
+  };
+
+  const infinity = async () => {
+    // const first = query(collection(database, 'posts'), orderBy('CREATE_AT'), limit(2));
+    // const documentSnapshots = await getDocs(first);
+    // for (let i = 0; i < documentSnapshots.docs.length; i++) {
+    //   console.log(documentSnapshots.docs[i].data());
+    // }
+    // console.log(documentSnapshots.docs);
+
+    // const lastVisible = documentSnapshots.docs[documentSnapshots.docs.length - 1];
+    console.log(lastVisible);
+    const next = query(collection(database, 'posts'), orderBy('CREATED_AT'), startAfter(lastVisible), limit(15));
+    try {
+      const nextDocumentSnapshots = await getDocs(next);
+      for (let i = 0; i < nextDocumentSnapshots.docs.length; i++) {
+        console.log(nextDocumentSnapshots.docs[i].data());
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const selecteValueHandle = (e: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedValue(e.target.value);
+  };
+
+  const changeKeywordHandle = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchKeyword(e.target.value);
   };
 
   const setCookieHandle = () => {
@@ -97,9 +152,17 @@ const TripContent = () => {
     getPosts();
   }, []);
 
+  useEffect(() => {
+    getPosts();
+  }, [selectedArea]);
+
   return (
     <>
       <FilterSection>
+        <Area
+          setSelectedArea={setSelectedArea}
+          selectedArea={selectedArea}
+        />
         <SearchFormSection>
           <Form onSubmit={submitHandle}>
             <SelectBoxSection>
@@ -154,8 +217,10 @@ const TripContent = () => {
                 </svg>
               </BtnSearch>
             </SearchKeywordSection>
-            <WritePostButton onClick={CheckAuth}>글쓰기</WritePostButton>
           </Form>
+          <WriteSection>
+            <WritePostButton onClick={CheckAuth}>글쓰기</WritePostButton>
+          </WriteSection>
         </SearchFormSection>
       </FilterSection>
       <Section>
@@ -185,6 +250,7 @@ const TripContent = () => {
           )}
         </PostSection>
       </Section>
+      <div ref={loader} />
     </>
   );
 };
@@ -196,17 +262,18 @@ const Section = styled.div`
 `;
 
 const FilterSection = styled.div`
+  display: flex;
+  justify-content: center;
   position: sticky;
   top: 8.22rem;
-  height: 7rem;
+  height: 8.5rem;
   background-color: var(--white-color-1);
   box-shadow: 1px 3px 5px var(--gray-color-2);
   z-index: 9999;
 `;
 
 const SearchFormSection = styled.div`
-  width: var(--common-width);
-  margin: var(--common-margin);
+  display: flex;
 `;
 
 const SelectBoxSection = styled.div`
@@ -216,8 +283,10 @@ const SelectBoxSection = styled.div`
 const Form = styled.form`
   display: flex;
   float: right;
-  margin-top: 2rem;
-  margin-bottom: 3rem;
+`;
+
+const WriteSection = styled.div`
+  margin: auto 0;
 `;
 
 const Selectbox = styled.select`
@@ -225,7 +294,6 @@ const Selectbox = styled.select`
   font-size: 0.8rem;
   border: 1px solid var(--gray-color-1);
   outline: none;
-
   background-color: #fff;
 `;
 
@@ -270,6 +338,7 @@ const PostSection = styled.div`
   grid-template-columns: 1fr 1fr 1fr;
   flex-wrap: wrap;
   width: var(--common-width);
+  margin-top: 2rem;
 `;
 
 const NonePostsSection = styled.div`
@@ -313,12 +382,13 @@ const Img = styled.img`
   object-fit: contain;
 `;
 
-const Title = styled.p`
+const Title = styled.div`
   margin-top: 1rem;
   margin-bottom: 0.5rem;
   overflow: hidden;
   font-size: 1.1rem;
   font-weight: 500;
+  word-break: break-all;
 `;
 
 const Nickname = styled.p`
