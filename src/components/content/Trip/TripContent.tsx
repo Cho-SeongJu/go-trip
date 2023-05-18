@@ -32,7 +32,7 @@ const TripContent = () => {
   const userAuth = useRecoilValue(uid);
   const navigate = useNavigate();
 
-  const itemsPerPage = 15;
+  const itemsPerPage = 12;
 
   const CheckAuth = () => {
     if (userAuth === 'anonymous') {
@@ -255,7 +255,7 @@ const TripContent = () => {
                       <Count>좋아요 {post.LIKE_COUNT}</Count>
                     </CountSection>
                     <WriterSection>
-                      {post.PROFILE_IMAGE === undefined ? (
+                      {post.PROFILE_IMAGE === '' ? (
                         <svg
                           width="1.7rem"
                           height="1.7rem"
@@ -312,7 +312,7 @@ const TripContent = () => {
 const Section = styled.div`
   margin: var(--common-margin);
   width: var(--common-width);
-  min-height: calc(100vh - 10rem - 3.2rem - 79.981px);
+  min-height: calc(100vh - 10rem - 3.2rem - 216.981px);
 `;
 
 const FilterSection = styled.div`
@@ -485,7 +485,6 @@ const DescriptionSection = styled.div`
 const Img = styled.img`
   width: 20rem;
   height: 15rem;
-  border: 1px solid var(--gray-color-1);
   border-radius: 0.5rem;
   object-fit: contain;
 `;

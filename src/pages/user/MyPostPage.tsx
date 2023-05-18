@@ -21,7 +21,7 @@ const MyPostPage = () => {
   const [itemOffset, setItemOffset] = useState(0);
   const loginUID = useRecoilValue(uid);
 
-  const itemsPerPage = 15;
+  const itemsPerPage = 12;
 
   const getPosts = async () => {
     setLoading(true);
