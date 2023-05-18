@@ -113,9 +113,8 @@ const EditInfoPage = () => {
     try {
       const storage = getStorage();
       const userRef = doc(database, 'users', userID);
-
+      let imageURL = '';
       if (profileExist && profileImageObj.profileImage === '') {
-        console.log('qwe');
         const deleteRef = ref(storage, `images/users/${userID}/${initImageName}`);
 
         await deleteObject(deleteRef);
@@ -126,7 +125,6 @@ const EditInfoPage = () => {
           PROFILE_IMAGE_NAME: '',
         });
       } else if (!profileExist && profileImageObj.profileImage === '') {
-        console.log('asd');
         await updateDoc(userRef, {
           NICKNAME: signUpnickName,
           PROFILE_IMAGE: '',
@@ -139,7 +137,8 @@ const EditInfoPage = () => {
         if (profileImageObj.profileImageFile !== null) {
           await uploadBytes(storageRef, profileImageObj.profileImageFile);
         }
-        const imageURL = await getDownloadURL(ref(storage, `images/users/${userID}/${profileImageObj.profileImageName}`));
+
+        imageURL = await getDownloadURL(ref(storage, `images/users/${userID}/${profileImageObj.profileImageName}`));
 
         await updateDoc(userRef, {
           NICKNAME: signUpnickName,
@@ -162,6 +161,7 @@ const EditInfoPage = () => {
       if (postData.length !== 0) {
         postData.forEach((post: DocumentData) => {
           post.NICKNAME = signUpnickName;
+          post.PROFILE_IMAGE = imageURL === '' ? '' : imageURL;
         });
 
         postData.forEach(async (post) => {
