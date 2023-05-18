@@ -142,7 +142,7 @@ const PostDetailPage = () => {
     }
 
     if (mode === 'edit') {
-      console.log(sessionStorage.getItem('post'));
+      sessionStorage.removeItem('post');
       if (sessionStorage.getItem('post') === null) {
         const sessionPostData = {
           TITLE: postData.TITLE,
