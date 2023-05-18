@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { DocumentData, collection, getDocs, limit, orderBy, query, startAfter, where } from 'firebase/firestore/lite';
+import { DocumentData, Query, collection, getDocs, limit, orderBy, query, startAfter, where } from 'firebase/firestore/lite';
 import { ChangeEvent, FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import { Link, useNavigate } from 'react-router-dom';
@@ -11,6 +11,7 @@ import { getExpireTime } from '../../../store/date';
 import Area from '../../Area';
 import Loading from '../../Loading';
 import ReactPaginate from 'react-paginate';
+import { conditionArr, searchConditionArr } from '../../../store/condition';
 
 interface DataType {
   [key: string]: string;
@@ -22,6 +23,8 @@ const TripContent = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [posts, setPosts] = useState<DataType[]>([]);
   const [selectedArea, setSelectedArea] = useState<string>(areaCondition[0]);
+  const [selectedCondition, setSelectedCondition] = useState<string>(conditionArr[0]);
+  const [openConditionList, setOpenConditionList] = useState<boolean>(false);
   const [currentPost, setCurrentPost] = useState<DocumentData>([]);
   const [pageCount, setPageCount] = useState(0);
   const [itemOffset, setItemOffset] = useState(0);
@@ -29,7 +32,6 @@ const TripContent = () => {
   const userAuth = useRecoilValue(uid);
   const navigate = useNavigate();
 
-  const searchConditionArr = ['글제목', '작성자'];
   const itemsPerPage = 15;
 
   const CheckAuth = () => {
@@ -76,18 +78,32 @@ const TripContent = () => {
 
   const getPosts = async () => {
     setLoading(true);
+    let firstQuery;
     try {
-      let firstQuery;
       if (selectedArea === '전체') {
-        firstQuery = query(collection(database, 'posts'), orderBy('CREATED_AT', 'desc'));
+        if (selectedCondition === '전체') {
+          firstQuery = query(collection(database, 'posts'), orderBy('CREATED_AT', 'desc'));
+        } else if (selectedCondition === '조회수') {
+          firstQuery = query(collection(database, 'posts'), orderBy('INQUIRE_COUNT', 'desc'));
+        } else if (selectedCondition === '좋아요수') {
+          firstQuery = query(collection(database, 'posts'), orderBy('LIKE_COUNT', 'desc'));
+        }
       } else {
         const key = filterArea[selectedArea];
-        firstQuery = query(collection(database, 'posts'), where('MAIN_ADDRESS', '==', key), orderBy('CREATED_AT', 'desc'));
+        if (selectedCondition === '전체') {
+          firstQuery = query(collection(database, 'posts'), where('MAIN_ADDRESS', '==', key), orderBy('CREATED_AT', 'desc'));
+        } else if (selectedCondition === '조회수') {
+          firstQuery = query(collection(database, 'posts'), where('MAIN_ADDRESS', '==', key), orderBy('INQUIRE_COUNT', 'desc'));
+        } else if (selectedCondition === '좋아요수') {
+          firstQuery = query(collection(database, 'posts'), where('MAIN_ADDRESS', '==', key), orderBy('LIKE_COUNT', 'desc'));
+        }
       }
 
-      const querySnapShot = await getDocs(firstQuery);
-      const data = querySnapShot.docs.map((doc) => ({ ID: doc.id, ...doc.data() }));
-      setPosts(data);
+      if (firstQuery !== undefined) {
+        const querySnapShot = await getDocs(firstQuery);
+        const data = querySnapShot.docs.map((doc) => ({ ID: doc.id, ...doc.data() }));
+        setPosts(data);
+      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -101,6 +117,10 @@ const TripContent = () => {
 
   const changeKeywordHandle = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchKeyword(e.target.value);
+  };
+
+  const selectConditionHandle = (condition: string) => {
+    setSelectedCondition(condition);
   };
 
   const setCookieHandle = () => {
@@ -121,7 +141,7 @@ const TripContent = () => {
 
   const getData = useCallback(async () => {
     getPosts();
-  }, [selectedArea]);
+  }, [selectedArea, selectedCondition]);
 
   useEffect(() => {
     getData();
@@ -193,9 +213,25 @@ const TripContent = () => {
             <WritePostButton onClick={CheckAuth}>글쓰기</WritePostButton>
           </WriteSection>
         </SearchFormSection>
+        <ConditionSection>
+          <SelectedConditionSection onClick={() => (openConditionList ? setOpenConditionList(false) : setOpenConditionList(true))}>
+            <SelectedCondition>{selectedCondition}</SelectedCondition>
+            {openConditionList && (
+              <ConditionList>
+                {conditionArr.map((condition) => (
+                  <Condition
+                    key={condition}
+                    onClick={() => selectConditionHandle(condition)}
+                  >
+                    {condition}
+                  </Condition>
+                ))}
+              </ConditionList>
+            )}
+          </SelectedConditionSection>
+        </ConditionSection>
       </FilterSection>
       <Section>
-        <div>전체 좋아요</div>
         <PostSection>
           {loading ? (
             <Loading display="flex" />
@@ -348,6 +384,59 @@ const WritePostButton = styled.button`
 
   &: hover {
     opacity: 0.8;
+  }
+`;
+
+const ConditionSection = styled.div`
+  display: flex;
+  align-items: center;
+  width: 8rem;
+`;
+
+const SelectedConditionSection = styled.div`
+  margin: auto 0;
+  margin-left: 2rem;
+  width: 5rem;
+  height: 2.4rem;
+`;
+
+const SelectedCondition = styled.p`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 5rem;
+  height: 2.4rem;
+  border: 1px solid var(--gray-color-2);
+  border-radius: 0.3rem;
+  border-top-left-radius: 0.3rem;
+  border-top-right-radius: 0.3rem;
+  cursor: pointer;
+`;
+
+const ConditionList = styled.div`
+  width: 5rem;
+  border: 1px solid var(--gray-color-2);
+  border-top: none;
+`;
+
+const Condition = styled.p`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 5rem;
+  height: 2rem;
+  border-bottom: 1px solid var(--gray-color-2);
+  font-size: 0.9rem;
+  cursor: pointer;
+  background-color: var(--white-color-1);
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: var(--blue-sky-color-1);
+    color: var(--white-color-1);
   }
 `;
 
