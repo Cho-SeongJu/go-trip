@@ -223,6 +223,7 @@ const EditPostPage = () => {
   const setCookieHandle = () => {
     const expireTime = getExpireTime();
     setCookie('uid', loginUID, { path: '/', expires: expireTime });
+    navigate('/');
   };
 
   useEffect(() => {
@@ -333,8 +334,13 @@ const EditPostPage = () => {
               <SelectArea onClick={() => onClickSelectAreaHandle('main')}>{init ? (postData.MAIN_ADDRESS !== '' ? postData.MAIN_ADDRESS : sessionPost.MAIN_ADDRESS) : selectedMainArea}</SelectArea>
               {open && (
                 <MainAreaList>
-                  {mainAreaList.map((area) => (
-                    <Area onClick={() => changeSelectedMainArea(area)}>{area}</Area>
+                  {mainAreaList.map((area, index) => (
+                    <Area
+                      key={area + index}
+                      onClick={() => changeSelectedMainArea(area)}
+                    >
+                      {area}
+                    </Area>
                   ))}
                 </MainAreaList>
               )}
@@ -346,9 +352,9 @@ const EditPostPage = () => {
               {secondOpen && (
                 <MainAreaList>
                   {init
-                    ? secondAreaList[postData.MAIN_ADDRESS !== '' ? postData.MAIN_ADDRESS : sessionPost.MAIN_ADDRESS].map((area) => (
+                    ? secondAreaList[postData.MAIN_ADDRESS !== '' ? postData.MAIN_ADDRESS : sessionPost.MAIN_ADDRESS].map((area, index) => (
                         <Area
-                          // onClick={() => ()}
+                          key={area + index}
                           onClick={() => changeSelectedSecondArea(area)}
                         >
                           {area}

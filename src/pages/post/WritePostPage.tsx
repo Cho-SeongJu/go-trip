@@ -240,6 +240,7 @@ const WritePostPage = () => {
   const setCookieHandle = () => {
     const expireTime = getExpireTime();
     setCookie('uid', loginUID, { path: '/', expires: expireTime });
+    navigate('/');
   };
 
   return (
@@ -325,8 +326,13 @@ const WritePostPage = () => {
               <SelectArea onClick={() => onClickSelectAreaHandle('main')}>{selectedMainArea}</SelectArea>
               {open && (
                 <MainAreaList>
-                  {mainAreaList.map((area) => (
-                    <Area onClick={() => changeSelectedMainArea(area)}>{area}</Area>
+                  {mainAreaList.map((area, index) => (
+                    <Area
+                      key={area + index}
+                      onClick={() => changeSelectedMainArea(area)}
+                    >
+                      {area}
+                    </Area>
                   ))}
                 </MainAreaList>
               )}
@@ -335,9 +341,9 @@ const WritePostPage = () => {
               <SecondSelectArea onClick={() => onClickSelectAreaHandle('second')}>{selectedSecondArea ? selectedSecondArea : secondAreaList[selectedMainArea][0]}</SecondSelectArea>
               {secondOpen && (
                 <MainAreaList>
-                  {secondAreaList[selectedMainArea].map((area) => (
+                  {secondAreaList[selectedMainArea].map((area, index) => (
                     <Area
-                      // onClick={() => ()}
+                      key={area + index}
                       onClick={() => changeSelectedSecondArea(area)}
                     >
                       {area}
@@ -528,7 +534,7 @@ const SelectedAreaSection = styled.div`
 
 const MainAreaList = styled.div`
   width: 8rem;
-  height: 15rem;
+  height: 11rem;
   overflow: auto;
   border-left: 1px solid var(--gray-color-2);
   border-right: 1px solid var(--gray-color-2);
@@ -561,7 +567,6 @@ const Area = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 8rem;
   height: 2.7rem;
   border-bottom: 1px solid var(--gray-color-2);
   font-size: 0.9rem;
