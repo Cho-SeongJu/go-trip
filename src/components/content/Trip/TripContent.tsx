@@ -57,10 +57,45 @@ const TripContent = () => {
     try {
       const postRef = collection(database, 'posts');
       let q;
+
       if (selectedValue === '글제목') {
-        q = query(postRef, where('TITLE', '==', searchKeyword));
+        if (selectedArea === '전체') {
+          if (selectedCondition === '전체') {
+            q = query(postRef, where('TITLE', '==', searchKeyword), orderBy('CREATED_AT', 'desc'));
+          } else if (selectedCondition === '조회수') {
+            q = query(postRef, where('TITLE', '==', searchKeyword), orderBy('INQUIRE_COUNT', 'desc'));
+          } else if (selectedCondition === '좋아요수') {
+            q = query(postRef, where('TITLE', '==', searchKeyword), orderBy('LIKE_COUNT', 'desc'));
+          }
+        } else {
+          const key = filterArea[selectedArea];
+          if (selectedCondition === '전체') {
+            q = query(postRef, where('TITLE', '==', searchKeyword), where('MAIN_ADDRESS', '==', key), orderBy('CREATED_AT', 'desc'));
+          } else if (selectedCondition === '조회수') {
+            q = query(postRef, where('TITLE', '==', searchKeyword), where('MAIN_ADDRESS', '==', key), orderBy('INQUIRE_COUNT', 'desc'));
+          } else if (selectedCondition === '좋아요수') {
+            q = query(postRef, where('TITLE', '==', searchKeyword), where('MAIN_ADDRESS', '==', key), orderBy('LIKE_COUNT', 'desc'));
+          }
+        }
       } else if (selectedValue === '작성자') {
-        q = query(postRef, where('NICKNAME', '==', searchKeyword));
+        if (selectedArea === '전체') {
+          if (selectedCondition === '전체') {
+            q = query(postRef, where('NICKNAME', '==', searchKeyword), orderBy('CREATED_AT', 'desc'));
+          } else if (selectedCondition === '조회수') {
+            q = query(postRef, where('NICKNAME', '==', searchKeyword), orderBy('INQUIRE_COUNT', 'desc'));
+          } else if (selectedCondition === '좋아요수') {
+            q = query(postRef, where('NICKNAME', '==', searchKeyword), orderBy('LIKE_COUNT', 'desc'));
+          }
+        } else {
+          const key = filterArea[selectedArea];
+          if (selectedCondition === '전체') {
+            q = query(postRef, where('NICKNAME', '==', searchKeyword), where('MAIN_ADDRESS', '==', key), orderBy('CREATED_AT', 'desc'));
+          } else if (selectedCondition === '조회수') {
+            q = query(postRef, where('NICKNAME', '==', searchKeyword), where('MAIN_ADDRESS', '==', key), orderBy('INQUIRE_COUNT', 'desc'));
+          } else if (selectedCondition === '좋아요수') {
+            q = query(postRef, where('NICKNAME', '==', searchKeyword), where('MAIN_ADDRESS', '==', key), orderBy('LIKE_COUNT', 'desc'));
+          }
+        }
       }
 
       if (q !== undefined) {
