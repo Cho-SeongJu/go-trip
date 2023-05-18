@@ -20,6 +20,16 @@ interface ColorPropsType {
   color: string;
 }
 
+interface SessionPostDataType {
+  TITLE: string;
+  CONTENT: string;
+  IMAGE_NAME_LIST: string[];
+  IMAGE_URL_LIST: string[];
+  MAIN_ADDRESS: string;
+  SECOND_ADDRESS: string;
+  DETAIL_ADDRESS: string;
+}
+
 const PostDetailPage = () => {
   const { postID } = useParams();
   const [loading, setLoading] = useState<boolean>(false);
@@ -132,6 +142,19 @@ const PostDetailPage = () => {
     }
 
     if (mode === 'edit') {
+      console.log(sessionStorage.getItem('post'));
+      if (sessionStorage.getItem('post') === null) {
+        const sessionPostData = {
+          TITLE: postData.TITLE,
+          CONTENT: postData.CONTENT,
+          IMAGE_NAME_LIST: postData.IMAGE_NAME_LIST,
+          IMAGE_URL_LIST: postData.IMAGE_URL_LIST,
+          MAIN_ADDRESS: postData.MAIN_ADDRESS,
+          SECOND_ADDRESS: postData.SECOND_ADDRESS,
+          DETAIL_ADDRESS: postData.DETAIL_ADDRESS,
+        };
+        sessionStorage.setItem('post', JSON.stringify(sessionPostData));
+      }
       navigate(`/post/edit/${postID}`);
     } else if (mode === 'delete') {
       const confirmResult = confirm('삭제하시겠습니까?');
@@ -206,11 +229,6 @@ const PostDetailPage = () => {
     }
 
     const copyCommentDisabled: boolean[] = [];
-
-    if (loginUser === 'anonymous') {
-      navigate('/user/login');
-      return;
-    }
 
     if (mode === 'edit') {
       commentDisabled.forEach((element) => {

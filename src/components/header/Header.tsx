@@ -18,7 +18,7 @@ const Header = () => {
 
   useEffect(() => {
     userUID === 'anonymous' ? setLoginState(false) : setLoginState(true);
-  }, [userUID, loginUserInfo]);
+  }, [userUID]);
 
   const logout = () => {
     const logoutConfirm = confirm('로그아웃을 하시겠습니까?');

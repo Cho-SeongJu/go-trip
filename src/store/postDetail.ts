@@ -10,6 +10,9 @@ const dataObj: DocumentData = {
   TITLE: '',
   UID: '',
   IMAGE_TYPE_LIST: [],
+  MAIN_ADDRESS: '',
+  SECOND_ADDRESS: '',
+  DETAIL_ADDRESS: '',
 };
 
 export const postDetailData = atom({

@@ -51,6 +51,11 @@ const EditPostPage = () => {
   const postData = useRecoilValue(postDetailData);
   const { postID } = useParams();
   const navigate = useNavigate();
+  const getSessionPost = sessionStorage.getItem('post');
+  if (!getSessionPost) {
+    throw new Error('No saved getSessionPost');
+  }
+  const sessionPost = JSON.parse(getSessionPost);
 
   const formSchema = yup.object({
     title: yup.string().required('제목 입력은 필수입니다.').min(6, '최소 6자 필수 입력입니다.').max(80, '최대 80자까지 입력 가능합니다.'),
@@ -103,6 +108,8 @@ const EditPostPage = () => {
         SECOND_ADDRESS: selectedSecondArea,
         DETAIL_ADDRESS: getValues().detailAddress,
       });
+
+      sessionStorage.removeItem('post');
       navigate(`/post/${postID}`);
     } catch (error) {
       console.log(error);
@@ -225,13 +232,21 @@ const EditPostPage = () => {
   }, [watchTitle]);
 
   useEffect(() => {
-    setUploadImage(postData.IMAGE_URL_LIST);
-    setTitleLength(postData.TITLE.length);
-    setUploadImageName(postData.IMAGE_NAME_LIST);
+    if (postData.TITLE === '') {
+      setUploadImage(sessionPost.IMAGE_URL_LIST);
+      setTitleLength(sessionPost.TITLE.length);
+      setUploadImageName(sessionPost.IMAGE_NAME_LIST);
+      setSelectedMainArea(String(sessionPost.MAIN_ADDRESS));
+      setSelectedSecondArea(String(sessionPost.SECOND_ADDRESS));
+    } else {
+      setUploadImage(postData.IMAGE_URL_LIST);
+      setTitleLength(postData.TITLE.length);
+      setUploadImageName(postData.IMAGE_NAME_LIST);
+      setSelectedMainArea(String(postData.MAIN_ADDRESS));
+      setSelectedSecondArea(String(postData.SECOND_ADDRESS));
+    }
     setMainAreaList(areaArr);
     setSecondAreaList(areaObj);
-    setSelectedMainArea(String(postData.MAIN_ADDRESS));
-    setSelectedSecondArea(String(postData.SECOND_ADDRESS));
   }, []);
 
   return (
@@ -245,7 +260,7 @@ const EditPostPage = () => {
               placeholder="제목을 입력하세요."
               id="title"
               {...register('title')}
-              defaultValue={postData.TITLE}
+              defaultValue={postData.TITLE !== '' ? postData.TITLE : sessionPost.TITLE}
             />
             <TitleLength>{titleLength} / 80</TitleLength>
           </TitleSection>
@@ -315,7 +330,7 @@ const EditPostPage = () => {
           </Label>
           <AreaSelectSection>
             <SelectedAreaSection>
-              <SelectArea onClick={() => onClickSelectAreaHandle('main')}>{init ? postData.MAIN_ADDRESS : selectedMainArea}</SelectArea>
+              <SelectArea onClick={() => onClickSelectAreaHandle('main')}>{init ? (postData.MAIN_ADDRESS !== '' ? postData.MAIN_ADDRESS : sessionPost.MAIN_ADDRESS) : selectedMainArea}</SelectArea>
               {open && (
                 <MainAreaList>
                   {mainAreaList.map((area) => (
@@ -326,12 +341,12 @@ const EditPostPage = () => {
             </SelectedAreaSection>
             <SelectedAreaSection>
               <SecondSelectArea onClick={() => onClickSelectAreaHandle('second')}>
-                {init ? postData.SECOND_ADDRESS : selectedSecondArea ? selectedSecondArea : secondAreaList[selectedMainArea][0]}
+                {init ? (postData.SECOND_ADDRESS !== '' ? postData.SECOND_ADDRESS : sessionPost.SECOND_ADDRESS) : selectedSecondArea ? selectedSecondArea : secondAreaList[selectedMainArea][0]}
               </SecondSelectArea>
               {secondOpen && (
                 <MainAreaList>
                   {init
-                    ? secondAreaList[postData.MAIN_ADDRESS].map((area) => (
+                    ? secondAreaList[postData.MAIN_ADDRESS !== '' ? postData.MAIN_ADDRESS : sessionPost.MAIN_ADDRESS].map((area) => (
                         <Area
                           // onClick={() => ()}
                           onClick={() => changeSelectedSecondArea(area)}
@@ -355,7 +370,7 @@ const EditPostPage = () => {
             type="text"
             placeholder="상세주소"
             {...register('detailAddress')}
-            defaultValue={postData.DETAIL_ADDRESS}
+            defaultValue={postData.DETAIL_ADDRESS !== '' ? postData.DETAIL_ADDRESS : sessionPost.DETAIL_ADDRESS}
           />
           {errors.detailAddress ? <ErrorMessage role="alert">{errors.detailAddress.message}</ErrorMessage> : errorMsg.length !== 0 && <ErrorMessage role="alert">{errorMsg}</ErrorMessage>}
           <TextareaAutosize
@@ -364,7 +379,7 @@ const EditPostPage = () => {
             rows={1}
             placeholder="내용을 입력하세요."
             id="content"
-            defaultValue={postData.CONTENT}
+            defaultValue={postData.CONTENT !== '' ? postData.CONTENT : sessionPost.CONTENT}
             {...register('content')}
           />
           {errors.content && <ErrorMessage role="alert">{errors.content.message}</ErrorMessage>}
@@ -531,7 +546,7 @@ const SelectedAreaSection = styled.div`
 const MainAreaList = styled.div`
   width: 8rem;
   height: 15rem;
-  overflow: auto
+  overflow: auto;
   border-left: 1px solid var(--gray-color-2);
   border-right: 1px solid var(--gray-color-2);
   border-bottom: 1px solid var(--gray-color-2);
