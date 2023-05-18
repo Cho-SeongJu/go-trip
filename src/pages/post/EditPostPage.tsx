@@ -110,6 +110,8 @@ const EditPostPage = () => {
       });
 
       sessionStorage.removeItem('post');
+      const expireTime = getExpireTime();
+      setCookie('uid', loginUID, { path: '/', expires: expireTime });
       navigate(`/post/${postID}`);
     } catch (error) {
       console.log(error);
@@ -391,7 +393,6 @@ const EditPostPage = () => {
           {errors.content && <ErrorMessage role="alert">{errors.content.message}</ErrorMessage>}
           <ButtonSection>
             <Button
-              onClick={setCookieHandle}
               color="var(--blue-sky-color-1)"
               type="submit"
             >

@@ -127,6 +127,9 @@ const WritePostPage = () => {
         LIKE_COUNT: 0,
         CREATED_AT: getDate(),
       });
+
+      const expireTime = getExpireTime();
+      setCookie('uid', loginUID, { path: '/', expires: expireTime });
       navigate(`/post/post${loginUID}${date}`);
     } catch (error) {
       console.log(error);
@@ -279,7 +282,7 @@ const WritePostPage = () => {
                   <Item key={`${image}${index}`}>
                     <ImageName>{image}</ImageName>
                     <BtnImageDelete
-                      type="button"
+                      role="button"
                       onClick={() => DeleteImageHandle(index)}
                     >
                       X
@@ -357,8 +360,6 @@ const WritePostPage = () => {
             type="text"
             placeholder="상세주소"
             {...register('detailAddress')}
-            // onChange={onChangeDetailAddressHandle}
-            // onBlur={checkArea}
           />
           {errors.detailAddress ? <ErrorMessage role="alert">{errors.detailAddress.message}</ErrorMessage> : errorMsg.length !== 0 && <ErrorMessage role="alert">{errorMsg}</ErrorMessage>}
           <TextareaAutosize
@@ -372,15 +373,14 @@ const WritePostPage = () => {
           {errors.content && <ErrorMessage role="alert">{errors.content.message}</ErrorMessage>}
           <ButtonSection>
             <Button
-              onClick={setCookieHandle}
-              color="var(--blue-sky-color-1)"
               type="submit"
+              color="var(--blue-sky-color-1)"
             >
               저장
             </Button>
             <Button
-              onClick={setCookieHandle}
               type="button"
+              onClick={setCookieHandle}
               color="var(--gray-color-3)"
             >
               취소
@@ -486,7 +486,7 @@ const Item = styled.div`
   border-bottom: 1px solid var(--gray-color-1);
 `;
 
-const BtnImageDelete = styled.button`
+const BtnImageDelete = styled.div`
   border: none;
   background-color: var(--white-color-1);
   padding: 0.6rem 0.8rem;
