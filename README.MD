@@ -33,15 +33,15 @@
 ## 💻 프로젝트 세팅
 
 - yarn add react@rc react-dom@rc
+- npm install firebase
+- npm install recoil
 - npm install @emotion/styled @emotion/react
 - npm install react-router-dom
-- npm install react-hook-useform
-- npm install firebase
+- npm install react-hook-form
 - npm install yup
 - npm install @hookform/resolvers
 - npm install react-spinners --save
 - yarn add react-cookie
 - npm install react-textarea-autosize
 - npm install react-responsive-carousel
-- npm install react-hook-form
 - npm install react-paginate
