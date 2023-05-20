@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
 import { Link } from 'react-router-dom';
+import logo from '../../public/logo.svg';
 import { useCookies } from 'react-cookie';
 import { uid } from '../store/data';
 import { useRecoilValue } from 'recoil';
@@ -20,7 +21,7 @@ const Logo = () => {
         <HomeLink
           onClick={setCookieHandle}
           to="/"
-        />
+        ></HomeLink>
       </Heading>
     </>
   );
@@ -37,7 +38,7 @@ const HomeLink = styled(Link)`
   height: 2.8rem;
   font-size: 2rem;
   text-indent: -9999px;
-  background-image: url('./public/logo.svg');
+  background-image: url(${logo});
   background-size: contain;
   background-repeat: no-repeat;
   cursor: pointer;
