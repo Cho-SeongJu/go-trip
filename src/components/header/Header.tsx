@@ -6,7 +6,7 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { auth } from '../../../firebase';
 import { uid, userInfo } from '../../store/data';
 import { getExpireTime } from '../../store/date';
-import Logo from '../Logo';
+import logo from '../../../public/logo.svg';
 
 const Header = () => {
   const [loginState, setLoginState] = useState<boolean>();
@@ -50,7 +50,12 @@ const Header = () => {
     <>
       <HeaderSection>
         <DetailSection>
-          <Logo />
+          <Heading>
+            <HomeLink
+              onClick={setCookieHandle}
+              to="/"
+            />
+          </Heading>
           <LoginSingUpLinkSection>
             {loginUserInfo['NICKNAME'] !== 'anonymous' && (
               <WelcomePharse>
@@ -90,6 +95,23 @@ const DetailSection = styled.div`
   margin: var(--common-margin);
   max-width: var(--common-width);
   padding: 1rem 0;
+`;
+
+const Heading = styled.h1`
+  width: 8rem;
+  height: 2.8rem;
+`;
+
+const HomeLink = styled(Link)`
+  display: block;
+  width: 8rem;
+  height: 2.8rem;
+  font-size: 2rem;
+  text-indent: -9999px;
+  cursor: pointer;
+  background-image: url(${logo});
+  background-size: contain;
+  background-repeat: no-repeat;
 `;
 
 const LoginSingUpLinkSection = styled.div`
