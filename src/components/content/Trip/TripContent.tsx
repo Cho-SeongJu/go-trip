@@ -244,9 +244,6 @@ const TripContent = () => {
               </BtnSearch>
             </SearchKeywordSection>
           </Form>
-          <WriteSection>
-            <WritePostButton onClick={CheckAuth}>글쓰기</WritePostButton>
-          </WriteSection>
         </SearchFormSection>
         <ConditionSection>
           <SelectedConditionSection onClick={() => (openConditionList ? setOpenConditionList(false) : setOpenConditionList(true))}>
@@ -267,6 +264,9 @@ const TripContent = () => {
         </ConditionSection>
       </FilterSection>
       <Section>
+        <WriteSection>
+          <WritePostButton onClick={CheckAuth}>글쓰기</WritePostButton>
+        </WriteSection>
         <PostSection>
           {loading ? (
             <Loading display="flex" />
@@ -375,7 +375,24 @@ const Form = styled.form`
 `;
 
 const WriteSection = styled.div`
-  margin: auto 0;
+  display: flex;
+  flex-direction: row-reverse;
+  min-width: var(--common-post-width);
+`;
+
+const WritePostButton = styled.button`
+  margin-top: 1.5rem;
+  margin-right: 2rem;
+  padding: 0.7rem 1rem;
+  background-color: var(--blue-sky-color-1);
+  color: var(--white-color-1);
+  border: none;
+  border-radius: 0.2rem;
+  cursor: pointer;
+
+  &: hover {
+    opacity: 0.8;
+  }
 `;
 
 const Selectbox = styled.select`
@@ -406,20 +423,6 @@ const BtnSearch = styled.button`
   border: none;
   background-color: var(--white-color-1);
   cursor: pointer;
-`;
-
-const WritePostButton = styled.button`
-  margin-left: 3rem;
-  padding: 0.7rem 1rem;
-  background-color: var(--blue-sky-color-1);
-  color: var(--white-color-1);
-  border: none;
-  border-radius: 0.2rem;
-  cursor: pointer;
-
-  &: hover {
-    opacity: 0.8;
-  }
 `;
 
 const ConditionSection = styled.div`
