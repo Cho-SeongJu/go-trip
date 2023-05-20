@@ -1,18 +1,18 @@
 import styled from '@emotion/styled';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { EmailAuthProvider, getAuth, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import * as yup from 'yup';
 import BtnSubmit from '../../components/BtnSubmit';
+import Loading from '../../components/Loading';
 import ErrorMessage from '../../components/errorMessage/ErrorMesage';
 import Footer from '../../components/footer/Footer';
 import Header from '../../components/header/Header';
 import Tab from '../../components/tab/Tab';
-import { ErrorType, FormValueType } from '../../type/type';
-import Loading from '../../components/Loading';
 import { myPagemenu } from '../../store/menu';
+import { ErrorType, FormValueType } from '../../type/type';
 
 interface SignUpType extends FormValueType {
   currentPassword: string;
