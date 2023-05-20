@@ -15,7 +15,7 @@
 
 <!-- ## 🚀 Demo -->
 
-## 배포사이트
+## 🔎 배포사이트
 
 **https://go-trip.vercel.app/**
 
