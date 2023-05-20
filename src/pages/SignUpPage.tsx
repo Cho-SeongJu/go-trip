@@ -4,14 +4,18 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore/lite';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import * as yup from 'yup';
 import { auth, database } from '../../firebase';
 import BtnSubmit from '../components/BtnSubmit';
 import Loading from '../components/Loading';
-import Logo from '../components/Logo';
+import logo from '../../public/logo.svg';
 import ErrorMessage from '../components/errorMessage/ErrorMesage';
 import { ErrorType, FormValueType } from '../type/type';
+import { getExpireTime } from '../store/date';
+import { useCookies } from 'react-cookie';
+import { uid } from '../store/data';
+import { useRecoilValue } from 'recoil';
 
 interface SignUpType extends FormValueType {
   address: string;
@@ -23,6 +27,8 @@ const SignUpPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [checkEmailResultMsg, setCheckEmailResultMsg] = useState<string>('');
   const [checkNickNameResultMsg, setCheckNickNameResultMsg] = useState<string>('');
+  const [, setCookie] = useCookies(['uid']);
+  const userId = useRecoilValue(uid);
   const navigate = useNavigate();
 
   const formSchema = yup.object({
@@ -156,11 +162,26 @@ const SignUpPage = () => {
     }
   };
 
+  const setCookieHandle = () => {
+    const expireTime = getExpireTime();
+    setCookie('uid', userId, { path: '/', expires: expireTime });
+  };
+
   return (
     <>
       <SignUpSection display={loading ? '' : 'block'}>
         <LogoSection>
-          <Logo />
+          <LogoHeading>
+            <HomeLink
+              onClick={setCookieHandle}
+              to="/"
+            >
+              <img
+                src={logo}
+                alt=""
+              />
+            </HomeLink>
+          </LogoHeading>
         </LogoSection>
         <Heading>회원가입</Heading>
         <Form onSubmit={handleSubmit(onSubmit)}>
@@ -221,6 +242,23 @@ const LogoSection = styled.div`
   justify-content: center;
   margin-top: 5rem;
   width: 20rem;
+`;
+
+const LogoHeading = styled.h1`
+  width: 8rem;
+  height: 2.8rem;
+`;
+
+const HomeLink = styled(Link)`
+  display: block;
+  width: 8rem;
+  height: 2.8rem;
+  font-size: 2rem;
+  text-indent: -9999px;
+  background-image: url(${logo});
+  background-size: contain;
+  background-repeat: no-repeat;
+  cursor: pointer;
 `;
 
 const Heading = styled.h1`

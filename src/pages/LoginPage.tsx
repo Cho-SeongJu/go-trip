@@ -5,10 +5,10 @@ import { useState } from 'react';
 import { useCookies } from 'react-cookie';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { auth, database } from '../../firebase';
 import BtnSubmit from '../components/BtnSubmit';
-import Logo from '../components/Logo';
+import logo from '../../public/logo.svg';
 import ErrorMessage from '../components/errorMessage/ErrorMesage';
 import { uid, userInfo } from '../store/data';
 import { ErrorType, FormValueType } from '../type/type';
@@ -22,6 +22,7 @@ const LoginPage = () => {
   const [clickLoginBtn, setClickLoginBtn] = useState<boolean>(false);
   const setLoginUserInfo = useSetRecoilState(userInfo);
   const setUID = useSetRecoilState(uid);
+  const userId = useRecoilValue(uid);
   const navigate = useNavigate();
 
   const {
@@ -130,10 +131,25 @@ const LoginPage = () => {
     }
   };
 
+  const setCookieHandle = () => {
+    const expireTime = getExpireTime();
+    setCookie('uid', userId, { path: '/', expires: expireTime });
+  };
+
   return (
     <>
       <LoginSection>
-        <Logo />
+        <Heading>
+          <HomeLink
+            onClick={setCookieHandle}
+            to="/"
+          >
+            <img
+              src={logo}
+              alt=""
+            />
+          </HomeLink>
+        </Heading>
         <Form onSubmit={handleSubmit(login)}>
           <InputBox
             type="text"
@@ -196,6 +212,23 @@ const LoginSection = styled.div`
   align-items: center;
   width: 50rem;
   margin: 12rem auto 0;
+`;
+
+const Heading = styled.h1`
+  width: 8rem;
+  height: 2.8rem;
+`;
+
+const HomeLink = styled(Link)`
+  display: block;
+  width: 8rem;
+  height: 2.8rem;
+  font-size: 2rem;
+  text-indent: -9999px;
+  background-image: url(${logo});
+  background-size: contain;
+  background-repeat: no-repeat;
+  cursor: pointer;
 `;
 
 const Form = styled.form`

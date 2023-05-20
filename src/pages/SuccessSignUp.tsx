@@ -1,12 +1,34 @@
 import styled from '@emotion/styled';
-import Logo from '../components/Logo';
+import logo from '../../public/logo.svg';
 import { Link } from 'react-router-dom';
+import { useCookies } from 'react-cookie';
+import { uid } from '../store/data';
+import { useRecoilValue } from 'recoil';
+import { getExpireTime } from '../store/date';
 
 const SuccessSignUp = () => {
+  const [, setCookie] = useCookies(['uid']);
+  const userId = useRecoilValue(uid);
+
+  const setCookieHandle = () => {
+    const expireTime = getExpireTime();
+    setCookie('uid', userId, { path: '/', expires: expireTime });
+  };
+
   return (
     <>
       <Section>
-        <Logo />
+        <Heading>
+          <HomeLink
+            onClick={setCookieHandle}
+            to="/"
+          >
+            <img
+              src={logo}
+              alt=""
+            />
+          </HomeLink>
+        </Heading>
         <PharseSection>
           <WelcomePharse>환영합니다 !</WelcomePharse>
           <Pharse>회원가입을 축하드립니다.</Pharse>
@@ -28,6 +50,23 @@ const Section = styled.div`
   align-items: center;
   width: 100vw;
   height: 100vh;
+`;
+
+const Heading = styled.h1`
+  width: 8rem;
+  height: 2.8rem;
+`;
+
+const HomeLink = styled(Link)`
+  display: block;
+  width: 8rem;
+  height: 2.8rem;
+  font-size: 2rem;
+  text-indent: -9999px;
+  background-image: url(${logo});
+  background-size: contain;
+  background-repeat: no-repeat;
+  cursor: pointer;
 `;
 
 const PharseSection = styled.div`
