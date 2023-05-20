@@ -12,7 +12,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": ["react/next", "react-dom/next", "./node_modules/@types", "./src/type"],
+    "types": ["react/next", "react-dom/next"],
 
     /* Linting */
     "strict": true,
