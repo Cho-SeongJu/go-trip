@@ -1,17 +1,17 @@
 import styled from '@emotion/styled';
-import { DocumentData, Query, collection, getDocs, limit, orderBy, query, startAfter, where } from 'firebase/firestore/lite';
-import { ChangeEvent, FormEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { DocumentData, collection, getDocs, orderBy, query, where } from 'firebase/firestore/lite';
+import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
+import ReactPaginate from 'react-paginate';
 import { Link, useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { database } from '../../../../firebase';
 import { areaCondition, filterArea } from '../../../store/area';
+import { conditionArr, searchConditionArr } from '../../../store/condition';
 import { uid } from '../../../store/data';
 import { getExpireTime } from '../../../store/date';
 import Area from '../../Area';
 import Loading from '../../Loading';
-import ReactPaginate from 'react-paginate';
-import { conditionArr, searchConditionArr } from '../../../store/condition';
 
 interface DataType {
   [key: string]: string;

@@ -20,16 +20,6 @@ interface ColorPropsType {
   color: string;
 }
 
-interface SessionPostDataType {
-  TITLE: string;
-  CONTENT: string;
-  IMAGE_NAME_LIST: string[];
-  IMAGE_URL_LIST: string[];
-  MAIN_ADDRESS: string;
-  SECOND_ADDRESS: string;
-  DETAIL_ADDRESS: string;
-}
-
 const PostDetailPage = () => {
   const { postID } = useParams();
   const [loading, setLoading] = useState<boolean>(false);

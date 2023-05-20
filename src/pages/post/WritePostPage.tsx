@@ -1,8 +1,9 @@
 import styled from '@emotion/styled';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { doc, getDoc, setDoc, where } from 'firebase/firestore/lite';
+import { doc, getDoc, setDoc } from 'firebase/firestore/lite';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
+import { useCookies } from 'react-cookie';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import TextareaAutosize from 'react-textarea-autosize';
@@ -13,10 +14,9 @@ import Loading from '../../components/Loading';
 import UploadCarousel from '../../components/carousel/UploadCarousel';
 import ErrorMessage from '../../components/errorMessage/ErrorMesage';
 import Header from '../../components/header/Header';
+import { areaArr, areaObj } from '../../store/area';
 import { uid, userInfo } from '../../store/data';
 import { getDate, getExpireTime } from '../../store/date';
-import { useCookies } from 'react-cookie';
-import { areaArr, areaObj } from '../../store/area';
 
 interface PostFormType {
   title: string;

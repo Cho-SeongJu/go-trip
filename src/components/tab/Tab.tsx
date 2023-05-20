@@ -1,10 +1,10 @@
 import styled from '@emotion/styled';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
-import { Link, useLocation, useParams } from 'react-router-dom';
-import { getExpireTime } from '../../store/date';
-import { uid } from '../../store/data';
+import { Link, useLocation } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
+import { uid } from '../../store/data';
+import { getExpireTime } from '../../store/date';
 
 interface PropsType {
   menu: string[];
