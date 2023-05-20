@@ -15,6 +15,12 @@
 
 <!-- ## 🚀 Demo -->
 
+## 배포사이트
+
+**https://go-trip.vercel.app/**
+
+- vercel을 통해 배포하였습니다.
+
 ## ⚡️ Skills
 
 | <img src="https://pbs.twimg.com/profile_images/446356636710363136/OYIaJ1KK_400x400.png" width="200" height="200"> | <img src="https://upload.wikimedia.org/wikipedia/commons/f/f5/Typescript.svg" width="200" height="200"> | <img src="https://networksynapse.net/wp-content/uploads/2021/12/emotion-js-react.png" width="400" height="200"> |
