@@ -1,12 +1,12 @@
 import styled from '@emotion/styled';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import { Link, useNavigate } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { uid, userInfo } from '../../store/data';
-import Logo from '../Logo';
 import { auth } from '../../../firebase';
+import { uid, userInfo } from '../../store/data';
 import { getExpireTime } from '../../store/date';
+import Logo from '../Logo';
 
 const Header = () => {
   const [loginState, setLoginState] = useState<boolean>();
