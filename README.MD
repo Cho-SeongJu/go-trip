@@ -17,7 +17,7 @@
 
 ## ⚡️ Skills
 
-| <img src="https://pbs.twimg.com/profile_images/446356636710363136/OYIaJ1KK_400x400.png" width="200" height="200"> | <img src="https://upload.wikimedia.org/wikipedia/commons/f/f5/Typescript.svg" width="200" height="200"> | <img src="https://networksynapse.net/wp-content/uploads/2021/12/emotion-js-react.png" width="200" height="200"> |
+| <img src="https://pbs.twimg.com/profile_images/446356636710363136/OYIaJ1KK_400x400.png" width="300" height="300"> | <img src="https://upload.wikimedia.org/wikipedia/commons/f/f5/Typescript.svg" width="300" height="300"> | <img src="https://networksynapse.net/wp-content/uploads/2021/12/emotion-js-react.png" width="400" height="300"> |
 | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 
 - **React**로 많은 웹 페이지를 효율적으로 구현하고 관리했어요.
