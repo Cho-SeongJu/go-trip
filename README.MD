@@ -3,7 +3,7 @@
 ## 🛫 Intro
 
 <p align="center">
-  <img width="400" height="300" alt="로고"  src="https://github.com/Cho-SeongJu/go-trip/assets/122018331/1fb7e918-5473-47a0-97e1-389846fa6b16">
+  <img width="500" height="300" alt="로고"  src="https://github.com/Cho-SeongJu/go-trip/assets/122018331/375430a9-b28b-4a54-bc36-443b7cf4f406">
 </p>
 
 여행을 가고 싶을 때 어떤 여행지로 가야 할 지 고민하고 계신가요?
