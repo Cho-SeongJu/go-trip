@@ -12,6 +12,8 @@ import { uid } from '../../../store/data';
 import { getExpireTime } from '../../../store/date';
 import Area from '../../Area';
 import Loading from '../../Loading';
+import searchIcon from '../../../../public/search.svg';
+import noProfileIcon from '../../../../public/smile.svg';
 
 interface DataType {
   [key: string]: string;
@@ -213,35 +215,12 @@ const TripContent = () => {
                   onChange={changeKeywordHandle}
                 />
                 <BtnSearch>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    xmlnsXlink="http://www.w3.org/1999/xlink"
-                    viewBox="0,0,256,256"
-                    width="20px"
-                    height="20px"
-                    fillRule="nonzero"
-                  >
-                    <g
-                      fillOpacity="0.4"
-                      fill="#000000"
-                      fillRule="nonzero"
-                      stroke="none"
-                      strokeWidth="1"
-                      strokeLinecap="butt"
-                      strokeLinejoin="miter"
-                      strokeMiterlimit="10"
-                      strokeDasharray=""
-                      strokeDashoffset="0"
-                      fontFamily="none"
-                      fontWeight="none"
-                      fontSize="none"
-                      textAnchor="none"
-                    >
-                      <g transform="scale(5.12,5.12)">
-                        <path d="M21,3c-9.39844,0 -17,7.60156 -17,17c0,9.39844 7.60156,17 17,17c3.35547,0 6.46094,-0.98437 9.09375,-2.65625l12.28125,12.28125l4.25,-4.25l-12.125,-12.09375c2.17969,-2.85937 3.5,-6.40234 3.5,-10.28125c0,-9.39844 -7.60156,-17 -17,-17zM21,7c7.19922,0 13,5.80078 13,13c0,7.19922 -5.80078,13 -13,13c-7.19922,0 -13,-5.80078 -13,-13c0,-7.19922 5.80078,-13 13,-13z"></path>
-                      </g>
-                    </g>
-                  </svg>
+                  <img
+                    src={searchIcon}
+                    alt="검색아이콘"
+                    width={20}
+                    height={20}
+                  />
                 </BtnSearch>
               </SearchKeywordSection>
             </Form>
@@ -293,23 +272,12 @@ const TripContent = () => {
                     </CountSection>
                     <WriterSection>
                       {post.PROFILE_IMAGE === '' ? (
-                        <svg
-                          width="1.7rem"
-                          height="1.7rem"
-                          viewBox="0 0 16 16"
-                          fill="var(--blue-sky-color-1)"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
-                          />
-                          <path
-                            fillRule="evenodd"
-                            d="M4.285 9.567a.5.5 0 0 1 .683.183A3.498 3.498 0 0 0 8 11.5a3.498 3.498 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.498 4.498 0 0 1 8 12.5a4.498 4.498 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683z"
-                          />
-                          <path d="M7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5zm4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5z" />
-                        </svg>
+                        <img
+                          src={noProfileIcon}
+                          alt="프로필없음"
+                          width={27}
+                          height={27}
+                        />
                       ) : (
                         <ProfileImage
                           src={post.PROFILE_IMAGE}
@@ -550,6 +518,10 @@ const PostSection = styled.div`
   @media screen and (max-width: 767px) {
     grid-template-columns: 1fr;
     width: 450px;
+  }
+
+  @media screen and (max-width: 479px) {
+    width: 300px;
   }
 `;
 
