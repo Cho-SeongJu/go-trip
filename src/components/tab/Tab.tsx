@@ -96,7 +96,15 @@ const Nav = styled.nav`
   margin: var(--common-margin);
 
   @media screen and (max-width: 1023px) {
-    max-width: 43.75rem;
+    max-width: 40rem;
+  }
+
+  @media screen and (max-width: 767px) {
+    max-width: 30rem;
+  }
+
+  @media screen and (max-width: 480px) {
+    max-width: 20rem;
   }
 `;
 

@@ -38,6 +38,22 @@ const Section = styled.div`
   margin-right: 4rem;
   width: 20rem;
   height: 6.5rem;
+
+  @media screen and (max-width: 1023px) {
+    grid-template-columns: repeat(9, 1fr);
+    width: 30rem;
+    height: 5rem;
+    margin: 0.5rem auto;
+    margin-top: 1rem;
+  }
+
+  @media screen and (max-width: 767px) {
+    grid-template-columns: repeat(7, 1fr);
+    width: 25rem;
+    height: 7rem;
+    margin: 0.5rem auto;
+    margin-top: 1rem;
+  }
 `;
 
 const Item = styled.div`

@@ -98,7 +98,15 @@ const DetailSection = styled.div`
   padding: 1rem 0;
 
   @media screen and (max-width: 1023px) {
-    max-width: 43.75rem;
+    width: 40rem;
+  }
+
+  @media screen and (max-width: 767px) {
+    width: 30rem;
+  }
+
+  @media screen and (max-width: 479px) {
+    width: 20rem;
   }
 `;
 

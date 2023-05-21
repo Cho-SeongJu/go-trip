@@ -189,79 +189,81 @@ const TripContent = () => {
           setSelectedArea={setSelectedArea}
           selectedArea={selectedArea}
         />
-        <SearchFormSection>
-          <Form onSubmit={submitHandle}>
-            <SelectBoxSection>
-              <Selectbox
-                name="searchType"
-                onChange={selecteValueHandle}
-              >
-                {searchConditionArr.map((item, index) => (
-                  <option
-                    value={item}
-                    key={index}
-                  >
-                    {item}
-                  </option>
-                ))}
-              </Selectbox>
-            </SelectBoxSection>
-            <SearchKeywordSection>
-              <SearchKeyword
-                type="text"
-                onChange={changeKeywordHandle}
-              />
-              <BtnSearch>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  xmlnsXlink="http://www.w3.org/1999/xlink"
-                  viewBox="0,0,256,256"
-                  width="20px"
-                  height="20px"
-                  fillRule="nonzero"
+        <SearchContainer>
+          <SearchFormSection>
+            <Form onSubmit={submitHandle}>
+              <SelectBoxSection>
+                <Selectbox
+                  name="searchType"
+                  onChange={selecteValueHandle}
                 >
-                  <g
-                    fillOpacity="0.4"
-                    fill="#000000"
+                  {searchConditionArr.map((item, index) => (
+                    <option
+                      value={item}
+                      key={index}
+                    >
+                      {item}
+                    </option>
+                  ))}
+                </Selectbox>
+              </SelectBoxSection>
+              <SearchKeywordSection>
+                <SearchKeyword
+                  type="text"
+                  onChange={changeKeywordHandle}
+                />
+                <BtnSearch>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    xmlnsXlink="http://www.w3.org/1999/xlink"
+                    viewBox="0,0,256,256"
+                    width="20px"
+                    height="20px"
                     fillRule="nonzero"
-                    stroke="none"
-                    strokeWidth="1"
-                    strokeLinecap="butt"
-                    strokeLinejoin="miter"
-                    strokeMiterlimit="10"
-                    strokeDasharray=""
-                    strokeDashoffset="0"
-                    fontFamily="none"
-                    fontWeight="none"
-                    fontSize="none"
-                    textAnchor="none"
                   >
-                    <g transform="scale(5.12,5.12)">
-                      <path d="M21,3c-9.39844,0 -17,7.60156 -17,17c0,9.39844 7.60156,17 17,17c3.35547,0 6.46094,-0.98437 9.09375,-2.65625l12.28125,12.28125l4.25,-4.25l-12.125,-12.09375c2.17969,-2.85937 3.5,-6.40234 3.5,-10.28125c0,-9.39844 -7.60156,-17 -17,-17zM21,7c7.19922,0 13,5.80078 13,13c0,7.19922 -5.80078,13 -13,13c-7.19922,0 -13,-5.80078 -13,-13c0,-7.19922 5.80078,-13 13,-13z"></path>
+                    <g
+                      fillOpacity="0.4"
+                      fill="#000000"
+                      fillRule="nonzero"
+                      stroke="none"
+                      strokeWidth="1"
+                      strokeLinecap="butt"
+                      strokeLinejoin="miter"
+                      strokeMiterlimit="10"
+                      strokeDasharray=""
+                      strokeDashoffset="0"
+                      fontFamily="none"
+                      fontWeight="none"
+                      fontSize="none"
+                      textAnchor="none"
+                    >
+                      <g transform="scale(5.12,5.12)">
+                        <path d="M21,3c-9.39844,0 -17,7.60156 -17,17c0,9.39844 7.60156,17 17,17c3.35547,0 6.46094,-0.98437 9.09375,-2.65625l12.28125,12.28125l4.25,-4.25l-12.125,-12.09375c2.17969,-2.85937 3.5,-6.40234 3.5,-10.28125c0,-9.39844 -7.60156,-17 -17,-17zM21,7c7.19922,0 13,5.80078 13,13c0,7.19922 -5.80078,13 -13,13c-7.19922,0 -13,-5.80078 -13,-13c0,-7.19922 5.80078,-13 13,-13z"></path>
+                      </g>
                     </g>
-                  </g>
-                </svg>
-              </BtnSearch>
-            </SearchKeywordSection>
-          </Form>
-        </SearchFormSection>
-        <ConditionSection>
-          <SelectedConditionSection onClick={() => (openConditionList ? setOpenConditionList(false) : setOpenConditionList(true))}>
-            <SelectedCondition>{selectedCondition}</SelectedCondition>
-            {openConditionList && (
-              <ConditionList>
-                {conditionArr.map((condition) => (
-                  <Condition
-                    key={condition}
-                    onClick={() => selectConditionHandle(condition)}
-                  >
-                    {condition}
-                  </Condition>
-                ))}
-              </ConditionList>
-            )}
-          </SelectedConditionSection>
-        </ConditionSection>
+                  </svg>
+                </BtnSearch>
+              </SearchKeywordSection>
+            </Form>
+          </SearchFormSection>
+          <ConditionSection>
+            <SelectedConditionSection onClick={() => (openConditionList ? setOpenConditionList(false) : setOpenConditionList(true))}>
+              <SelectedCondition>{selectedCondition}</SelectedCondition>
+              {openConditionList && (
+                <ConditionList>
+                  {conditionArr.map((condition) => (
+                    <Condition
+                      key={condition}
+                      onClick={() => selectConditionHandle(condition)}
+                    >
+                      {condition}
+                    </Condition>
+                  ))}
+                </ConditionList>
+              )}
+            </SelectedConditionSection>
+          </ConditionSection>
+        </SearchContainer>
       </FilterSection>
       <Section>
         <WriteSection>
@@ -360,10 +362,23 @@ const FilterSection = styled.div`
   background-color: var(--white-color-1);
   box-shadow: 1px 3px 5px var(--gray-color-2);
   z-index: 9999;
+
+  @media screen and (max-width: 1023px) {
+    display: block;
+    height: 10rem;
+  }
+
+  @media screen and (max-width: 767px) {
+    height: 12rem;
+  }
 `;
 
 const SearchFormSection = styled.div`
   display: flex;
+
+  @media screen and (max-width: 1023px) {
+    justify-content: center;
+  }
 `;
 
 const SelectBoxSection = styled.div`
@@ -381,8 +396,21 @@ const WriteSection = styled.div`
   max-width: var(--common-width);
 
   @media screen and (max-width: 1023px) {
-    max-width: 43.75rem;
+    width: 35rem;
     margin: 0 auto;
+  }
+
+  @media screen and (max-width: 767px) {
+    width: 25.5rem;
+  }
+`;
+
+const SearchContainer = styled.div`
+  display: flex;
+
+  @media screen and (max-width: 1023px) {
+    justify-content: center;
+    margin-top: 1rem;
   }
 `;
 
@@ -399,6 +427,14 @@ const WritePostButton = styled.button`
   &: hover {
     opacity: 0.8;
   }
+
+  @media screen and (max-width: 1023px) {
+    margin-right: 2rem;
+  }
+
+  @media screen and (max-width: 767px) {
+    margin-right: 0.5rem;
+  }
 `;
 
 const Selectbox = styled.select`
@@ -407,6 +443,10 @@ const Selectbox = styled.select`
   border: 1px solid var(--gray-color-1);
   outline: none;
   background-color: #fff;
+
+  @media screen and (max-width: 767px) {
+    padding: 0.8rem 0.3rem;
+  }
 `;
 
 const SearchKeywordSection = styled.div`
@@ -420,6 +460,14 @@ const SearchKeyword = styled.input`
   outline: none;
   border: none;
   width: 13rem;
+
+  @media screen and (max-width: 1023px) {
+    width: 10rem;
+  }
+
+  @media screen and (max-width: 767px) {
+    width: 8.5rem;
+  }
 `;
 
 const BtnSearch = styled.button`
@@ -432,9 +480,7 @@ const BtnSearch = styled.button`
 `;
 
 const ConditionSection = styled.div`
-  display: flex;
-  align-items: center;
-  width: 8rem;
+  margin: auto 0;
 `;
 
 const SelectedConditionSection = styled.div`
@@ -442,6 +488,10 @@ const SelectedConditionSection = styled.div`
   margin-left: 2rem;
   width: 5rem;
   height: 2.4rem;
+
+  @media screen and (max-width: 767px) {
+    margin-left: 1rem;
+  }
 `;
 
 const SelectedCondition = styled.p`
@@ -493,8 +543,13 @@ const PostSection = styled.div`
 
   @media screen and (max-width: 1024px) {
     grid-template-columns: 1fr 1fr;
-    width: 900px;
+    width: 600px;
     margin: 0 auto;
+  }
+
+  @media screen and (max-width: 767px) {
+    grid-template-columns: 1fr;
+    width: 450px;
   }
 `;
 
@@ -522,6 +577,14 @@ const Post = styled(Link)`
   & img {
     transition: all 0.1s linear;
   }
+
+  @media screen and (max-width: 1023px) {
+    width: 12rem;
+  }
+
+  @media screen and (max-width: 767px) {
+    width: 18rem;
+  }
 `;
 
 const DescriptionSection = styled.div`
@@ -530,6 +593,14 @@ const DescriptionSection = styled.div`
   justify-content: center;
   align-items: center;
   width: 15rem;
+
+  @media screen and (max-width: 1023px) {
+    width: 12rem;
+  }
+
+  @media screen and (max-width: 767px) {
+    width: 18rem;
+  }
 `;
 
 const Img = styled.img`
@@ -537,6 +608,16 @@ const Img = styled.img`
   height: 15rem;
   border-radius: 0.5rem;
   object-fit: contain;
+
+  @media screen and (max-width: 1023px) {
+    width: 12rem;
+    height: 12rem;
+  }
+
+  @media screen and (max-width: 767px) {
+    width: 18rem;
+    height: 18rem;
+  }
 `;
 
 const Title = styled.div`
