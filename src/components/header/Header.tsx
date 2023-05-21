@@ -84,6 +84,7 @@ const Header = () => {
 const HeaderSection = styled.header`
   position: sticky;
   top: 0;
+  max-width: 100vw;
   background-color: var(--white-color-1);
   border-bottom: 1px solid var(--gray-color-2);
   z-index: 9999;
@@ -95,6 +96,10 @@ const DetailSection = styled.div`
   margin: var(--common-margin);
   max-width: var(--common-width);
   padding: 1rem 0;
+
+  @media screen and (max-width: 1023px) {
+    max-width: 43.75rem;
+  }
 `;
 
 const Heading = styled.h1`

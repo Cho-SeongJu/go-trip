@@ -84,7 +84,7 @@ const NavSection = styled.div`
   position: sticky;
   top: 5.05rem;
   z-index: 9999;
-  width: 100%;
+  width: 100vw;
   border-bottom: 1px solid var(--gray-color-2);
   background-color: var(--white-color-1);
 `;
@@ -94,6 +94,10 @@ const Nav = styled.nav`
   justify-content: center;
   max-width: var(--common-width);
   margin: var(--common-margin);
+
+  @media screen and (max-width: 1023px) {
+    max-width: 43.75rem;
+  }
 `;
 
 const NavLinkDiv = styled.div``;

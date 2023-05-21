@@ -346,7 +346,7 @@ const TripContent = () => {
 
 const Section = styled.div`
   margin: var(--common-margin);
-  width: var(--common-width);
+  max-width: var(--common-width);
   min-height: calc(100vh - 10rem - 3.2rem - 216.981px);
 `;
 
@@ -355,6 +355,7 @@ const FilterSection = styled.div`
   justify-content: center;
   position: sticky;
   top: 8.22rem;
+  width: 100vw;
   height: 8.5rem;
   background-color: var(--white-color-1);
   box-shadow: 1px 3px 5px var(--gray-color-2);
@@ -377,12 +378,17 @@ const Form = styled.form`
 const WriteSection = styled.div`
   display: flex;
   flex-direction: row-reverse;
-  min-width: var(--common-post-width);
+  max-width: var(--common-width);
+
+  @media screen and (max-width: 1023px) {
+    max-width: 43.75rem;
+    margin: 0 auto;
+  }
 `;
 
 const WritePostButton = styled.button`
   margin-top: 1.5rem;
-  margin-right: 2rem;
+  margin-right: 3rem;
   padding: 0.7rem 1rem;
   background-color: var(--blue-sky-color-1);
   color: var(--white-color-1);
@@ -484,6 +490,12 @@ const PostSection = styled.div`
   flex-wrap: wrap;
   width: var(--common-width);
   margin-top: 3rem;
+
+  @media screen and (max-width: 1024px) {
+    grid-template-columns: 1fr 1fr;
+    width: 900px;
+    margin: 0 auto;
+  }
 `;
 
 const NonePostsSection = styled.div`
@@ -497,9 +509,9 @@ const NonePostsSection = styled.div`
 const NonePostsPharse = styled.p``;
 
 const Post = styled(Link)`
-  margin: 1rem;
+  margin: auto;
   margin-top: 2rem;
-  width: 20rem;
+  width: 15rem;
   height: 25rem;
   color: var(--black-color-1);
 
@@ -517,11 +529,11 @@ const DescriptionSection = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 20rem;
+  width: 15rem;
 `;
 
 const Img = styled.img`
-  width: 20rem;
+  width: 15rem;
   height: 15rem;
   border-radius: 0.5rem;
   object-fit: contain;
